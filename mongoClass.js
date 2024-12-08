@@ -3,7 +3,7 @@ import { ForeignKeyProcessor } from "./generateModel.js";
 import { _FKS_MODEL_ } from "./models.js";
 import { getFuncs, changeCreation, changeDeletion } from "./changeFuncs.js";
 
-export class SyncedModel {
+export class SyncedModels {
     constructor() {
         this.syncModels = {};
     }
@@ -44,6 +44,11 @@ export class SyncedModel {
         }
     }
 }
+
+export const InitMongoModels = async() => {
+    const syncModels = new SyncedModels();
+    return syncModels;
+};
 
 export const MongoModel = async(
     name,
