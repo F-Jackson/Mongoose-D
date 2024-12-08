@@ -160,6 +160,13 @@ describe("Mongo model creation", () => {
                     h: String
                 }
             },
+            nestedField2: {
+                subField: {
+                    type: mongoose.Schema.Types.ObjectId,
+                    ref: "RelatedModel",
+                    __linked: true,
+                }
+            },
             lo: [String]
         });
 

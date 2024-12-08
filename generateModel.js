@@ -38,6 +38,7 @@ export class ForeignKeyProcessor {
             await this._processEntry(slicedKey, schemaEntries, entries)
         }
 
+        console.log(entries);
         return entries;
     }
 
