@@ -261,7 +261,7 @@ describe("Mongo model creation", () => {
 
         await RelatedModel.findByIdAndDelete(relatedDoc._id);
         await RelatedModel.collection.drop();
-        
+
         expect(await _FKS_MODEL_.countDocuments()).toBe(0);
     });
 
