@@ -25,6 +25,11 @@ const __FKS__ = new Schema({
         immutable: true,
         minLength: 0
     },
+    relation_id: {
+        type: String,
+        immutable: true,
+        minLength: 0
+    }
 });
 
 const __FKS__MODEL__ = new Schema({

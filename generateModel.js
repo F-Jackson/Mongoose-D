@@ -100,22 +100,23 @@ export class ForeignKeyProcessor {
     };
 
     _populateForeignKeyMetadata = (activeFks, fksModels) => {
-        const activeFksMap = new Map(activeFks.map(fk => [`${fk.fk}:${fk.ref}`, true]));
+        const activeFksMap = new Map(activeFks.map(model => [`${model.fk}:${model.ref}`, true]));
 
-        for (const fk of fksModels) {
-            const isActive = activeFksMap.has(`${fk.fk}:${fk.fk_ref}`);
-            const slicedKey = fk.fk.split(".");
+        for (const model of fksModels) {
+            const isActive = activeFksMap.has(`${model.fk}:${model.fk_ref}`);
+            const slicedKey = model.fk.split(".");
             const key = slicedKey[slicedKey.length - 1];
             const nested = slicedKey.slice(0, -1);
 
             this.mongoModel.__FKS__[key] = {
-                _fk_ref: fk.fk_ref,
-                _activated: isActive,
-                _isArray: fk.fk_isArray,
-                _isImmutable: fk.fk_isImmutable,
-                _isRequired: fk.fk_isRequired,
-                _isUnique: fk.fk_isUnique,
-                _nested: nested
+                ref: model.fk_ref,
+                activated: isActive,
+                isArray: model.fk_isArray,
+                isImmutable: model.fk_isImmutable,
+                isRequired: model.fk_isRequired,
+                isUnique: model.fk_isUnique,
+                nested: nested,
+                fullName: model.fk
             };
         }
     };

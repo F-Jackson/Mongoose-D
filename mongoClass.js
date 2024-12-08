@@ -65,8 +65,9 @@ export const MongoModel = async(
     await foreignKeyProcessor.processForeignKeys();
 
     const oldFuncs = await getFuncs(mongoModel);
+    
     await changeDrop(mongoModel, oldFuncs);
-    //await changeCreation(mongoModel, oldFuncs);
+    await changeCreation(mongoModel, oldFuncs);
     //await changeDeletion(mongoModel, oldFuncs);
 
     syncedModelsInstance.add([[mongoModel.modelName, mongoModel]]);
