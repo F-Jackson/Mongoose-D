@@ -15,7 +15,14 @@ export class ForeignKeyProcessor {
 
     _getActiveForeignKeys = async() => {
         const activeFks = [];
-        const schemaEntries = Object.entries(this.mongoModel.schema.obj);
+        const schemaEntries = Object.entries(this.mongoModel.schema.obj).map(
+            entrie => {
+                if (!Array.isArray(entrie)) return entrie;
+
+                const entries = entrie[0].map(en => en);
+                return entries;
+            }
+        );
 
         const foreignKeys = schemaEntries.filter(([_, value]) => this._isForeignKey(value));
 

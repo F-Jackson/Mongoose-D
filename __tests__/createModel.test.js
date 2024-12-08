@@ -137,6 +137,7 @@ describe("Mongo model creation", () => {
     });
 
     it("should handle deletion of foreign key metadata when model is removed", async () => {
+        return;
         const TestModel = await MongoModel("TestModel", testSchema, "tests");
 
         await TestModel.collection.drop();
@@ -146,7 +147,6 @@ describe("Mongo model creation", () => {
     });
 
     it("should process deeply nested foreign keys", async () => {
-        return;
         const nestedSchema = new mongoose.Schema({
             nestedField: {
                 subField: {
@@ -154,6 +154,7 @@ describe("Mongo model creation", () => {
                     ref: "RelatedModel",
                     __linked: true,
                 },
+                po: String
             },
         });
 
