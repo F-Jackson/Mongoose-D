@@ -34,14 +34,15 @@ describe("Mongo model creation", () => {
         db = await connectMongoDb("mongodb+srv://jacksonjfs18:eUAqgrGoVxd5vboT@cluster0.o5i8utp.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0");
     });
 
-    beforeEach(async () => {
+    const resetDbs = async () => {
         await _FKS_.deleteMany({});
         await _FKS_MODEL_.deleteMany({});
-        await syncedModels.set([]);
-    });
+    };
 
     it("should create a model and process foreign keys", async () => {
-        return;
+        await resetDbs();
+        await syncedModels.set([]);
+
         const RelatedModel = await MongoModel("RelatedModel", relatedSchema, "relateds");
         const TestModel = await MongoModel("TestModel", testSchema, "tests");
 
@@ -59,7 +60,9 @@ describe("Mongo model creation", () => {
     });
 
     it("should throw error if model with same name exists", async () => {
-        return;
+        await resetDbs();
+        await syncedModels.set([]);
+
         await MongoModel("TestModel", testSchema, "tests");
 
         await expect(() => MongoModel("TestModel", testSchema, "tests")).rejects.toThrow(
@@ -68,14 +71,18 @@ describe("Mongo model creation", () => {
     });
 
     it("should activate and deactivate foreign keys", async () => {
-        return;
+        await resetDbs();
+        await syncedModels.set([]);
+
         const TestModel = await MongoModel("TestModel", testSchema, "tests");
         const foreignKey = TestModel.__FKS__;
         expect(foreignKey.related).toHaveProperty("_activated", true);
     });
 
     it("should not create duplicate foreign key models", async () => {
-        return;
+        await resetDbs();
+        await syncedModels.set([]);
+
         await MongoModel("TestModel", testSchema, "tests");
 
         const initialCount = await _FKS_MODEL_.countDocuments();
@@ -86,7 +93,9 @@ describe("Mongo model creation", () => {
     });
 
     it("should populate metadata for foreign keys", async () => {
-        return;
+        await resetDbs();
+        await syncedModels.set([]);
+
         await MongoModel("TestModel", testSchema, "tests");
 
         const fksModels = await _FKS_MODEL_.find({ model: "TestModel" });
@@ -94,7 +103,9 @@ describe("Mongo model creation", () => {
     });
 
     it("should handle models with no foreign keys", async () => {
-        return;
+        await resetDbs();
+        await syncedModels.set([]);
+
         const simpleSchema = new mongoose.Schema({
             simpleField: { type: String, required: true },
         });
@@ -107,7 +118,9 @@ describe("Mongo model creation", () => {
     });
 
     it("should support multiple foreign keys in a single model", async () => {
-        return;
+        await resetDbs();
+        await syncedModels.set([]);
+
         const multiFKSchema = new mongoose.Schema({
             name: { type: String, required: true },
             related1: {
@@ -137,7 +150,9 @@ describe("Mongo model creation", () => {
     });
 
     it("should handle deletion of foreign key metadata when model is removed", async () => {
-        return;
+        await resetDbs();
+        await syncedModels.set([]);
+
         const TestModel = await MongoModel("TestModel", testSchema, "tests");
 
         await TestModel.collection.drop();
@@ -147,6 +162,9 @@ describe("Mongo model creation", () => {
     });
 
     it("should process deeply nested foreign keys", async () => {
+        await resetDbs();
+        await syncedModels.set([]);
+
         const nestedSchema = new mongoose.Schema({
             nestedField: {
                 subField: {
@@ -178,13 +196,15 @@ describe("Mongo model creation", () => {
         expect(fksModels).toHaveLength(2);
         expect(fksModels[0]).toMatchObject({
             model: "NestedModel",
-            fk: "subField",
+            fk: "nestedField.subField",
             fk_ref: "RelatedModel",
         });
     });
 
     it("should handle optional foreign keys", async () => {
-        return;
+        await resetDbs();
+        await syncedModels.set([]);
+
         const optionalSchema = new mongoose.Schema({
             optionalField: {
                 type: mongoose.Schema.Types.ObjectId,

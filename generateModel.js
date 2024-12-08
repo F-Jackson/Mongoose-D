@@ -14,12 +14,16 @@ export class ForeignKeyProcessor {
     };
 
     _processEntry = async(slicedKey, schemaEntries, entries, nested) => {
-        const key = slicedKey[0];
+        let key = slicedKey[0];
         const schemaEntry = schemaEntries[key];
 
         if (slicedKey.length === 1) {
             if (key in schemaEntries) {
-                entries.push([key, schemaEntry, nested]);
+                if (nested.length > 0) {
+                    key = `${nested.join(".")}.${key}`;
+                }
+
+                entries.push([key, schemaEntry]);
             }
         } else {
             const entryNested = [ ...nested, slicedKey[0] ];
@@ -100,13 +104,18 @@ export class ForeignKeyProcessor {
 
         for (const fk of fksModels) {
             const isActive = activeFksMap.has(`${fk.fk}:${fk.fk_ref}`);
-            this.mongoModel.__FKS__[fk.fk] = {
+            const slicedKey = fk.fk.split(".");
+            const key = slicedKey[slicedKey.length - 1];
+            const nested = slicedKey.slice(0, -1);
+
+            this.mongoModel.__FKS__[key] = {
                 _fk_ref: fk.fk_ref,
                 _activated: isActive,
                 _isArray: fk.fk_isArray,
                 _isImmutable: fk.fk_isImmutable,
                 _isRequired: fk.fk_isRequired,
                 _isUnique: fk.fk_isUnique,
+                _nested: nested
             };
         }
     };

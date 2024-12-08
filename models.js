@@ -69,7 +69,7 @@ const __FKS__MODEL__ = new Schema({
         required: true,
         immutable: true,
         default: false
-    },
+    }
 });
 
 export const _FKS_ = mongoose.model("__FKS__", __FKS__);
