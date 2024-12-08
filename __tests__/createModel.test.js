@@ -154,7 +154,11 @@ describe("Mongo model creation", () => {
                     ref: "RelatedModel",
                     __linked: true,
                 },
-                po: String
+                po: String,
+                ll: {
+                    io: String,
+                    h: String
+                }
             },
             lo: [String]
         });
@@ -165,7 +169,7 @@ describe("Mongo model creation", () => {
         expect(fksModels).toHaveLength(1);
         expect(fksModels[0]).toMatchObject({
             model: "NestedModel",
-            fk: "nestedField.subField",
+            fk: "subField",
             fk_ref: "RelatedModel",
         });
     });

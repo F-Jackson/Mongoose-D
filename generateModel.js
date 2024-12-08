@@ -13,23 +13,29 @@ export class ForeignKeyProcessor {
         this._populateForeignKeyMetadata(activeFks, fksModels);
     };
 
-    _processEntriesReturn = async(key, value, entries) => {
-        if (!value.type) {
-            for (const [keyItem, item] of value) {
-                await this._processEntriesReturn(keyItem, item, entries);
+    _processEntry = async(slicedKey, schemaEntries, entries) => {
+        const key = slicedKey[0];
+        const schemaEntry = schemaEntries[key];
+
+        if (slicedKey.length === 1) {
+            if (key in schemaEntries) {
+                entries.push([key, schemaEntry]);
             }
         } else {
-            entries.push([key, value]);
+            const newKeys = slicedKey.slice(1);
+            await this._processEntry(newKeys, schemaEntry, entries);
         }
     }
 
     _processEntries = async() => {
-        const paths
-        const schemaEntries = Object.entries(this.mongoModel.schema.obj);
+        const paths = Object.entries(this.mongoModel.schema.paths);
+        const schemaEntries = this.mongoModel.schema.obj;
         const entries = [];
 
-        for (const [key, value] of schemaEntries) {
-            await this._processEntriesReturn(key, value, entries);
+        for (const [key, _] of paths) {
+            const slicedKey = key.split(".");
+
+            await this._processEntry(slicedKey, schemaEntries, entries)
         }
 
         return entries;
@@ -38,7 +44,6 @@ export class ForeignKeyProcessor {
     _getActiveForeignKeys = async() => {
         const activeFks = [];
         const schemaEntries = await this._processEntries();
-        console.log(this.mongoModel.schema);
 
         const foreignKeys = schemaEntries.filter(([_, value]) => this._isForeignKey(value));
 
