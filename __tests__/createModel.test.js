@@ -28,8 +28,10 @@ describe("Mongo model creation", () => {
 
     const syncedModels = InitMongoModels();
 
+    let db = undefined;
+
     beforeAll(async () => {
-        await connectMongoDb("mongodb+srv://jacksonjfs18:eUAqgrGoVxd5vboT@cluster0.o5i8utp.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0");
+        db = await connectMongoDb("mongodb+srv://jacksonjfs18:eUAqgrGoVxd5vboT@cluster0.o5i8utp.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0");
     });
 
     beforeEach(async () => {
