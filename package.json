@@ -2,15 +2,12 @@
   "name": "mongoose-d",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "mongoClass.js",
   "directories": {
     "test": "tests"
   },
   "type": "module",
   "scripts": {
-    "start": "node src/index.js",
-    "dev": "nodemon src/index.js",
-    "build": "esbuild src/index.js --bundle --outfile=dist/bundle.js",
     "test": "jest"
   },
   "repository": {

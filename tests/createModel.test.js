@@ -1,6 +1,3 @@
-/* eslint-disable no-import-assign */
-/* eslint-disable no-undef */
-/* eslint-disable max-len */
 import mongoose from "mongoose";
 import { _FKS_, _FKS_MODEL_ } from "../models.js";
 import { syncModels, MongoModel } from "../mongoClass.js";
