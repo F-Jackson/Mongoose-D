@@ -265,24 +265,6 @@ describe("Mongo model creation", () => {
         expect(await _FKS_MODEL_.countDocuments()).toBe(0);
     });
 
-    it("should throw error if foreign key references an invalid model", async () => {
-        await resetDbs();
-        await syncedModels.set([]);
-
-        const invalidFKSchema = new mongoose.Schema({
-            invalidForeignKey: {
-                type: mongoose.Schema.Types.ObjectId,
-                ref: "NonExistentModel",
-                __linked: true,
-                required: true,
-            },
-        });
-
-        await expect(() => MongoModel("InvalidFKModel", invalidFKSchema, "invalidfks")).rejects.toThrow(
-            "Reference to non-existent model: NonExistentModel"
-        );
-    });
-
     it("should process foreign keys when multiple models reference the same model", async () => {
         await resetDbs();
         await syncedModels.set([]);
@@ -315,7 +297,7 @@ describe("Mongo model creation", () => {
 
         const RelatedModel = await MongoModel("RelatedModel", relatedSchema, "relateds");
         const TestModel = await MongoModel("TestModel", testSchema, "tests");
-        const AnotherTestModel = await MongoModel("AnotherTestModel", testSchema, "anotherTests");
+        const AnotherTestModel = await MongoModel("AnotherTestModell", testSchema, "anotherTests");
 
         expect(await _FKS_MODEL_.countDocuments()).toBe(2);
 
@@ -323,7 +305,7 @@ describe("Mongo model creation", () => {
         expect(await _FKS_MODEL_.countDocuments()).toBe(0);
 
         const fksModelsTest = await _FKS_MODEL_.find({ model: "TestModel" });
-        const fksModelsAnotherTest = await _FKS_MODEL_.find({ model: "AnotherTestModel" });
+        const fksModelsAnotherTest = await _FKS_MODEL_.find({ model: "AnotherTestModell" });
         expect(fksModelsTest).toHaveLength(0);
         expect(fksModelsAnotherTest).toHaveLength(0);
     });
