@@ -1,6 +1,6 @@
 import { describe, it, beforeAll, afterAll, beforeEach, expect } from "vitest";
 import mongoose from "mongoose";
-import { _FKS_, _FKS_MODEL_ } from "../models.js";
+import { _FKS_MODEL_ } from "../models.js";
 import { InitMongoModels, MongoModel } from "../mongoClass.js";
 
 const connectMongoDb = async function connect(url) {
@@ -388,6 +388,7 @@ describe("Mongo model creation", () => {
                 type: mongoose.Schema.Types.ObjectId,
                 ref: "RelatedModel",
                 required: true,
+                __linked: true
             },
         });
     
@@ -395,15 +396,20 @@ describe("Mongo model creation", () => {
             related: {
                 type: mongoose.Schema.Types.ObjectId,
                 required: true,
+                __linked: true
             },
         });
-        
+
+        const ModelWithObjectIdFK = await MongoModel("ModelWithObjectIdFK", schemaWithObjectIdFK, "modelWithObjectIdFK");
+
         try {
-            const ModelWithObjectIdFK = MongoModel("ModelWithObjectIdFK", schemaWithObjectIdFK, "modelWithObjectIdFK");
-            const ModelWithEmbeddedDocFK = MongoModel("ModelWithEmbeddedDocFK", schemaWithEmbeddedDocFK, "modelWithEmbeddedDocFK");
+            const ModelWithEmbeddedDocFK = await MongoModel("ModelWithEmbeddedDocFK", schemaWithEmbeddedDocFK, "modelWithEmbeddedDocFK");
+
+            expect(true).toBe(false);
         } catch (error) {
-            expect(await _FKS_.find({})).toHaveLength(1);
-            expect(mongoose.models).toHaveLength(2);
+            expect(Object.entries(mongoose.models)).toHaveLength(2);
+            const fks = await _FKS_MODEL_.find({});
+            expect(fks).toHaveLength(1);
         }
     });    
 });
