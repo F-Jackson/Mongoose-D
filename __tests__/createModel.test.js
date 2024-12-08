@@ -35,16 +35,17 @@ describe("Mongo model creation", () => {
     beforeEach(async () => {
         await _FKS_.deleteMany({});
         await _FKS_MODEL_.deleteMany({});
+        await syncedModels.set([]);
     });
 
     it("should create a model and process foreign keys", async () => {
         const RelatedModel = await MongoModel("RelatedModel", relatedSchema, "relateds");
         const TestModel = await MongoModel("TestModel", testSchema, "tests");
 
-        expect(syncedModels).toHaveProperty("TestModel");
-        expect(syncedModels).toHaveProperty("RelatedModel");
+        expect(syncedModels.get()).toHaveProperty("TestModel");
+        expect(syncedModels.get()).toHaveProperty("RelatedModel");
 
-        const fksModels = await _FKS_MODEL_.find({ model: "TestModel" });
+        const fksModels = await _FKS_MODEL_.find({});
         expect(fksModels).toHaveLength(1);
         expect(fksModels[0]).toMatchObject({
             model: "TestModel",
@@ -102,7 +103,7 @@ describe("Mongo model creation", () => {
 
         const SimpleModel = await MongoModel("SimpleModel", simpleSchema, "simples");
 
-        expect(syncedModels).toHaveProperty("SimpleModel");
+        expect(syncedModels.get()).toHaveProperty("SimpleModel");
         const fksModels = await _FKS_MODEL_.find({ model: "SimpleModel" });
         expect(fksModels).toHaveLength(0);
     });
