@@ -58,10 +58,10 @@ export const MongoModel = async(
 
     const mongoModel = mongoose.model(name, schema, collection, options);
 
-    const foreignKeyProcessor = new ForeignKeyProcessor({
-        mongoModel: mongoModel,
-        _FKS_MODEL_: _FKS_MODEL_
-    });
+    const foreignKeyProcessor = new ForeignKeyProcessor(
+        mongoModel,
+        _FKS_MODEL_
+    );
     await foreignKeyProcessor.processForeignKeys();
 
     //const oldFuncs = await getFuncs(mongoModel);
