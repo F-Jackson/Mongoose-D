@@ -53,7 +53,7 @@ export const MongoModel = async(
     collection,
     options
 ) => {
-    const syncModels = syncedModelsInstance.get();
+    const syncModels = await syncedModelsInstance.get();
     if (name in syncModels) throw new Error("Model name already exists");
 
     const mongoModel = mongoose.model(name, schema, collection, options);

@@ -32,7 +32,6 @@ const __FKS__MODEL__ = new Schema({
         type: String,
         required: true,
         immutable: true,
-        unique: true,
         minLength: 0,
     },
     fk: {

@@ -7,10 +7,8 @@ export class ForeignKeyProcessor {
     processForeignKeys = async() => {
         this.mongoModel.__FKS__ = {};
 
-        const [activeFks, fksModels] = await Promise.all([
-            this._getActiveForeignKeys(),
-            this._fetchForeignKeyModels(),
-        ]);
+        const activeFks = await this._getActiveForeignKeys();
+        const fksModels = await this._fetchForeignKeyModels();
 
         this._populateForeignKeyMetadata(activeFks, fksModels);
     };
@@ -65,7 +63,6 @@ export class ForeignKeyProcessor {
     };
 
     _fetchForeignKeyModels = async() => {
-        console.log("fks", await this._FKS_MODEL_.find({}));
         return await this._FKS_MODEL_.find({ model: this.mongoModel.modelName });
     };
 
