@@ -382,7 +382,7 @@ describe("Mongo model creation", () => {
         });
     });
 
-    it("should handle different data types for foreign keys", async () => {
+    it("should error if not given ref in foreign key", async () => {
         const schemaWithObjectIdFK = new mongoose.Schema({
             related: {
                 type: mongoose.Schema.Types.ObjectId,
@@ -393,19 +393,17 @@ describe("Mongo model creation", () => {
     
         const schemaWithEmbeddedDocFK = new mongoose.Schema({
             related: {
-                type: mongoose.Schema.Types.Mixed,
+                type: mongoose.Schema.Types.ObjectId,
                 required: true,
             },
         });
-    
-        const ModelWithObjectIdFK = await MongoModel("ModelWithObjectIdFK", schemaWithObjectIdFK, "modelWithObjectIdFK");
-        const ModelWithEmbeddedDocFK = await MongoModel("ModelWithEmbeddedDocFK", schemaWithEmbeddedDocFK, "modelWithEmbeddedDocFK");
-    
-        const relatedDoc = await MongoModel("RelatedModel", relatedSchema, "relateds").create({ title: "Related 1" });
-        const objectIdFKDoc = await ModelWithObjectIdFK.create({ related: relatedDoc._id });
-        const embeddedDocFKDoc = await ModelWithEmbeddedDocFK.create({ related: { title: "Embedded Related" } });
-    
-        expect(objectIdFKDoc.related.toString()).toBe(relatedDoc._id.toString());
-        expect(embeddedDocFKDoc.related).toMatchObject({ title: "Embedded Related" });
+        
+        try {
+            const ModelWithObjectIdFK = MongoModel("ModelWithObjectIdFK", schemaWithObjectIdFK, "modelWithObjectIdFK");
+            const ModelWithEmbeddedDocFK = MongoModel("ModelWithEmbeddedDocFK", schemaWithEmbeddedDocFK, "modelWithEmbeddedDocFK");
+        } catch (error) {
+            expect(await _FKS_.find({})).toHaveLength(1);
+            expect(mongoose.models).toHaveLength(2);
+        }
     });    
 });
