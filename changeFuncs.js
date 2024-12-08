@@ -25,7 +25,12 @@ export const changeDrop = async(mongoModel, oldFuncs) => {
         const result = await oldFuncs.drop.call(this, options);
 
         if (result) {
-            await _FKS_MODEL_.deleteMany({ model: mongoModel.modelName });
+            await _FKS_MODEL_.deleteMany({
+                $or: [
+                  { model: mongoModel.modelName },
+                  { fk_ref: mongoModel.modelName }
+                ]
+            });
         }
 
         return result;

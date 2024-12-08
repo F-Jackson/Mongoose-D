@@ -199,6 +199,11 @@ describe("Mongo model creation", () => {
             fk: "nestedField.subField",
             fk_ref: "RelatedModel",
         });
+        expect(fksModels[1]).toMatchObject({
+            model: "NestedModel",
+            fk: "nestedField2.po2.subField",
+            fk_ref: "RelatedModel",
+        });
     });
 
     it("should handle optional foreign keys", async () => {
@@ -219,5 +224,107 @@ describe("Mongo model creation", () => {
         const fksModels = await _FKS_MODEL_.find({ model: "OptionalModel" });
         expect(fksModels).toHaveLength(1);
         expect(fksModels[0]).toHaveProperty("fk_isRequired", false);
+    });
+
+    //
+    it("should handle foreign keys with non-required fields and validate properly", async () => {
+        await resetDbs();
+        await syncedModels.set([]);
+
+        const nonRequiredFKSchema = new mongoose.Schema({
+            nonRequiredField: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "RelatedModel",
+                __linked: true,
+                required: false,
+            },
+        });
+
+        const NonRequiredFKModel = await MongoModel("NonRequiredFKModel", nonRequiredFKSchema, "nonrequiredfks");
+
+        const fksModels = await _FKS_MODEL_.find({ model: "NonRequiredFKModel" });
+        expect(fksModels).toHaveLength(1);
+        expect(fksModels[0]).toHaveProperty("fk_isRequired", false);
+    });
+
+    it("should handle foreign key deletion correctly when reference model is deleted", async () => {
+        await resetDbs();
+        await syncedModels.set([]);
+
+        const RelatedModel = await MongoModel("RelatedModel", relatedSchema, "relateds");
+        const TestModel = await MongoModel("TestModel", testSchema, "tests");
+
+        const relatedDoc = await RelatedModel.create({ title: "Sample Related" });
+        const testDoc = await TestModel.create({ name: "Test", related: relatedDoc._id });
+
+        expect(await _FKS_MODEL_.countDocuments()).toBe(1);
+
+        await RelatedModel.findByIdAndDelete(relatedDoc._id);
+        await RelatedModel.collection.drop();
+        
+        expect(await _FKS_MODEL_.countDocuments()).toBe(0);
+    });
+
+    it("should throw error if foreign key references an invalid model", async () => {
+        await resetDbs();
+        await syncedModels.set([]);
+
+        const invalidFKSchema = new mongoose.Schema({
+            invalidForeignKey: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "NonExistentModel",
+                __linked: true,
+                required: true,
+            },
+        });
+
+        await expect(() => MongoModel("InvalidFKModel", invalidFKSchema, "invalidfks")).rejects.toThrow(
+            "Reference to non-existent model: NonExistentModel"
+        );
+    });
+
+    it("should process foreign keys when multiple models reference the same model", async () => {
+        await resetDbs();
+        await syncedModels.set([]);
+
+        const anotherTestSchema = new mongoose.Schema({
+            anotherName: { type: String, required: true },
+            related: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "RelatedModel",
+                __linked: true,
+                required: true,
+            },
+        });
+
+        const AnotherTestModel = await MongoModel("AnotherTestModel", anotherTestSchema, "anotherTests");
+
+        const fksModels = await _FKS_MODEL_.find({ model: "AnotherTestModel" });
+        expect(fksModels).toHaveLength(1);
+        expect(fksModels[0]).toMatchObject({
+            model: "AnotherTestModel",
+            fk: "related",
+            fk_ref: "RelatedModel",
+            fk_isRequired: true,
+        });
+    });
+
+    it("should correctly delete a foreign key model and not affect other models", async () => {
+        await resetDbs();
+        await syncedModels.set([]);
+
+        const RelatedModel = await MongoModel("RelatedModel", relatedSchema, "relateds");
+        const TestModel = await MongoModel("TestModel", testSchema, "tests");
+        const AnotherTestModel = await MongoModel("AnotherTestModel", testSchema, "anotherTests");
+
+        expect(await _FKS_MODEL_.countDocuments()).toBe(2);
+
+        await RelatedModel.collection.drop();
+        expect(await _FKS_MODEL_.countDocuments()).toBe(0);
+
+        const fksModelsTest = await _FKS_MODEL_.find({ model: "TestModel" });
+        const fksModelsAnotherTest = await _FKS_MODEL_.find({ model: "AnotherTestModel" });
+        expect(fksModelsTest).toHaveLength(0);
+        expect(fksModelsAnotherTest).toHaveLength(0);
     });
 });
