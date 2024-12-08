@@ -161,10 +161,12 @@ describe("Mongo model creation", () => {
                 }
             },
             nestedField2: {
-                subField: {
-                    type: mongoose.Schema.Types.ObjectId,
-                    ref: "RelatedModel",
-                    __linked: true,
+                po2: {
+                    subField: {
+                        type: mongoose.Schema.Types.ObjectId,
+                        ref: "RelatedModel",
+                        __linked: true,
+                    }
                 }
             },
             lo: [String]
@@ -173,7 +175,7 @@ describe("Mongo model creation", () => {
         const NestedModel = await MongoModel("NestedModel", nestedSchema, "nesteds");
 
         const fksModels = await _FKS_MODEL_.find({ model: "NestedModel" });
-        expect(fksModels).toHaveLength(1);
+        expect(fksModels).toHaveLength(2);
         expect(fksModels[0]).toMatchObject({
             model: "NestedModel",
             fk: "subField",

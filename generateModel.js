@@ -13,17 +13,18 @@ export class ForeignKeyProcessor {
         this._populateForeignKeyMetadata(activeFks, fksModels);
     };
 
-    _processEntry = async(slicedKey, schemaEntries, entries) => {
+    _processEntry = async(slicedKey, schemaEntries, entries, nested) => {
         const key = slicedKey[0];
         const schemaEntry = schemaEntries[key];
 
         if (slicedKey.length === 1) {
             if (key in schemaEntries) {
-                entries.push([key, schemaEntry]);
+                entries.push([key, schemaEntry, nested]);
             }
         } else {
+            const entryNested = [ ...nested, slicedKey[0] ];
             const newKeys = slicedKey.slice(1);
-            await this._processEntry(newKeys, schemaEntry, entries);
+            await this._processEntry(newKeys, schemaEntry, entries, entryNested);
         }
     }
 
@@ -35,10 +36,9 @@ export class ForeignKeyProcessor {
         for (const [key, _] of paths) {
             const slicedKey = key.split(".");
 
-            await this._processEntry(slicedKey, schemaEntries, entries)
+            await this._processEntry(slicedKey, schemaEntries, entries, []);
         }
 
-        console.log(entries);
         return entries;
     }
 
