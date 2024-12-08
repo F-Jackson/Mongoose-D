@@ -9,12 +9,10 @@ export class SyncedModels {
     }
 
     get() {
-        // Retorna uma cópia do estado sincronizado
         return { ...this.syncModels };
     }
 
     _addVerifyError(key, oldModels) {
-        // Verifica se a chave já existe no modelo sincronizado e lança erro se necessário
         if (key in this.syncModels) {
             this.syncModels = oldModels;
             throw new Error("Synced model already exists for key: " + key);
@@ -22,7 +20,6 @@ export class SyncedModels {
     }
 
     set(models) {
-        // Define o estado sincronizado com novos modelos, sobrescrevendo qualquer existente
         const oldModels = this.get();
         const newModels = {};
 
@@ -35,7 +32,6 @@ export class SyncedModels {
     }
 
     add(models) {
-        // Adiciona novos modelos ao estado sincronizado
         const oldModels = this.get();
 
         for (const [key, value] of models) {
@@ -45,9 +41,10 @@ export class SyncedModels {
     }
 }
 
-export const InitMongoModels = async() => {
-    const syncModels = new SyncedModels();
-    return syncModels;
+const syncedModelsInstance = new SyncedModels();
+
+export const InitMongoModels = () => {
+    return syncedModelsInstance;
 };
 
 export const MongoModel = async(
@@ -56,6 +53,7 @@ export const MongoModel = async(
     collection,
     options
 ) => {
+    const syncModels = syncedModelsInstance.get();
     if (name in syncModels) throw new Error("Model name already exists");
 
     const mongoModel = mongoose.model(name, schema, collection, options);
@@ -70,6 +68,6 @@ export const MongoModel = async(
     //await changeCreation(mongoModel, oldFuncs);
     //await changeDeletion(mongoModel, oldFuncs);
 
-    syncModels[mongoModel.modelName] = mongoModel;
+    syncedModelsInstance.add([[mongoModel.modelName, mongoModel]]);
     return mongoModel;
 };

@@ -1,7 +1,7 @@
 import { describe, it, beforeAll, afterAll, beforeEach, expect } from "vitest";
 import mongoose from "mongoose";
 import { _FKS_, _FKS_MODEL_ } from "../models.js";
-import { syncModels, MongoModel } from "../mongoClass.js";
+import { InitMongoModels, MongoModel } from "../mongoClass.js";
 
 const connectMongoDb = async function connect(url) {
     const mongoOptions = {
@@ -26,6 +26,8 @@ describe("Mongo model creation", () => {
         title: { type: String, required: true },
     });
 
+    const syncedModels = InitMongoModels();
+
     beforeAll(async () => {
         await connectMongoDb("mongodb+srv://jacksonjfs18:eUAqgrGoVxd5vboT@cluster0.o5i8utp.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0");
     });
@@ -33,15 +35,14 @@ describe("Mongo model creation", () => {
     beforeEach(async () => {
         await _FKS_.deleteMany({});
         await _FKS_MODEL_.deleteMany({});
-        syncModels = {};
     });
 
     it("should create a model and process foreign keys", async () => {
         const RelatedModel = await MongoModel("RelatedModel", relatedSchema, "relateds");
         const TestModel = await MongoModel("TestModel", testSchema, "tests");
 
-        expect(syncModels).toHaveProperty("TestModel");
-        expect(syncModels).toHaveProperty("RelatedModel");
+        expect(syncedModels).toHaveProperty("TestModel");
+        expect(syncedModels).toHaveProperty("RelatedModel");
 
         const fksModels = await _FKS_MODEL_.find({ model: "TestModel" });
         expect(fksModels).toHaveLength(1);
@@ -101,7 +102,7 @@ describe("Mongo model creation", () => {
 
         const SimpleModel = await MongoModel("SimpleModel", simpleSchema, "simples");
 
-        expect(syncModels).toHaveProperty("SimpleModel");
+        expect(syncedModels).toHaveProperty("SimpleModel");
         const fksModels = await _FKS_MODEL_.find({ model: "SimpleModel" });
         expect(fksModels).toHaveLength(0);
     });
