@@ -156,6 +156,7 @@ describe("Mongo model creation", () => {
                 },
                 po: String
             },
+            lo: [String]
         });
 
         const NestedModel = await MongoModel("NestedModel", nestedSchema, "nesteds");

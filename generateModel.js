@@ -13,16 +13,32 @@ export class ForeignKeyProcessor {
         this._populateForeignKeyMetadata(activeFks, fksModels);
     };
 
+    _processEntriesReturn = async(key, value, entries) => {
+        if (!value.type) {
+            for (const [keyItem, item] of value) {
+                await this._processEntriesReturn(keyItem, item, entries);
+            }
+        } else {
+            entries.push([key, value]);
+        }
+    }
+
+    _processEntries = async() => {
+        const paths
+        const schemaEntries = Object.entries(this.mongoModel.schema.obj);
+        const entries = [];
+
+        for (const [key, value] of schemaEntries) {
+            await this._processEntriesReturn(key, value, entries);
+        }
+
+        return entries;
+    }
+
     _getActiveForeignKeys = async() => {
         const activeFks = [];
-        const schemaEntries = Object.entries(this.mongoModel.schema.obj).map(
-            entrie => {
-                if (!Array.isArray(entrie)) return entrie;
-
-                const entries = entrie[0].map(en => en);
-                return entries;
-            }
-        );
+        const schemaEntries = await this._processEntries();
+        console.log(this.mongoModel.schema);
 
         const foreignKeys = schemaEntries.filter(([_, value]) => this._isForeignKey(value));
 
