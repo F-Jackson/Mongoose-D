@@ -412,4 +412,32 @@ describe("Mongo model creation", () => {
             expect(fks).toHaveLength(1);
         }
     });    
+
+    it("should create a model and process foreign indexed keys", async () => {
+        const testSchema2 = new mongoose.Schema({
+            name: { type: String, required: true },
+            related: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "RelatedModel",
+                __linked: true,
+                required: true,
+                index: true
+            },
+        });
+
+        const RelatedModel = await MongoModel("RelatedModel", relatedSchema, "relateds");
+        const TestModel = await MongoModel("TestModel", testSchema2, "tests");
+
+        expect(syncedModels.get()).toHaveProperty("TestModel");
+        expect(syncedModels.get()).toHaveProperty("RelatedModel");
+
+        const fksModels = await _FKS_MODEL_.find({});
+        expect(fksModels).toHaveLength(1);
+        expect(fksModels[0]).toMatchObject({
+            model: "TestModel",
+            fk: "related",
+            fk_ref: "RelatedModel",
+            fk_isRequired: true,
+        });
+    });
 });
