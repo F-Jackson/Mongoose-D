@@ -65,6 +65,7 @@ export class ForeignKeyProcessor {
     };
 
     _fetchForeignKeyModels = async() => {
+        console.log("fks", await this._FKS_MODEL_.find({}));
         return await this._FKS_MODEL_.find({ model: this.mongoModel.modelName });
     };
 

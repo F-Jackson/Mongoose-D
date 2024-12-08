@@ -65,8 +65,8 @@ describe("Mongo model creation", () => {
 
     it("should activate and deactivate foreign keys", async () => {
         const TestModel = await MongoModel("TestModel", testSchema, "tests");
-
-        const foreignKey = TestModel.__FKS__.related;
+        console.log(TestModel.__FKS__, "***********************");
+        const foreignKey = TestModel.__FKS__;
         expect(foreignKey).toHaveProperty("_activated", true);
     });
 
