@@ -1,9 +1,11 @@
 import { ForeignKeyCreator } from "./creation.js";
 import { ForeignKeyDeleter } from "./deletion.js";
+import { _FKS_MODEL_ } from "./models.js";
 
 
 export const getFuncs = async(mongoModel) => {
     return {
+        drop: mongoModel.collection.drop,
         create: mongoModel.create,
         save: mongoModel.prototype.save,
         insertMany: mongoModel.insertMany,
@@ -18,6 +20,17 @@ export const getFuncs = async(mongoModel) => {
     };
 };
 
+export const changeDrop = async(mongoModel, oldFuncs) => {
+    mongoModel.collection.drop = async function(options) {
+        const result = await oldFuncs.drop.call(this, options);
+
+        if (result) {
+            await _FKS_MODEL_.deleteMany({ model: mongoModel.modelName });
+        }
+
+        return result;
+    };
+};
 
 export const changeCreation = async(mongoModel, oldFuncs) => {
     const createFunc = async(models) => {

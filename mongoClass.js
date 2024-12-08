@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import { ForeignKeyProcessor } from "./generateModel.js";
 import { _FKS_MODEL_ } from "./models.js";
-import { getFuncs, changeCreation, changeDeletion } from "./changeFuncs.js";
+import { getFuncs, changeCreation, changeDeletion, changeDrop } from "./changeFuncs.js";
 
 export class SyncedModels {
     constructor() {
@@ -64,7 +64,8 @@ export const MongoModel = async(
     );
     await foreignKeyProcessor.processForeignKeys();
 
-    //const oldFuncs = await getFuncs(mongoModel);
+    const oldFuncs = await getFuncs(mongoModel);
+    await changeDrop(mongoModel, oldFuncs);
     //await changeCreation(mongoModel, oldFuncs);
     //await changeDeletion(mongoModel, oldFuncs);
 
