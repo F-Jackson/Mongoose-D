@@ -344,4 +344,68 @@ describe("Mongo model creation", () => {
             _activated: true
         });
     });
+
+    it("should handle circular references", async () => {
+        const circularSchemaA = new mongoose.Schema({
+            name: { type: String, required: true },
+            related: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "ModelB",
+                __linked: true,
+                required: true,
+            },
+        });
+    
+        const circularSchemaB = new mongoose.Schema({
+            name: { type: String, required: true },
+            related: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "ModelA",
+                __linked: true,
+                required: true,
+            },
+        });
+    
+        const ModelA = await MongoModel("ModelA", circularSchemaA, "modelAs");
+        const ModelB = await MongoModel("ModelB", circularSchemaB, "modelBs");
+    
+        const fksModels = await _FKS_MODEL_.find({});
+        expect(fksModels).toHaveLength(2);
+
+        expect(fksModels[0]).toMatchObject({
+            model: "ModelA",
+            fk_ref: "ModelB"
+        });
+        expect(fksModels[0]).toMatchObject({
+            model: "ModelB",
+            fk_ref: "ModelA"
+        });
+    });
+
+    it("should handle different data types for foreign keys", async () => {
+        const schemaWithObjectIdFK = new mongoose.Schema({
+            related: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "RelatedModel",
+                required: true,
+            },
+        });
+    
+        const schemaWithEmbeddedDocFK = new mongoose.Schema({
+            related: {
+                type: mongoose.Schema.Types.Mixed,
+                required: true,
+            },
+        });
+    
+        const ModelWithObjectIdFK = await MongoModel("ModelWithObjectIdFK", schemaWithObjectIdFK, "modelWithObjectIdFK");
+        const ModelWithEmbeddedDocFK = await MongoModel("ModelWithEmbeddedDocFK", schemaWithEmbeddedDocFK, "modelWithEmbeddedDocFK");
+    
+        const relatedDoc = await MongoModel("RelatedModel", relatedSchema, "relateds").create({ title: "Related 1" });
+        const objectIdFKDoc = await ModelWithObjectIdFK.create({ related: relatedDoc._id });
+        const embeddedDocFKDoc = await ModelWithEmbeddedDocFK.create({ related: { title: "Embedded Related" } });
+    
+        expect(objectIdFKDoc.related.toString()).toBe(relatedDoc._id.toString());
+        expect(embeddedDocFKDoc.related).toMatchObject({ title: "Embedded Related" });
+    });    
 });
