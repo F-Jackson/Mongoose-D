@@ -45,7 +45,7 @@ describe("Mongo model creation", () => {
         }
     });
 
-    afterAll(async () => {
+    afterEach(async () => {
         await mongoose.connection.close();
     });
 
@@ -376,7 +376,7 @@ describe("Mongo model creation", () => {
             model: "ModelA",
             fk_ref: "ModelB"
         });
-        expect(fksModels[0]).toMatchObject({
+        expect(fksModels[1]).toMatchObject({
             model: "ModelB",
             fk_ref: "ModelA"
         });
