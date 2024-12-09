@@ -3,8 +3,9 @@ import { _FKS_ } from "./models.js";
 export class ForeignKeyCreator {
     constructor(mongoModel) {
         this.mongoModel = mongoModel;
-        this.modelName = this.mongoModel.modelName;
-        this.fksModels = Object.entries(this.mongoModel.__FKS__);
+        this.modelName = mongoModel.modelName;
+        console.log(mongoModel);
+        this.fksModels = Object.entries(mongoModel.__FKS__);
     }
 
     async _creationFks(instance) {
