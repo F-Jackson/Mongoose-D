@@ -5,8 +5,6 @@ export class ForeignKeyProcessor {
     }
 
     processForeignKeys = async() => {
-        this.mongoModel.__FKS__ = {};
-
         const activeFks = await this._getActiveForeignKeys();
         const fksModels = await this._fetchForeignKeyModels();
 
@@ -100,6 +98,9 @@ export class ForeignKeyProcessor {
     };
 
     _populateForeignKeyMetadata = (activeFks, fksModels) => {
+        if (fksModels.length === 0) return;
+
+        this.mongoModel.__FKS__ = {};
         const activeFksMap = new Map(activeFks.map(model => [`${model.fk}:${model.ref}`, true]));
 
         for (const model of fksModels) {
