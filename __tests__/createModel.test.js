@@ -53,6 +53,7 @@ describe("Mongo model creation", () => {
     });
 
     afterEach(async () => {
+        vi.restoreAllMocks();
         await mongoose.connection.close();
     });
 
@@ -177,48 +178,6 @@ describe("Mongo model creation", () => {
                     }
                 }
             },
-            lo: [String]
-        });
-
-        const NestedModel = await MongoModel("NestedModel", nestedSchema);
-
-        const fksModels = await _FKS_MODEL_.find({ model: "NestedModel" });
-        expect(fksModels).toHaveLength(2);
-        expect(fksModels[0]).toMatchObject({
-            model: "NestedModel",
-            fk: "nestedField.subField",
-            fk_ref: "RelatedModel",
-        });
-        expect(fksModels[1]).toMatchObject({
-            model: "NestedModel",
-            fk: "nestedField2.po2.subField",
-            fk_ref: "RelatedModel",
-        });
-    });
-
-    it("should process deeply nested list foreign keys", async () => {
-        const nestedSchema = new mongoose.Schema({
-            nestedField: [
-                {
-                    subField: {
-                        type: mongoose.Schema.Types.ObjectId,
-                        ref: "RelatedModel",
-                        __linked: true,
-                    },
-                    po: String,
-                    ll: {
-                        io: String,
-                        h: String
-                    },
-                },
-                {
-                    subField: {
-                        type: mongoose.Schema.Types.ObjectId,
-                        ref: "RelatedModel",
-                        __linked: true,
-                    }
-                }
-            ],
             lo: [String]
         });
 

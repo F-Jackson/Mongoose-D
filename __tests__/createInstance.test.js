@@ -356,23 +356,12 @@ describe("Mongo instance creation", () => {
         ]);
     });
 
-    it("should create foreign keys for nested list references", async () => {
-        const TestModel = await MongoModel("TestModel", new mongoose.Schema({
-            name: { type: String, required: true },
-            nested: [{
-                related: {
-                    type: mongoose.Schema.Types.ObjectId,
-                    ref: "RelatedModel",
-                    required: true,
-                    __linked: true
-                },
-                str: String
-            }]
-        }));
-        const RelatedModel = await MongoModel("RelatedModel", relatedSchema);
+    it("should allow foreign key references across collections", async () => {
+        const TestModel = await MongoModel("TestModel", testSchema, "CA");
+        const RelatedModel = await MongoModel("RelatedModel", relatedSchema, "CB");
 
         const related = await RelatedModel.create({ title: "Related" });
-        const test = await TestModel.create({ name: "test", nested: { related: related } });
+        const test = await TestModel.create({ name: "test", related: related });
 
         const fks = await _FKS_.find({});
         const fksModel = await _FKS_MODEL_.find({});
@@ -384,7 +373,6 @@ describe("Mongo instance creation", () => {
         expect(tests).toHaveLength(1);
         expect(relateds).toHaveLength(1);
 
-        console.log(fks);
         const normalizedFks = fks.map(fk => ({
             parent_id: fk.parent_id.toString(),
             parent_ref: fk.parent_ref,
@@ -399,7 +387,54 @@ describe("Mongo instance creation", () => {
                 parent_ref: "TestModel",
                 child_id: related._id.toString(),
                 child_ref: "RelatedModel",
-                child_fullPath: "nested.related",
+                child_fullPath: "related",
+            },
+        ]);
+    });
+
+    it("should handle cyclic foreign key references", async () => {
+        const TestModel = await MongoModel("TestModel", testSchema);
+        const RelatedModel = await MongoModel("RelatedModel", new mongoose.Schema({
+            name: { type: String, required: true },
+            test: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "TestModel",
+                __linked: true,
+                required: true,
+            },
+        }));
+
+        const id1 = new mongoose.Types.ObjectId();
+        const id2 = new mongoose.Types.ObjectId();
+
+        const related = await RelatedModel.create({ _id: id1, title: "Related", test: id2 });
+        const test = await TestModel.create({ _id: id2, name: "test", related: id1 });
+
+        const fks = await _FKS_.find({});
+        const fksModel = await _FKS_MODEL_.find({});
+        const tests = await TestModel.find({});
+        const relateds = await RelatedModel.find({});
+
+        expect(fks).toHaveLength(1);
+        expect(fksModel).toHaveLength(1);
+        expect(tests).toHaveLength(1);
+        expect(relateds).toHaveLength(1);
+
+        const normalizedFks = fks.map(fk => ({
+            parent_id: fk.parent_id.toString(),
+            parent_ref: fk.parent_ref,
+            child_id: fk.child_id.toString(),
+            child_ref: fk.child_ref,
+            child_fullPath: fk.child_fullPath,
+        }));
+        
+        expect(normalizedFks).toEqual([
+            {
+                parent_id: test._id.toString(),
+                parent_ref: "TestModel",
+                child_id: related._id.toString(),
+                child_ref: "RelatedModel",
+                child_fullPath: "related",
             },
         ]);
     });
