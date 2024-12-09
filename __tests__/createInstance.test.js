@@ -2,6 +2,8 @@ import { describe, it, beforeEach, expect } from "vitest";
 import mongoose from "mongoose";
 import { _FKS_, _FKS_MODEL_ } from "../models.js";
 import { InitMongoModels, MongoModel } from "../mongoClass.js";
+import { ForeignKeyCreator } from "../creation.js";
+
 
 const connectMongoDb = async function connect(url) {
     const mongoOptions = {
@@ -139,5 +141,21 @@ describe("Mongo instance creation", () => {
                 child_fullPath: "related",
             },
         );
+    });
+
+    test("Should cleanup FKs when creation fails", async () => {
+        const TestModel = await MongoModel("TestModel", testSchema);
+        const RelatedModel = await MongoModel("RelatedModel", relatedSchema);
+
+        const related = await RelatedModel.create({ title: "Related" });
+
+        vi.spyOn(ForeignKeyCreator.prototype, "create").mockImplementation(() => {
+            throw new Error("Simulated error");
+        });        
+
+        await expect(TestModel.create({ name: "Test", related: related._id })).rejects.toThrow("Simulated error");
+
+        const fkCount = await _FKS_.countDocuments();
+        expect(fkCount).toBe(0);
     });
 });
