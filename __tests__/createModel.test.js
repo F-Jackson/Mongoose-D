@@ -38,6 +38,13 @@ describe("Mongo model creation", () => {
 
         await Promise.all(dropPromises);
 
+        const synced = await syncedModels.get();
+        
+        for (const value of Object.values(synced)) {
+            await value.deleteMany({});
+            await value.collection.drop();
+        }
+
         await syncedModels.set([]);
 
         for (let model in mongoose.models) {
