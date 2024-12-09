@@ -1,6 +1,6 @@
 import { describe, it, beforeEach, expect } from "vitest";
 import mongoose from "mongoose";
-import { _FKS_MODEL_ } from "../models.js";
+import { _FKS_, _FKS_MODEL_ } from "../models.js";
 import { InitMongoModels, MongoModel } from "../mongoClass.js";
 
 const connectMongoDb = async function connect(url) {
@@ -49,7 +49,19 @@ describe("Mongo instance creation", () => {
         await mongoose.connection.close();
     });
 
-    it("", async () => {
+    it("should create fk in database", async () => {
+        const TestModel = await MongoModel("TestModel", testSchema);
+        const RelatedModel = await MongoModel("RelatedModel", relatedSchema);
 
+        const related = await RelatedModel.create({ title: "Related" });
+        const test = await TestModel.create({ name: "test", related: related });
+
+        const fks = await _FKS_.find({});
+        const tests = await TestModel.find({});
+        const relateds = await RelatedModel.find({});
+
+        expect(fks).toHaveLength(1);
+        expect(tests).toHaveLength(1);
+        expect(relateds).toHaveLength(1);
     });
 });
