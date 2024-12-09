@@ -116,7 +116,7 @@ export class ForeignKeyProcessor {
                 isRequired: model.fk_isRequired,
                 isUnique: model.fk_isUnique,
                 nested: nested,
-                fullName: model.fk
+                fullPath: model.fk
             };
         }
     };

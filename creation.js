@@ -57,6 +57,7 @@ export class ForeignKeyCreator {
             parent_id: modelId,
             child_ref: fk.fullName,
             child_id: id,
+            child_fullPath: fk.fullPath
         });
 
         if (existingRelation) throw new Error("Relation already exists");
@@ -68,6 +69,7 @@ export class ForeignKeyCreator {
             parent_ref: this.modelName,
             child_id: childId,
             child_ref: value.fullName,
+            child_fullPath: value.fullPath
         });
 
         relations.push(fkRelation);
