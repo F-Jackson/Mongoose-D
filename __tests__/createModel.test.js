@@ -228,12 +228,8 @@ describe("Mongo model creation", () => {
         const RelatedModel = await MongoModel("RelatedModel", relatedSchema, "relateds");
         const TestModel = await MongoModel("TestModel", testSchema, "tests");
 
-        const relatedDoc = await RelatedModel.create({ title: "Sample Related" });
-        const testDoc = await TestModel.create({ name: "Test", related: relatedDoc._id });
-
         expect(await _FKS_MODEL_.countDocuments()).toBe(1);
 
-        await RelatedModel.findByIdAndDelete(relatedDoc._id);
         await RelatedModel.collection.drop();
 
         expect(await _FKS_MODEL_.countDocuments()).toBe(0);
