@@ -27,8 +27,8 @@ export const changeDrop = async(mongoModel, oldFuncs) => {
         if (result) {
             await _FKS_MODEL_.deleteMany({
                 $or: [
-                  { model: mongoModel.modelName },
-                  { fk_ref: mongoModel.modelName }
+                    { model: mongoModel.modelName },
+                    { fk_ref: mongoModel.modelName }
                 ]
             });
         }

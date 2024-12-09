@@ -24,11 +24,6 @@ const __FKS__ = new Schema({
         required: true,
         immutable: true,
         minLength: 0
-    },
-    relation_id: {
-        type: String,
-        immutable: true,
-        minLength: 0
     }
 });
 

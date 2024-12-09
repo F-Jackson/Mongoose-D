@@ -39,35 +39,35 @@ export class ForeignKeyCreator {
         const modelId = instance._id;
 
         for (const [key, value] of this.fksModels) {
-            if (!value._activated) continue;
+            if (!value.activated) continue;
 
             let ids = instance[key];
             if (!Array.isArray(ids)) ids = [ids];
 
             for (const id of ids) {
                 await this._ensureUnique(value, id, modelId);
-                await this._createRelation(modelId, id, value._fk_ref, this.modelName, relations);
+                await this._createRelation(modelId, id, value, relations);
             }
         }
     }
 
     async _ensureUnique(fk, id, modelId) {
-        if (fk._isUnique) {
-            const existingRelation = await _FKS_.findOne({
-                parent_id: modelId,
-                child_id: id,
-            });
+        const existingRelation = await _FKS_.findOne({
+            parent_ref: this.modelName,
+            parent_id: modelId,
+            child_ref: fk.fullName,
+            child_id: id,
+        });
 
-            if (existingRelation) throw new Error("Relation already exists");
-        }
+        if (existingRelation) throw new Error("Relation already exists");
     }
 
-    async _createRelation(modelId, childId, fkRef, modelName, relations) {
+    async _createRelation(modelId, childId, value, relations) {
         const fkRelation = await _FKS_.create({
             parent_id: modelId,
-            parent_ref: modelName,
+            parent_ref: this.modelName,
             child_id: childId,
-            child_ref: fkRef,
+            child_ref: value.fullName,
         });
 
         relations.push(fkRelation);
