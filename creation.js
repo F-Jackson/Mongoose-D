@@ -29,6 +29,8 @@ export class ForeignKeyCreator {
             });
             
             await Promise.all(promisesCreateFks);
+
+            await this._bulkInsertRelations();
         } catch (error) {
             await this._cleanupModels(models);
             throw error;
@@ -66,24 +68,32 @@ export class ForeignKeyCreator {
     }
 
     async _createRelation(modelId, childId, value) {
-        const fkRelation = await _FKS_.create({
+        const fkRelation = {
             parent_id: modelId,
             parent_ref: this.modelName,
             child_id: childId,
-            child_ref: value.fullName,
+            child_ref: value.ref,
             child_fullPath: value.fullPath
-        });
+        };
 
-        this.relations.push(fkRelation);
+        relations.push(fkRelation);
     }
 
     async _cleanupRelations() {
+        if (this.relations.length === 0) return;
         const relationIds = this.relations.map(relation => relation._id);
         await _FKS_.deleteMany({ _id: { $in: relationIds } });
     }
 
     async _cleanupModels(models) {
+        if (models.length === 0) return;
         const modelIds = models.map(model => model._id);
         await this.mongoModel.deleteMany({ _id: { $in: modelIds } });
+    }
+
+    async _bulkInsertRelations() {
+        if (this.relations.length > 0) {
+            await _FKS_.insertMany(this.relations);
+        }
     }
 }
