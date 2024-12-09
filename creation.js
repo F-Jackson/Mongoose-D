@@ -74,7 +74,7 @@ export class ForeignKeyCreator {
         const fkRelation = {
             parent_id: modelId,
             parent_ref: this.modelName,
-            child_id: childId,
+            child_id: childId._id,
             child_ref: value.ref,
             child_fullPath: value.fullPath,
         };
