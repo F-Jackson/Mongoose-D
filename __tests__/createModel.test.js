@@ -50,8 +50,8 @@ describe("Mongo model creation", () => {
     });
 
     it("should create a model and process foreign keys", async () => {
-        const RelatedModel = await MongoModel("RelatedModel", relatedSchema, "relateds");
-        const TestModel = await MongoModel("TestModel", testSchema, "tests");
+        const RelatedModel = await MongoModel("RelatedModel", relatedSchema);
+        const TestModel = await MongoModel("TestModel", testSchema);
 
         expect(syncedModels.get()).toHaveProperty("TestModel");
         expect(syncedModels.get()).toHaveProperty("RelatedModel");
@@ -67,31 +67,31 @@ describe("Mongo model creation", () => {
     });
 
     it("should throw error if model with same name exists", async () => {
-        await MongoModel("TestModel", testSchema, "tests");
+        await MongoModel("TestModel", testSchema);
 
-        await expect(() => MongoModel("TestModel", testSchema, "tests")).rejects.toThrow(
+        await expect(() => MongoModel("TestModel", testSchema)).rejects.toThrow(
             "Model name already exists"
         );
     });
 
     it("should activate and deactivate foreign keys", async () => {
-        const TestModel = await MongoModel("TestModel", testSchema, "tests");
+        const TestModel = await MongoModel("TestModel", testSchema);
         const foreignKey = TestModel.__FKS__;
         expect(foreignKey.related).toHaveProperty("activated", true);
     });
 
     it("should not create duplicate foreign key models", async () => {
-        await MongoModel("TestModel", testSchema, "tests");
+        await MongoModel("TestModel", testSchema);
 
         const initialCount = await _FKS_MODEL_.countDocuments();
-        await MongoModel("AnotherModel", relatedSchema, "another");
+        await MongoModel("AnotherModel", relatedSchema);
 
         const finalCount = await _FKS_MODEL_.countDocuments();
         expect(finalCount).toBe(initialCount);
     });
 
     it("should populate metadata for foreign keys", async () => {
-        await MongoModel("TestModel", testSchema, "tests");
+        await MongoModel("TestModel", testSchema);
 
         const fksModels = await _FKS_MODEL_.find({ model: "TestModel" });
         expect(fksModels[0]).toHaveProperty("fk_ref", "RelatedModel");
@@ -102,7 +102,7 @@ describe("Mongo model creation", () => {
             simpleField: { type: String, required: true },
         });
 
-        const SimpleModel = await MongoModel("SimpleModel", simpleSchema, "simples");
+        const SimpleModel = await MongoModel("SimpleModel", simpleSchema);
 
         expect(syncedModels.get()).toHaveProperty("SimpleModel");
         const fksModels = await _FKS_MODEL_.find({});
@@ -126,7 +126,7 @@ describe("Mongo model creation", () => {
             },
         });
 
-        const MultiFKModel = await MongoModel("MultiFKModel", multiFKSchema, "multifks");
+        const MultiFKModel = await MongoModel("MultiFKModel", multiFKSchema);
 
         const fksModels = await _FKS_MODEL_.find({ model: "MultiFKModel" });
         expect(fksModels).toHaveLength(2);
@@ -139,7 +139,7 @@ describe("Mongo model creation", () => {
     });
 
     it("should handle deletion of foreign key metadata when model is removed", async () => {
-        const TestModel = await MongoModel("TestModel", testSchema, "tests");
+        const TestModel = await MongoModel("TestModel", testSchema);
 
         await TestModel.collection.drop();
 
@@ -173,7 +173,7 @@ describe("Mongo model creation", () => {
             lo: [String]
         });
 
-        const NestedModel = await MongoModel("NestedModel", nestedSchema, "nesteds");
+        const NestedModel = await MongoModel("NestedModel", nestedSchema);
 
         const fksModels = await _FKS_MODEL_.find({ model: "NestedModel" });
         expect(fksModels).toHaveLength(2);
@@ -199,7 +199,7 @@ describe("Mongo model creation", () => {
             },
         });
 
-        const OptionalModel = await MongoModel("OptionalModel", optionalSchema, "optionals");
+        const OptionalModel = await MongoModel("OptionalModel", optionalSchema);
 
         const fksModels = await _FKS_MODEL_.find({ model: "OptionalModel" });
         expect(fksModels).toHaveLength(1);
@@ -217,7 +217,7 @@ describe("Mongo model creation", () => {
             },
         });
 
-        const NonRequiredFKModel = await MongoModel("NonRequiredFKModel", nonRequiredFKSchema, "nonrequiredfks");
+        const NonRequiredFKModel = await MongoModel("NonRequiredFKModel", nonRequiredFKSchema);
 
         const fksModels = await _FKS_MODEL_.find({ model: "NonRequiredFKModel" });
         expect(fksModels).toHaveLength(1);
@@ -225,8 +225,8 @@ describe("Mongo model creation", () => {
     });
 
     it("should handle foreign key deletion correctly when reference model is deleted", async () => {
-        const RelatedModel = await MongoModel("RelatedModel", relatedSchema, "relateds");
-        const TestModel = await MongoModel("TestModel", testSchema, "tests");
+        const RelatedModel = await MongoModel("RelatedModel", relatedSchema);
+        const TestModel = await MongoModel("TestModel", testSchema);
 
         expect(await _FKS_MODEL_.countDocuments()).toBe(1);
 
@@ -246,7 +246,7 @@ describe("Mongo model creation", () => {
             },
         });
 
-        const AnotherTestModel = await MongoModel("AnotherTestModel", anotherTestSchema, "anotherTests");
+        const AnotherTestModel = await MongoModel("AnotherTestModel", anotherTestSchema);
 
         const fksModels = await _FKS_MODEL_.find({ model: "AnotherTestModel" });
         expect(fksModels).toHaveLength(1);
@@ -259,9 +259,9 @@ describe("Mongo model creation", () => {
     });
 
     it("should correctly delete a foreign key model and not affect other models", async () => {
-        const RelatedModel = await MongoModel("RelatedModel", relatedSchema, "relateds");
-        const TestModel = await MongoModel("TestModel", testSchema, "tests");
-        const AnotherTestModel = await MongoModel("AnotherTestModell", testSchema, "anotherTests");
+        const RelatedModel = await MongoModel("RelatedModel", relatedSchema);
+        const TestModel = await MongoModel("TestModel", testSchema);
+        const AnotherTestModel = await MongoModel("AnotherTestModell", testSchema);
 
         expect(await _FKS_MODEL_.countDocuments()).toBe(2);
 
@@ -291,7 +291,7 @@ describe("Mongo model creation", () => {
             },
         });
     
-        const MultiRelatedModel = await MongoModel("MultiRelatedModel", multiRelatedSchema, "multiRelated");
+        const MultiRelatedModel = await MongoModel("MultiRelatedModel", multiRelatedSchema);
     
         const fksModels = await _FKS_MODEL_.find({ model: "MultiRelatedModel" });
         expect(fksModels).toHaveLength(2);
@@ -304,7 +304,7 @@ describe("Mongo model creation", () => {
     });
 
     it("should handle foreign key field name updates correctly", async () => {
-        const RelatedModel = await MongoModel("RelatedModel", relatedSchema, "relateds");
+        const RelatedModel = await MongoModel("RelatedModel", relatedSchema);
         const fks_models = await _FKS_MODEL_.create({
             model: "TestModel",
             fk: "related",
@@ -324,7 +324,7 @@ describe("Mongo model creation", () => {
                 required: true,
             },
         });
-        const TestModel = await MongoModel("TestModel", testSchema2, "tests");
+        const TestModel = await MongoModel("TestModel", testSchema2);
     
         const fksModels = await _FKS_MODEL_.find({});
         expect(fksModels).toHaveLength(2);
@@ -362,8 +362,8 @@ describe("Mongo model creation", () => {
             },
         });
     
-        const ModelA = await MongoModel("ModelA", circularSchemaA, "modelAs");
-        const ModelB = await MongoModel("ModelB", circularSchemaB, "modelBs");
+        const ModelA = await MongoModel("ModelA", circularSchemaA);
+        const ModelB = await MongoModel("ModelB", circularSchemaB);
     
         const fksModels = await _FKS_MODEL_.find({});
         expect(fksModels).toHaveLength(2);
@@ -396,10 +396,10 @@ describe("Mongo model creation", () => {
             },
         });
 
-        const ModelWithObjectIdFK = await MongoModel("ModelWithObjectIdFK", schemaWithObjectIdFK, "modelWithObjectIdFK");
+        const ModelWithObjectIdFK = await MongoModel("ModelWithObjectIdFK", schemaWithObjectIdFK);
 
         try {
-            const ModelWithEmbeddedDocFK = await MongoModel("ModelWithEmbeddedDocFK", schemaWithEmbeddedDocFK, "modelWithEmbeddedDocFK");
+            const ModelWithEmbeddedDocFK = await MongoModel("ModelWithEmbeddedDocFK", schemaWithEmbeddedDocFK);
 
             expect(true).toBe(false);
         } catch (error) {
@@ -421,8 +421,8 @@ describe("Mongo model creation", () => {
             },
         });
 
-        const RelatedModel = await MongoModel("RelatedModel", relatedSchema, "relateds");
-        const TestModel = await MongoModel("TestModel", testSchema2, "tests");
+        const RelatedModel = await MongoModel("RelatedModel", relatedSchema);
+        const TestModel = await MongoModel("TestModel", testSchema2);
 
         expect(syncedModels.get()).toHaveProperty("TestModel");
         expect(syncedModels.get()).toHaveProperty("RelatedModel");

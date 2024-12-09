@@ -39,6 +39,8 @@ export const changeDrop = async(mongoModel, oldFuncs) => {
 
 export const changeCreation = async(mongoModel, oldFuncs) => {
     const createFunc = async(models) => {
+        if (!mongoModel.__FKS__) return;
+
         const creator = new ForeignKeyCreator({
             mongoModel: mongoModel,
         });
