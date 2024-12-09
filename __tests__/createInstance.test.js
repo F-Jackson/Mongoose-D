@@ -283,4 +283,29 @@ describe("Mongo instance creation", () => {
             },
         ]);
     });
+
+    it("should not create foreign key when schema lacks __linked", async () => {
+        const TestModel = await MongoModel("TestModel", new mongoose.Schema({
+            name: { type: String, required: true },
+            related: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "RelatedModel",
+                required: true,
+            },
+        }));
+        const RelatedModel = await MongoModel("RelatedModel", relatedSchema);
+
+        const related = await RelatedModel.create({ title: "Related" });
+        const test = await TestModel.create({ name: "test", related: related });
+
+        const fks = await _FKS_.find({});
+        const fksModel = await _FKS_MODEL_.find({});
+        const tests = await TestModel.find({});
+        const relateds = await RelatedModel.find({});
+
+        expect(fks).toHaveLength(0);
+        expect(fksModel).toHaveLength(0);
+        expect(tests).toHaveLength(1);
+        expect(relateds).toHaveLength(1);
+    });
 });
