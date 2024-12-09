@@ -46,7 +46,13 @@ export class ForeignKeyCreator {
         for (const [key, value] of this.fksModels) {
             if (!value.activated) continue;
 
-            let ids = instance[key];
+            let ids = instance;
+            value.nested.forEach((nested) => {
+                ids = ids[nested];
+            });
+
+            ids = ids[key];
+
             if (!Array.isArray(ids)) ids = [ids];
 
             const uniqueCheckPromises = ids.map(id => this._ensureUnique(value, id, modelId));
