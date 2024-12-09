@@ -24,6 +24,12 @@ const __FKS__ = new Schema({
         required: true,
         immutable: true,
         minLength: 0
+    },
+    full_path: {
+        type: String,
+        required: true,
+        immutable: true,
+        minLength: 0
     }
 });
 
