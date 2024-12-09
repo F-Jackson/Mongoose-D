@@ -77,7 +77,7 @@ describe("Mongo model creation", () => {
     it("should activate and deactivate foreign keys", async () => {
         const TestModel = await MongoModel("TestModel", testSchema, "tests");
         const foreignKey = TestModel.__FKS__;
-        expect(foreignKey.related).toHaveProperty("_activated", true);
+        expect(foreignKey.related).toHaveProperty("activated", true);
     });
 
     it("should not create duplicate foreign key models", async () => {
@@ -336,12 +336,12 @@ describe("Mongo model creation", () => {
         const fks = TestModel.__FKS__;
 
         expect(fks["related"]).toMatchObject({
-            _fk_ref: "RelatedModel",
-            _activated: false
+            ref: "RelatedModel",
+            activated: false
         });
         expect(fks["related2"]).toMatchObject({
-            _fk_ref: "RelatedModel",
-            _activated: true
+            ref: "RelatedModel",
+            activated: true
         });
     });
 
