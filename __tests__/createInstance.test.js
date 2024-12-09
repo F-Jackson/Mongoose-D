@@ -89,7 +89,6 @@ describe("Mongo instance creation", () => {
                 child_ref: "RelatedModel",
                 child_fullPath: "related",
             },
-        ]);        
-
+        ]);
     });
 });
