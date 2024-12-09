@@ -55,6 +55,7 @@ describe("Mongo instance creation", () => {
     });
 
     afterEach(async () => {
+        vi.restoreAllMocks();
         await mongoose.connection.close();
     });
 
@@ -157,5 +158,92 @@ describe("Mongo instance creation", () => {
 
         const fkCount = await _FKS_.countDocuments();
         expect(fkCount).toBe(0);
+    });
+
+    it("should create various fk in database", async () => {
+        const TestModel = await MongoModel("TestModel", testSchema);
+        const RelatedModel = await MongoModel("RelatedModel", relatedSchema);
+
+        const related = await RelatedModel.create({ title: "Related" });
+        
+        const tests = [];
+        for (let i = 0; i < 10; i++) {
+            const test = await TestModel.create({ name: `test-${i}`, related: related });
+            tests.push(test);
+        }
+
+        const fks = await _FKS_.find({});
+        const fksModel = await _FKS_MODEL_.find({});
+        const testsModels = await TestModel.find({});
+        const relatedsModels = await RelatedModel.find({});
+
+        expect(fks).toHaveLength(10);
+        expect(fksModel).toHaveLength(1);
+        expect(testsModels).toHaveLength(10);
+        expect(tests).toHaveLength(10);
+        expect(relatedsModels).toHaveLength(1);
+
+        const normalizedFks = fks.map(fk => ({
+            parent_id: fk.parent_id.toString(),
+            parent_ref: fk.parent_ref,
+            child_id: fk.child_id.toString(),
+            child_ref: fk.child_ref,
+            child_fullPath: fk.child_fullPath,
+        }));
+        
+        const expectedFks = testsModels.map(test => ({
+            parent_id: test._id.toString(),
+            parent_ref: "TestModel",
+            child_id: related._id.toString(),
+            child_ref: "RelatedModel",
+            child_fullPath: "related",
+        }));
+    
+        expect(normalizedFks).toEqual(expectedFks);
+    });
+
+    it("should create insertMany fk in database", async () => {
+        const TestModel = await MongoModel("TestModel", testSchema);
+        const RelatedModel = await MongoModel("RelatedModel", relatedSchema);
+
+        const related = await RelatedModel.create({ title: "Related" });
+        
+        const tests = [];
+        for (let i = 0; i < 10; i++) {
+            const test = { name: `test-${i}`, related: related};
+            tests.push(test);
+        }
+
+        const createdTests = await TestModel.insertMany(tests);
+
+        const fks = await _FKS_.find({});
+        const fksModel = await _FKS_MODEL_.find({});
+        const testsModels = await TestModel.find({});
+        const relatedsModels = await RelatedModel.find({});
+
+        expect(fks).toHaveLength(10);
+        expect(fksModel).toHaveLength(1);
+        expect(testsModels).toHaveLength(10);
+        expect(tests).toHaveLength(10);
+        expect(createdTests).toHaveLength(10);
+        expect(relatedsModels).toHaveLength(1);
+
+        const normalizedFks = fks.map(fk => ({
+            parent_id: fk.parent_id.toString(),
+            parent_ref: fk.parent_ref,
+            child_id: fk.child_id.toString(),
+            child_ref: fk.child_ref,
+            child_fullPath: fk.child_fullPath,
+        }));
+        
+        const expectedFks = testsModels.map(test => ({
+            parent_id: test._id.toString(),
+            parent_ref: "TestModel",
+            child_id: related._id.toString(),
+            child_ref: "RelatedModel",
+            child_fullPath: "related",
+        }));
+    
+        expect(normalizedFks).toEqual(expectedFks);
     });
 });
