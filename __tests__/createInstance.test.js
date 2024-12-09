@@ -246,4 +246,41 @@ describe("Mongo instance creation", () => {
     
         expect(normalizedFks).toEqual(expectedFks);
     });
+
+    it("should handle instance save correctly", async () => {
+        const TestModel = await MongoModel("TestModel", testSchema);
+        const RelatedModel = await MongoModel("RelatedModel", relatedSchema);
+
+        const related = await RelatedModel.create({ title: "Related" });
+        const test = TestModel({ name: "test", related: related });
+        await test.save();
+
+        const fks = await _FKS_.find({});
+        const fksModel = await _FKS_MODEL_.find({});
+        const tests = await TestModel.find({});
+        const relateds = await RelatedModel.find({});
+
+        expect(fks).toHaveLength(1);
+        expect(fksModel).toHaveLength(1);
+        expect(tests).toHaveLength(1);
+        expect(relateds).toHaveLength(1);
+
+        const normalizedFks = fks.map(fk => ({
+            parent_id: fk.parent_id.toString(),
+            parent_ref: fk.parent_ref,
+            child_id: fk.child_id.toString(),
+            child_ref: fk.child_ref,
+            child_fullPath: fk.child_fullPath,
+        }));
+        
+        expect(normalizedFks).toEqual([
+            {
+                parent_id: test._id.toString(),
+                parent_ref: "TestModel",
+                child_id: related._id.toString(),
+                child_ref: "RelatedModel",
+                child_fullPath: "related",
+            },
+        ]);
+    });
 });
