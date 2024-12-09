@@ -91,4 +91,53 @@ describe("Mongo instance creation", () => {
             },
         ]);
     });
+
+    test("Should duplicate FK creation", async () => {
+        const TestModel = await MongoModel("TestModel", testSchema);
+        const RelatedModel = await MongoModel("RelatedModel", relatedSchema);
+
+        const related = await RelatedModel.create({ title: "Related" });
+
+        const t1 = await TestModel.create({ name: "Test", related: related._id });
+
+        const t2 = await TestModel.create({ name: "DUP", related: related._id });
+
+        const fks = await _FKS_.find({});
+        const fksModel = await _FKS_MODEL_.find({});
+        const tests = await TestModel.find({});
+        const relateds = await RelatedModel.find({});
+
+        expect(fks).toHaveLength(2);
+        expect(fksModel).toHaveLength(1);
+        expect(tests).toHaveLength(2);
+        expect(relateds).toHaveLength(1);
+
+        const normalizedFks = fks.map(fk => ({
+            parent_id: fk.parent_id.toString(),
+            parent_ref: fk.parent_ref,
+            child_id: fk.child_id.toString(),
+            child_ref: fk.child_ref,
+            child_fullPath: fk.child_fullPath,
+        }));
+        
+        expect(normalizedFks[0]).toEqual(
+            {
+                parent_id: t1._id.toString(),
+                parent_ref: "TestModel",
+                child_id: related._id.toString(),
+                child_ref: "RelatedModel",
+                child_fullPath: "related",
+            },
+        );
+
+        expect(normalizedFks[1]).toEqual(
+            {
+                parent_id: t2._id.toString(),
+                parent_ref: "TestModel",
+                child_id: related._id.toString(),
+                child_ref: "RelatedModel",
+                child_fullPath: "related",
+            },
+        );
+    });
 });
