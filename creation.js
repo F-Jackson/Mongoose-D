@@ -6,36 +6,36 @@ export class ForeignKeyCreator {
         this.mongoModel = mongoModel;
         this.modelName = this.mongoModel.modelName;
         this.fksModels = Object.entries(this.mongoModel.__FKS__);
+        this.relations = [];
+        this.promisesCreateFks = [];
     }
 
     async _creationFks(instance) {
-        const relations = [];
-
         try {
-            await this._createFks(instance, relations);
+            await this._createFks(instance);
         } catch (error) {
-            await this._cleanupRelations(relations);
+            await this._cleanupRelations();
             throw error;
         }
-
-        return relations;
     }
 
     async create(models) {
         if (!Array.isArray(models)) models = [models];
 
         try {
-            for (const model of models) {
+            models.map(async model => {
                 const relations = await this._creationFks(model);
                 model.__relations = relations;
-            }
+            });
+            
+            await Promise.all(promisesCreateFks);
         } catch (error) {
             await this._cleanupModels(models);
             throw error;
         }
     }
 
-    async _createFks(instance, relations) {
+    async _createFks(instance) {
         const modelId = instance._id;
 
         for (const [key, value] of this.fksModels) {
@@ -44,10 +44,12 @@ export class ForeignKeyCreator {
             let ids = instance[key];
             if (!Array.isArray(ids)) ids = [ids];
 
-            for (const id of ids) {
-                await this._ensureUnique(value, id, modelId);
-                await this._createRelation(modelId, id, value, relations);
-            }
+            const uniqueCheckPromises = ids.map(id => this._ensureUnique(value, id, modelId));
+            await Promise.all(uniqueCheckPromises);
+
+            this.promisesCreateFks.push(
+                ...ids.map(id => this._createRelation(modelId, id, value, relations))
+            );
         }
     }
 
@@ -55,15 +57,15 @@ export class ForeignKeyCreator {
         const existingRelation = await _FKS_.findOne({
             parent_ref: this.modelName,
             parent_id: modelId,
-            child_ref: fk.fullName,
+            child_ref: fk.ref,
             child_id: id,
             child_fullPath: fk.fullPath
-        });
+        }).lean();
 
         if (existingRelation) throw new Error("Relation already exists");
     }
 
-    async _createRelation(modelId, childId, value, relations) {
+    async _createRelation(modelId, childId, value) {
         const fkRelation = await _FKS_.create({
             parent_id: modelId,
             parent_ref: this.modelName,
@@ -72,11 +74,11 @@ export class ForeignKeyCreator {
             child_fullPath: value.fullPath
         });
 
-        relations.push(fkRelation);
+        this.relations.push(fkRelation);
     }
 
-    async _cleanupRelations(relations) {
-        const relationIds = relations.map(relation => relation._id);
+    async _cleanupRelations() {
+        const relationIds = this.relations.map(relation => relation._id);
         await _FKS_.deleteMany({ _id: { $in: relationIds } });
     }
 
