@@ -36,11 +36,13 @@ export class ForeignKeyProcessor {
         const schemaEntries = this.mongoModel.schema.obj;
         const entries = [];
 
-        for (const [key, _] of paths) {
-            const slicedKey = key.split(".");
+        await Promise.all(
+            paths.map(async ([key, _]) => {
+                const slicedKey = key.split(".");
 
-            await this._processEntry(slicedKey, schemaEntries, entries, []);
-        }
+                await this._processEntry(slicedKey, schemaEntries, entries, []);
+            })
+        );
 
         return entries;
     }
