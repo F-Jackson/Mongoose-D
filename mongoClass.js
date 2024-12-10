@@ -53,10 +53,7 @@ export const MongoModel = async(
     collection,
     options
 ) => {
-    const syncModels = await syncedModelsInstance.get();
-    if (name in syncModels) throw new Error("Model name already exists");
-
-    const mongoModel = mongoose.model(name, schema, collection, options);
+    const mongoModel = await mongoose.model(name, schema, collection, options);
 
     const foreignKeyProcessor = new ForeignKeyProcessor(
         mongoModel,
@@ -64,12 +61,11 @@ export const MongoModel = async(
     );
     await foreignKeyProcessor.processForeignKeys();
 
-    const oldFuncs = await getFuncs(mongoModel);
+    //const oldFuncs = await getFuncs(mongoModel);
     
-    await changeDrop(mongoModel, oldFuncs);
-    await changeCreation(mongoModel, oldFuncs);
+    //await changeDrop(mongoModel, oldFuncs);
+    //await changeCreation(mongoModel, oldFuncs);
     //await changeDeletion(mongoModel, oldFuncs);
 
-    syncedModelsInstance.add([[mongoModel.modelName, mongoModel]]);
     return mongoModel;
 };
