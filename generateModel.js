@@ -62,8 +62,8 @@ export class ForeignKeyProcessor {
             if (!this._isForeignKey(value, isArray)) return;
             if (value.type.schemaName !== "ObjectId") return;
 
-            await this._findOrCreateForeignKeyModel(key, value, isArray);
-            activeFks.push({ fk: key, ref: value.ref });
+            const fkModel = await this._findOrCreateForeignKeyModel(key, value, isArray);
+            activeFks.push(fkModel);
         }
 
         await Promise.all(
@@ -104,7 +104,6 @@ export class ForeignKeyProcessor {
     _populateForeignKeyMetadata = (activeFks) => {
         if (activeFks.length === 0) return;
 
-        console.log(activeFks);
         this.mongoModel.__FKS__ = Object.fromEntries(
             activeFks.map(model => {
                 const slicedKey = model.fk.split(".");
