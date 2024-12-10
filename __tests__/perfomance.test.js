@@ -56,7 +56,7 @@ describe("Mongo instance creation", () => {
     });
 
     it("test __FKS_MODEL__ 10K", async () => {
-        logToFile("Starting performance test for __FKS_MODEL__ with 10K records...");
+        logToFile("#######FKS_MODEL 10K#######");
 
         for (let i = 0; i < 10000; i++) {
             const RelatedModel = await MongoModel(`RelatedModel-${i}`, new mongoose.Schema({
@@ -73,7 +73,7 @@ describe("Mongo instance creation", () => {
             }));
         }
 
-        logToFile("Models created successfully.");
+        logToFile("***********__FKS_MODEL__ 10K***********");
 
         const fksModels = await _FKS_MODEL_.find({});
         expect(fksModels).toHaveLength(10000);
