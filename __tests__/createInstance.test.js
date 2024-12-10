@@ -445,4 +445,58 @@ describe("Mongo instance creation", () => {
             }
         ]);
     });
+
+//
+    it("should create multiple foreign keys with different parents", async () => {
+        const ParentModel = await MongoModel("ParentModel", new mongoose.Schema({
+            name: { type: String, required: true },
+            child: { type: mongoose.Schema.Types.ObjectId, ref: "ChildModel", __linked: true, required: true },
+        }));
+        const ChildModel = await MongoModel("ChildModel", new mongoose.Schema({
+            label: { type: String, required: true },
+        }));
+
+        const child1 = await ChildModel.create({ label: "Child1" });
+        const child2 = await ChildModel.create({ label: "Child2" });
+
+        const parent1 = await ParentModel.create({ name: "Parent1", child: child1._id });
+        const parent2 = await ParentModel.create({ name: "Parent2", child: child2._id });
+
+        const fks = await _FKS_.find({});
+        expect(fks).toHaveLength(2);
+    });
+
+    it("should create foreign keys with an array of references", async () => {
+        const ParentModel = await MongoModel("ParentModel", new mongoose.Schema({
+            children: [{ type: mongoose.Schema.Types.ObjectId, ref: "ChildModel", __linked: true, required: true }],
+        }));
+        const ChildModel = await MongoModel("ChildModel", new mongoose.Schema({
+            label: { type: String, required: true },
+        }));
+
+        const child1 = await ChildModel.create({ label: "Child1" });
+        const child2 = await ChildModel.create({ label: "Child2" });
+
+        const parent = await ParentModel.create({ children: [child1._id, child2._id] });
+
+        const fks = await _FKS_.find({});
+        expect(fks).toHaveLength(2);
+    });
+
+    it("should support multiple __linked fields in a schema", async () => {
+        const MultiLinkedModel = await MongoModel("MultiLinkedModel", new mongoose.Schema({
+            primary: { type: mongoose.Schema.Types.ObjectId, ref: "PrimaryModel", __linked: true, required: true },
+            secondary: { type: mongoose.Schema.Types.ObjectId, ref: "SecondaryModel", __linked: true, required: true },
+        }));
+        const PrimaryModel = await MongoModel("PrimaryModel", new mongoose.Schema({ name: { type: String, required: true } }));
+        const SecondaryModel = await MongoModel("SecondaryModel", new mongoose.Schema({ name: { type: String, required: true } }));
+
+        const primary = await PrimaryModel.create({ name: "PrimaryInstance" });
+        const secondary = await SecondaryModel.create({ name: "SecondaryInstance" });
+
+        const multiLinked = await MultiLinkedModel.create({ primary: primary._id, secondary: secondary._id });
+
+        const fks = await _FKS_.find({});
+        expect(fks).toHaveLength(2);
+    });
 });
