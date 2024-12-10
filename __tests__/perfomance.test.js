@@ -55,6 +55,29 @@ describe("Mongo instance creation", () => {
         await mongoose.connection.close();
     });
 
+    it("test 10K", async () => {
+        const startTime = performance.now();  // Start timing
+
+        for (let i = 0; i < 10000; i++) {
+            const RelatedModel = await mongoose.model(`RelatedModel-${i}`, new mongoose.Schema({
+                title: { type: String, required: true },
+            }));
+            const TestModel = await mongoose.model(`TestModel-${i}`, new mongoose.Schema({
+                name: { type: String, required: true },
+                related: {
+                    type: mongoose.Schema.Types.ObjectId,
+                    ref: `RelatedModel-${i}`,
+                    required: true,
+                },
+            }));
+        }
+
+        const endTime = performance.now();  // End timing
+        const timeTaken = endTime - startTime;  // Calculate the time taken
+
+        logToFile(`***********10K*********** ${timeTaken.toFixed(2)} ms`);  // Log time taken
+    });
+
     it("test __FKS_MODEL__ 10K", async () => {
         const startTime = performance.now();  // Start timing
 
