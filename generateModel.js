@@ -8,10 +8,8 @@ export class ForeignKeyProcessor {
         console.log("fk");
         const activeFks = await this._getActiveForeignKeys();
         console.log("activeFks");
-        const fksModels = await this._fetchForeignKeyModels();
-        console.log("fksModels");
 
-        this._populateForeignKeyMetadata(activeFks, fksModels);
+        this._populateForeignKeyMetadata(activeFks);
     };
 
     _processEntry = async(slicedKey, schemaEntries, entries, nested) => {
@@ -98,21 +96,18 @@ export class ForeignKeyProcessor {
         return fksModels;
     };
 
-    _populateForeignKeyMetadata = (activeFks, fksModels) => {
-        if (fksModels.length === 0) return;
+    _populateForeignKeyMetadata = (activeFks) => {
+        if (activeFks.length === 0) return;
 
         this.mongoModel.__FKS__ = {};
-        const activeFksMap = new Map(activeFks.map(model => [`${model.fk}:${model.ref}`, true]));
-
-        for (const model of fksModels) {
-            const isActive = activeFksMap.has(`${model.fk}:${model.fk_ref}`);
+        for (const model of activeFks) {
             const slicedKey = model.fk.split(".");
             const key = slicedKey[slicedKey.length - 1];
             const nested = slicedKey.slice(0, -1);
 
             this.mongoModel.__FKS__[key] = {
                 ref: model.fk_ref,
-                activated: isActive,
+                activated: true,
                 isArray: model.fk_isArray,
                 isImmutable: model.fk_isImmutable,
                 isRequired: model.fk_isRequired,

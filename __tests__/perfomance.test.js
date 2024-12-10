@@ -48,7 +48,6 @@ describe("Mongo instance creation", () => {
     });
 
     it("test 1K", async () => {
-        return;
         const startTime = performance.now();  // Start timing
 
         for (let i = 0; i < 1000; i++) {
