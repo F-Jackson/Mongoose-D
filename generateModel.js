@@ -48,7 +48,7 @@ export class ForeignKeyProcessor {
 
         const doAsync = async(key) => {
             const slicedKey = key.split(".");
-            await this._processEntry(slicedKey, schemaEntries, entries);
+            this._processEntry(slicedKey, schemaEntries, entries);
         }
 
         await this._processInChunks(
@@ -76,8 +76,7 @@ export class ForeignKeyProcessor {
     
             if (isArray) value = value[0];
 
-            if (!this._isForeignKey(value, isArray)) return;
-            if (value.type.schemaName !== "ObjectId") return;
+            if (!this._isForeignKey(value)) return;
 
             const fkModel = await this._findOrCreateForeignKeyModel(key, value, isArray);
             activeFks.push(fkModel);
@@ -94,7 +93,8 @@ export class ForeignKeyProcessor {
     };    
 
     _isForeignKey = (value) => {
-        return value.type && value.__linked;
+        if (value.type?.schemaName !== "ObjectId") return false;
+        return value.__linked;
     };
 
     _findOrCreateForeignKeyModel = async(key, value, isArray) => {
