@@ -41,7 +41,7 @@ export class ForeignKeyProcessor {
             await this._processEntry(slicedKey, schemaEntries, entries, []);
         }
 
-        return entries;
+        return entries;jhk
     }
 
     _getActiveForeignKeys = async() => {

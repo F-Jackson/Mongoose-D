@@ -475,4 +475,21 @@ describe("Mongo model creation", () => {
             fk_isRequired: true,
         });
     });
+
+    it("should create with an array of references", async () => {
+        const RelatedModel = await MongoModel("RelatedModel", new mongoose.Schema({
+            children: [{ type: mongoose.Schema.Types.ObjectId, ref: "TestModel", __linked: true, required: true }],
+        }));
+        const TestModel = await MongoModel("TestModel", new mongoose.Schema({
+            label: { type: String, required: true },
+        }));
+
+        const fksModel = await _FKS_MODEL_.find({});
+        const tests = await TestModel.find({});
+        const relateds = await RelatedModel.find({});
+
+        expect(fksModel).toHaveLength(1);
+        expect(tests).toHaveLength(2);
+        expect(relateds).toHaveLength(1);
+    });
 });
