@@ -31,6 +31,9 @@ describe("Mongo model creation", () => {
     beforeEach(async () => {
         await connectMongoDb("mongodb+srv://jacksonjfs18:eUAqgrGoVxd5vboT@cluster0.o5i8utp.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0");
 
+        await _FKS_MODEL_.deleteMany({});
+        await _FKS_.deleteMany({});
+
         const synced = await syncedModels.get();
         
         for (const value of Object.values(synced)) {
@@ -40,8 +43,16 @@ describe("Mongo model creation", () => {
 
         await syncedModels.set([]);
 
-        await _FKS_MODEL_.deleteMany({});
-        await _FKS_.deleteMany({});
+        const collections = await mongoose.connection.db.listCollections().toArray();
+        const dropPromises = collections.map((collection) =>
+            mongoose.connection.db.dropCollection(collection.name)
+        );
+
+        await Promise.all(dropPromises);
+
+        for (let model in mongoose.models) {
+            delete mongoose.models[model];
+        }
     });
 
     afterEach(async () => {
