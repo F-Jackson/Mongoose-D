@@ -40,7 +40,7 @@ export class ForeignKeyProcessor {
             paths.map(async ([key, _]) => {
                 const slicedKey = key.split(".");
 
-                await this._processEntry(slicedKey, schemaEntries, entries, []);
+                this._processEntry(slicedKey, schemaEntries, entries, []);
             })
         );
 
@@ -60,7 +60,7 @@ export class ForeignKeyProcessor {
                 if (!this._isForeignKey(value, isArray)) return;
                 if (value.type.schemaName !== "ObjectId") return;
     
-                await this._findOrCreateForeignKeyModel(key, value, isArray);
+                this._findOrCreateForeignKeyModel(key, value, isArray);
                 activeFks.push({ fk: key, ref: value.ref });
             })
         );
