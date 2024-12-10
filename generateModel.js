@@ -2,7 +2,14 @@ export class ForeignKeyProcessor {
     constructor(mongoModel, _FKS_MODEL_) {
         this.mongoModel = mongoModel;
         this._FKS_MODEL_ = _FKS_MODEL_;
+        this.cachedFks = null;
     }
+
+    _processInChunks = async (tasks, chunkSize) => {
+        for (let i = 0; i < tasks.length; i += chunkSize) {
+            await Promise.all(tasks.slice(i, i + chunkSize));
+        }
+    };    
 
     processForeignKeys = async() => {
         const activeFks = await this._getActiveForeignKeys();
@@ -10,25 +17,30 @@ export class ForeignKeyProcessor {
         this._populateForeignKeyMetadata(activeFks);
     };
 
-    _processEntry = async(slicedKey, schemaEntries, entries, nested) => {
-        let key = slicedKey[0];
-        const schemaEntry = schemaEntries[key];
-
-        if (slicedKey.length === 1) {
-            if (key in schemaEntries) {
-                if (nested.length > 0) {
-                    key = `${nested.join(".")}.${key}`;
-                }
-
-                entries.push([key, schemaEntry]);
+    _processEntry = (slicedKey, schemaEntries) => {
+        const entries = [];
+        const stack = [{ key: slicedKey, nested: [] }];
+        
+        while (stack.length > 0) {
+            const { key, nested } = stack.pop();
+            const currentKey = key[0];
+            const schemaEntry = schemaEntries[currentKey];
+            
+            if (!schemaEntry) continue;
+            
+            if (key.length === 1) {
+                const fullPath = nested.length ? `${nested.join(".")}.${currentKey}` : currentKey;
+                entries.push([fullPath, schemaEntry]);
+            } else {
+                stack.push({
+                    key: key.slice(1),
+                    nested: [...nested, currentKey],
+                });
             }
-        } else {
-            const entryNested = [ ...nested, slicedKey[0] ];
-            const newKeys = slicedKey.slice(1);
-            await this._processEntry(newKeys, schemaEntry, entries, entryNested);
         }
-    }
-
+        return entries;
+    };
+    
     _processEntries = async() => {
         const paths = Object.entries(this.mongoModel.schema.paths);
         const schemaEntries = this.mongoModel.schema.obj;
@@ -36,13 +48,14 @@ export class ForeignKeyProcessor {
 
         const doAsync = async(key) => {
             const slicedKey = key.split(".");
-            await this._processEntry(slicedKey, schemaEntries, entries, []);
+            await this._processEntry(slicedKey, schemaEntries, entries);
         }
 
-        await Promise.all(
+        await this._processInChunks(
             paths.map(async ([key, _]) => 
                 doAsync(key)
-            )
+            ),
+            10
         );
 
         return entries;
@@ -51,6 +64,12 @@ export class ForeignKeyProcessor {
     _getActiveForeignKeys = async () => {
         const activeFks = [];
         const schemaEntries = await this._processEntries();
+
+        if (!this.cachedFks) {
+            this.cachedFks = await this._FKS_MODEL_.find({
+                model: this.mongoModel.modelName,
+            }).lean();
+        }
     
         const doAsync = async(key, value) => {
             const isArray = Array.isArray(value);
@@ -64,10 +83,11 @@ export class ForeignKeyProcessor {
             activeFks.push(fkModel);
         }
 
-        await Promise.all(
+        await this._processInChunks(
             schemaEntries.map(async ([key, value]) => 
                 doAsync(key, value)
-            )
+            ),
+            10
         );
     
         return activeFks;
@@ -78,11 +98,9 @@ export class ForeignKeyProcessor {
     };
 
     _findOrCreateForeignKeyModel = async(key, value, isArray) => {
-        let fksModel = await this._FKS_MODEL_.findOne({
-            model: this.mongoModel.modelName,
-            fk: key,
-            fk_ref: value.ref,
-        });
+        let fksModel = this.cachedFks.find(
+            fk => fk.fk === key && fk.fk_ref === value.ref
+        )
 
         if (!fksModel) {
             fksModel = await this._FKS_MODEL_.create({
