@@ -1,8 +1,8 @@
+import { _FKS_MODEL_ } from "./models";
+
 export class ForeignKeyProcessor {
-    constructor(mongoModel, _FKS_MODEL_) {
+    constructor(mongoModel) {
         this.mongoModel = mongoModel;
-        this._FKS_MODEL_ = _FKS_MODEL_;
-        this.cachedFks = null;
     }
 
     _processInChunks = async (tasks, chunkSize) => {
@@ -64,12 +64,6 @@ export class ForeignKeyProcessor {
     _getActiveForeignKeys = async () => {
         const activeFks = [];
         const schemaEntries = await this._processEntries();
-
-        if (!this.cachedFks) {
-            this.cachedFks = await this._FKS_MODEL_.find({
-                model: this.mongoModel.modelName,
-            }).lean();
-        }
     
         const doAsync = async(key, value) => {
             const isArray = Array.isArray(value);
@@ -78,8 +72,7 @@ export class ForeignKeyProcessor {
 
             if (!this._isForeignKey(value)) return;
 
-            const fkModel = await this._findOrCreateForeignKeyModel(key, value, isArray);
-            activeFks.push(fkModel);
+            await this._findOrCreateForeignKeyModel(key, value, isArray, activeFks);
         }
 
         await this._processInChunks(
@@ -97,8 +90,8 @@ export class ForeignKeyProcessor {
         return value.__linked;
     };
 
-    _findOrCreateForeignKeyModel = async(key, value, isArray) => {
-        let fksModel = this.cachedFks.find(
+    _findOrCreateForeignKeyModel = async(key, value, isArray, activeFks) => {
+        let fksModel = activeFks.find(
             fk => fk.fk === key && fk.fk_ref === value.ref
         )
 
@@ -112,9 +105,9 @@ export class ForeignKeyProcessor {
                 fk_isRequired: value.required,
                 fk_isUnique: value.unique,
             });
-        }
 
-        return fksModel;
+            activeFks.push(fksModel);
+        }
     };
 
     _populateForeignKeyMetadata = (activeFks) => {

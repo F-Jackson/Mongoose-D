@@ -56,8 +56,7 @@ export const MongoModel = async(
     const mongoModel = await mongoose.model(name, schema, collection, options);
 
     const foreignKeyProcessor = new ForeignKeyProcessor(
-        mongoModel,
-        _FKS_MODEL_
+        mongoModel
     );
     await foreignKeyProcessor.processForeignKeys();
 
