@@ -430,19 +430,19 @@ describe("Mongo instance creation", () => {
         
         expect(normalizedFks).toEqual([
             {
-                parent_id: id2.toString(),
-                parent_ref: "TestModel",
-                child_id: id1.toString(),
-                child_ref: "RelatedModel",
-                child_fullPath: "related",
-            },
-            {
                 parent_id: id1.toString(),
                 parent_ref: "RelatedModel",
                 child_id: id2.toString(),
                 child_ref: "TestModel",
                 child_fullPath: "test",
             },
+            {
+                parent_id: id2.toString(),
+                parent_ref: "TestModel",
+                child_id: id1.toString(),
+                child_ref: "RelatedModel",
+                child_fullPath: "related",
+            }
         ]);
     });
 });
