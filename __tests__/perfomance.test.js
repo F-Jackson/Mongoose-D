@@ -29,6 +29,7 @@ describe("Mongo instance creation", () => {
     beforeEach(async () => {
         await connectMongoDb("mongodb+srv://jacksonjfs18:eUAqgrGoVxd5vboT@cluster0.o5i8utp.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0");
 
+        /*
         await _FKS_MODEL_.deleteMany({});
         await _FKS_.deleteMany({});
 
@@ -50,7 +51,7 @@ describe("Mongo instance creation", () => {
 
         for (let model in mongoose.models) {
             delete mongoose.models[model];
-        }
+        }*/
     }, 0);
 
     afterEach(async () => {
