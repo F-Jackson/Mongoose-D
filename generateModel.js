@@ -5,9 +5,7 @@ export class ForeignKeyProcessor {
     }
 
     processForeignKeys = async() => {
-        console.log("fk");
         const activeFks = await this._getActiveForeignKeys();
-        console.log("activeFks");
 
         this._populateForeignKeyMetadata(activeFks);
     };
