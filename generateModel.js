@@ -45,25 +45,26 @@ export class ForeignKeyProcessor {
         return entries;
     }
 
-    _getActiveForeignKeys = async() => {
+    _getActiveForeignKeys = async () => {
         const activeFks = [];
         const schemaEntries = await this._processEntries();
-
-        for (let [key, value] of schemaEntries) {
-            const isArray = Array.isArray(value);
-
-            if (isArray) value = value[0];
-
-            if (!this._isForeignKey(value, isArray)) continue;
-            
-            if (value.type.schemaName !== "ObjectId") continue;
-
-            await this._findOrCreateForeignKeyModel(key, value, isArray);
-            activeFks.push({ fk: key, ref: value.ref });
-        }
-
+    
+        await Promise.all(
+            schemaEntries.map(async ([key, value]) => {
+                const isArray = Array.isArray(value);
+    
+                if (isArray) value = value[0];
+    
+                if (!this._isForeignKey(value, isArray)) return;
+                if (value.type.schemaName !== "ObjectId") return;
+    
+                await this._findOrCreateForeignKeyModel(key, value, isArray);
+                activeFks.push({ fk: key, ref: value.ref });
+            })
+        );
+    
         return activeFks;
-    };
+    };    
 
     _isForeignKey = (value) => {
         return value.type && value.__linked;

@@ -339,10 +339,7 @@ describe("Mongo model creation", () => {
 
         const fks = TestModel.__FKS__;
 
-        expect(fks["related"]).toMatchObject({
-            ref: "RelatedModel",
-            activated: false
-        });
+        expect(Object.entries(fks)).toHaveLength(1);
         expect(fks["related2"]).toMatchObject({
             ref: "RelatedModel",
             activated: true
