@@ -60,6 +60,7 @@ describe("Mongo instance creation", () => {
     });
 
     it("test 100", async () => {
+        return;
         const startTime = performance.now();  // Start timing
 
         for (let i = 0; i < 100; i++) {
@@ -74,8 +75,6 @@ describe("Mongo instance creation", () => {
                     required: true,
                 },
             }));
-
-            console.log(RelatedModel);
         }
 
         const endTime = performance.now();  // End timing
@@ -85,7 +84,6 @@ describe("Mongo instance creation", () => {
     });
 
     it("test __FKS_MODEL__ 100", async () => {
-        return;
         const startTime = performance.now();  // Start timing
 
         for (let i = 0; i < 100; i++) {
