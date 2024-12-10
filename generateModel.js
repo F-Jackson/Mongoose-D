@@ -48,8 +48,8 @@ export class ForeignKeyProcessor {
         const activeFks = [];
         const schemaEntries = await this._processEntries();
 
-        for (const [key, value] of schemaEntries) {
-            const isArray = Array.isArray(value.type);
+        for (let [key, value] of schemaEntries) {
+            const isArray = Array.isArray(value);
 
             if (isArray) value = value[0];
 
@@ -57,6 +57,7 @@ export class ForeignKeyProcessor {
             
             if (value.type.schemaName !== "ObjectId") continue;
 
+            console.log(value);
             await this._findOrCreateForeignKeyModel(key, value, isArray);
             activeFks.push({ fk: key, ref: value.ref });
         }
