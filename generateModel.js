@@ -57,7 +57,6 @@ export class ForeignKeyProcessor {
             
             if (value.type.schemaName !== "ObjectId") continue;
 
-            console.log(value);
             await this._findOrCreateForeignKeyModel(key, value, isArray);
             activeFks.push({ fk: key, ref: value.ref });
         }
