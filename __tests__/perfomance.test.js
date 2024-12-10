@@ -56,7 +56,7 @@ describe("Mongo instance creation", () => {
     });
 
     it("test __FKS_MODEL__ 10K", async () => {
-        logToFile("#######FKS_MODEL 10K#######");
+        const startTime = performance.now();  // Start timing
 
         for (let i = 0; i < 10000; i++) {
             const RelatedModel = await MongoModel(`RelatedModel-${i}`, new mongoose.Schema({
@@ -73,9 +73,12 @@ describe("Mongo instance creation", () => {
             }));
         }
 
-        logToFile("***********__FKS_MODEL__ 10K***********");
+        const endTime = performance.now();  // End timing
+        const timeTaken = endTime - startTime;  // Calculate the time taken
+
+        logToFile(`***********__FKS_MODEL__ 10K*********** ${timeTaken.toFixed(2)} ms`);  // Log time taken
 
         const fksModels = await _FKS_MODEL_.find({});
         expect(fksModels).toHaveLength(10000);
     });
-});
+}, 0);
