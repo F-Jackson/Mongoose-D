@@ -407,7 +407,7 @@ describe("Mongo instance creation", () => {
         const id1 = new mongoose.Types.ObjectId();
         const id2 = new mongoose.Types.ObjectId();
 
-        const related = await RelatedModel.create({ _id: id1, title: "Related", test: id2 });
+        const related = await RelatedModel.create({ _id: id1, name: "Related", test: id2 });
         const test = await TestModel.create({ _id: id2, name: "test", related: id1 });
 
         const fks = await _FKS_.find({});
@@ -430,11 +430,18 @@ describe("Mongo instance creation", () => {
         
         expect(normalizedFks).toEqual([
             {
-                parent_id: test._id.toString(),
+                parent_id: id2.toString(),
                 parent_ref: "TestModel",
-                child_id: related._id.toString(),
+                child_id: id1.toString(),
                 child_ref: "RelatedModel",
                 child_fullPath: "related",
+            },
+            {
+                parent_id: id1.toString(),
+                parent_ref: "RelatedModel",
+                child_id: id2.toString(),
+                child_ref: "TestModel",
+                child_fullPath: "test",
             },
         ]);
     });
