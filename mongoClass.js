@@ -53,6 +53,7 @@ export const MongoModel = async(
     collection,
     options
 ) => {
+    console.log("rr");
     const syncModels = await syncedModelsInstance.get();
     if (name in syncModels) throw new Error("Model name already exists");
 
@@ -62,7 +63,9 @@ export const MongoModel = async(
         mongoModel,
         _FKS_MODEL_
     );
+    console.log("ee");
     await foreignKeyProcessor.processForeignKeys();
+    console.log("po");
 
     const oldFuncs = await getFuncs(mongoModel);
     
