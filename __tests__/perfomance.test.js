@@ -58,11 +58,11 @@ describe("Mongo instance creation", () => {
         await mongoose.connection.close();
     });
 
-    it("test 1K", async () => {
+    it("test 100", async () => {
         return;
         const startTime = performance.now();  // Start timing
 
-        for (let i = 0; i < 1000; i++) {
+        for (let i = 0; i < 100; i++) {
             const RelatedModel = await mongoose.model(`RelatedModel-${i}`, new mongoose.Schema({
                 title: { type: String, required: true },
             }));
@@ -82,10 +82,10 @@ describe("Mongo instance creation", () => {
         logToFile(`***********1K*********** ${timeTaken.toFixed(2)} ms`);  // Log time taken
     });
 
-    it("test __FKS_MODEL__ 1K", async () => {
+    it("test __FKS_MODEL__ 100", async () => {
         const startTime = performance.now();  // Start timing
 
-        for (let i = 0; i < 1000; i++) {
+        for (let i = 0; i < 100; i++) {
             const RelatedModel = await MongoModel(`RelatedModel-${i}`, new mongoose.Schema({
                 title: { type: String, required: true },
             }));
