@@ -458,7 +458,7 @@ describe("Mongo instance creation", () => {
         const child1 = await TestModel.create({ label: "Child1" });
         const child2 = await TestModel.create({ label: "Child2" });
 
-        const parent = await RelatedModel.create({ children: [child1._id, child2._id] });
+        const related = await RelatedModel.create({ children: [child1._id, child2._id] });
 
         const fks = await _FKS_.find({});
         const fksModel = await _FKS_MODEL_.find({});
@@ -482,16 +482,16 @@ describe("Mongo instance creation", () => {
             {
                 parent_id: related._id.toString(),
                 parent_ref: "RelatedModel",
-                child_id: child1.toString(),
+                child_id: child1._id.toString(),
                 child_ref: "TestModel",
-                child_fullPath: "test",
+                child_fullPath: "children",
             },
             {
                 parent_id: related._id.toString(),
                 parent_ref: "RelatedModel",
-                child_id: child2.toString(),
+                child_id: child2._id.toString(),
                 child_ref: "TestModel",
-                child_fullPath: "test",
+                child_fullPath: "children",
             }
         ]);
     });
