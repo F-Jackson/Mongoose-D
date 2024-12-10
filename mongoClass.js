@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import { ForeignKeyProcessor } from "./generateModel.js";
-import { _FKS_MODEL_ } from "./models.js";
+import { _FKS_, _FKS_MODEL_ } from "./models.js";
 import { getFuncs, changeCreation, changeDeletion, changeDrop } from "./changeFuncs.js";
 
 export class SyncedModels {

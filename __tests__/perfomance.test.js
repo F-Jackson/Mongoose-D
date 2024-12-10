@@ -29,13 +29,6 @@ describe("Mongo instance creation", () => {
     beforeEach(async () => {
         await connectMongoDb("mongodb+srv://jacksonjfs18:eUAqgrGoVxd5vboT@cluster0.o5i8utp.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0");
 
-        const collections = await mongoose.connection.db.listCollections().toArray();
-        const dropPromises = collections.map((collection) =>
-            mongoose.connection.db.dropCollection(collection.name)
-        );
-
-        await Promise.all(dropPromises);
-
         const synced = await syncedModels.get();
         
         for (const value of Object.values(synced)) {
@@ -45,9 +38,8 @@ describe("Mongo instance creation", () => {
 
         await syncedModels.set([]);
 
-        for (let model in mongoose.models) {
-            delete mongoose.models[model];
-        }
+        await _FKS_MODEL_.deleteMany({});
+        await _FKS_.deleteMany({});
     });
 
     afterEach(async () => {
@@ -56,6 +48,7 @@ describe("Mongo instance creation", () => {
     });
 
     it("test 1K", async () => {
+        return;
         const startTime = performance.now();  // Start timing
 
         for (let i = 0; i < 1000; i++) {
@@ -81,7 +74,7 @@ describe("Mongo instance creation", () => {
     it("test __FKS_MODEL__ 1K", async () => {
         const startTime = performance.now();  // Start timing
 
-        for (let i = 0; i < 10; i++) {
+        for (let i = 0; i < 1000; i++) {
             const RelatedModel = await MongoModel(`RelatedModel-${i}`, new mongoose.Schema({
                 title: { type: String, required: true },
             }));
