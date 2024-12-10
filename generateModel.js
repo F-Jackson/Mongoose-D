@@ -104,6 +104,7 @@ export class ForeignKeyProcessor {
     _populateForeignKeyMetadata = (activeFks) => {
         if (activeFks.length === 0) return;
 
+        console.log(activeFks);
         this.mongoModel.__FKS__ = Object.fromEntries(
             activeFks.map(model => {
                 const slicedKey = model.fk.split(".");
