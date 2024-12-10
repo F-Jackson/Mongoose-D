@@ -36,12 +36,15 @@ export class ForeignKeyProcessor {
         const schemaEntries = this.mongoModel.schema.obj;
         const entries = [];
 
-        await Promise.all(
-            paths.map(async ([key, _]) => {
-                const slicedKey = key.split(".");
+        const doAsync = async(key) => {
+            const slicedKey = key.split(".");
+            await this._processEntry(slicedKey, schemaEntries, entries, []);
+        }
 
-                this._processEntry(slicedKey, schemaEntries, entries, []);
-            })
+        await Promise.all(
+            paths.map(async ([key, _]) => 
+                doAsync(key)
+            )
         );
 
         return entries;
@@ -51,18 +54,22 @@ export class ForeignKeyProcessor {
         const activeFks = [];
         const schemaEntries = await this._processEntries();
     
+        const doAsync = async(key, value) => {
+            const isArray = Array.isArray(value);
+    
+            if (isArray) value = value[0];
+
+            if (!this._isForeignKey(value, isArray)) return;
+            if (value.type.schemaName !== "ObjectId") return;
+
+            await this._findOrCreateForeignKeyModel(key, value, isArray);
+            activeFks.push({ fk: key, ref: value.ref });
+        }
+
         await Promise.all(
-            schemaEntries.map(async ([key, value]) => {
-                const isArray = Array.isArray(value);
-    
-                if (isArray) value = value[0];
-    
-                if (!this._isForeignKey(value, isArray)) return;
-                if (value.type.schemaName !== "ObjectId") return;
-    
-                this._findOrCreateForeignKeyModel(key, value, isArray);
-                activeFks.push({ fk: key, ref: value.ref });
-            })
+            schemaEntries.map(async ([key, value]) => 
+                doAsync(key, value)
+            )
         );
     
         return activeFks;
@@ -115,6 +122,7 @@ export class ForeignKeyProcessor {
                     },
                 ];
             })
-        );        
+        );
+        
     };
 }
