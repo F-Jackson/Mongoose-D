@@ -415,8 +415,8 @@ describe("Mongo instance creation", () => {
         const tests = await TestModel.find({});
         const relateds = await RelatedModel.find({});
 
-        expect(fks).toHaveLength(1);
-        expect(fksModel).toHaveLength(1);
+        expect(fks).toHaveLength(2);
+        expect(fksModel).toHaveLength(2);
         expect(tests).toHaveLength(1);
         expect(relateds).toHaveLength(1);
 

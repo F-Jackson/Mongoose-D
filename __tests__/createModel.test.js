@@ -444,4 +444,35 @@ describe("Mongo model creation", () => {
             fk_isRequired: true,
         });
     });
+
+    it("should handle cyclic foreign key reference", async () => {
+        const TestModel = await MongoModel("TestModel", testSchema);
+        const RelatedModel = await MongoModel("RelatedModel", new mongoose.Schema({
+            name: { type: String, required: true },
+            test: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "TestModel",
+                __linked: true,
+                required: true,
+            },
+        }));
+
+        expect(syncedModels.get()).toHaveProperty("TestModel");
+        expect(syncedModels.get()).toHaveProperty("RelatedModel");
+
+        const fksModels = await _FKS_MODEL_.find({});
+        expect(fksModels).toHaveLength(2);
+        expect(fksModels[0]).toMatchObject({
+            model: "TestModel",
+            fk: "related",
+            fk_ref: "RelatedModel",
+            fk_isRequired: true,
+        });
+        expect(fksModels[1]).toMatchObject({
+            model: "RelatedModel",
+            fk: "test",
+            fk_ref: "TestModel",
+            fk_isRequired: true,
+        });
+    });
 });
