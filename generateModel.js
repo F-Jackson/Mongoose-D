@@ -91,11 +91,6 @@ export class ForeignKeyProcessor {
         return fksModel;
     };
 
-    _fetchForeignKeyModels = async() => {
-        const fksModels = await this._FKS_MODEL_.find({ model: this.mongoModel.modelName });
-        return fksModels;
-    };
-
     _populateForeignKeyMetadata = (activeFks) => {
         if (activeFks.length === 0) return;
 
