@@ -13,24 +13,24 @@ export class ForeignKeyProcessor {
         const activeFks = [];
         const paths = Object.entries(this.mongoModel.schema.paths);
         const schemaEntries = this.mongoModel.schema.obj;
+        console.log(schemaEntries);
     
         const doAsync = async(key) => {
             const slicedKey = key.split(".");
             const stack = [{ key: slicedKey, nested: [] }];
-            let schemaEntry;
+            let schemaEntry = schemaEntries;
 
             while (stack.length > 0) {
                 const { key, nested } = stack.pop();
                 const currentKey = key[0];
-                schemaEntry = schemaEntries[currentKey];
+                schemaEntry = schemaEntry[currentKey];
 
-                console.log(`key: ${key}, nested: ${nested}, ck: ${currentKey}, schema: ${schemaEntry}`);
+                console.log(`key: ${key}, nested: ${nested}, ck: ${currentKey}, schema: ${JSON.stringify(schemaEntry)}`);
                 
                 if (!schemaEntry) continue;
                 
                 if (key.length === 1) {
-                    const fullPath = nested.length ? `${nested.join(".")}.${currentKey}` : currentKey;
-                    console.log(([fullPath, schemaEntry]));
+                    console.log(([key, schemaEntry]));
                 } else {
                     stack.push({
                         key: key.slice(1),
