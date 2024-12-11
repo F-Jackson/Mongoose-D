@@ -20,17 +20,12 @@ export const getFuncs = async(mongoModel) => {
     };
 };
 
-export const changeDrop = async(mongoModel, oldFuncs) => {
+export const changeDrop = async(this, mongoModel, oldFuncs) => {
     mongoModel.collection.drop = async function(options) {
         const result = await oldFuncs.drop.call(this, options);
 
         if (result) {
-            await _FKS_MODEL_.deleteMany({
-                $or: [
-                    { model: mongoModel.modelName },
-                    { fk_ref: mongoModel.modelName }
-                ]
-            });
+            this.models.delete(mongoModel.modelName);
         }
 
         return result;
