@@ -172,7 +172,10 @@ describe("Mongo model creation", () => {
                 subField: {
                     type: mongoose.Schema.Types.ObjectId,
                     ref: "RelatedModel",
-                    __linked: true,
+                    linked: true,
+                    required: true,
+                    unique: true,
+                    immutable: true
                 },
                 po: String,
                 ll: {
@@ -185,7 +188,7 @@ describe("Mongo model creation", () => {
                     subField: {
                         type: [mongoose.Schema.Types.ObjectId],
                         ref: "RelatedModel",
-                        __linked: true,
+                        linked: true,
                     }
                 }
             },
@@ -193,6 +196,8 @@ describe("Mongo model creation", () => {
         });
 
         const NestedModel = await mongoD.MongoModel("NestedModel", nestedSchema);
+
+        console.log(NestedModel);
     });
 
     it("should handle optional foreign keys", async () => {
