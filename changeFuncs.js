@@ -25,8 +25,7 @@ export const changeDrop = async(mongoD, mongoModel, oldFuncs) => {
         const result = await oldFuncs.drop.call(this, options);
 
         if (result) {
-            delete mongoD.models[mongoModel.modelName];
-
+            console.log(mongoD.relations);
             const relations = mongoD.relations[mongoModel.modelName];
             if (!relations) return;
 
@@ -39,6 +38,8 @@ export const changeDrop = async(mongoD, mongoModel, oldFuncs) => {
                     delete relationModel["_FKS"];
                 }
             });
+
+            delete mongoD.models[mongoModel.modelName];
         }
 
         return result;
