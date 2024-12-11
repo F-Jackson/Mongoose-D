@@ -1,85 +1,61 @@
-import { _FKS_MODEL_ } from "./models";
-
 export class ForeignKeyProcessor {
     constructor(mongoModel) {
         this.mongoModel = mongoModel;
     }
 
-    _processInChunks = async (tasks, chunkSize) => {
-        for (let i = 0; i < tasks.length; i += chunkSize) {
-            await Promise.all(tasks.slice(i, i + chunkSize));
-        }
-    };    
-
     processForeignKeys = async() => {
         const activeFks = await this._getActiveForeignKeys();
 
-        this._populateForeignKeyMetadata(activeFks);
+        //this._populateForeignKeyMetadata(activeFks);
     };
 
     _processEntry = (slicedKey, schemaEntries) => {
         const entries = [];
-        const stack = [{ key: slicedKey, nested: [] }];
-        
-        while (stack.length > 0) {
-            const { key, nested } = stack.pop();
-            const currentKey = key[0];
-            const schemaEntry = schemaEntries[currentKey];
-            
-            if (!schemaEntry) continue;
-            
-            if (key.length === 1) {
-                const fullPath = nested.length ? `${nested.join(".")}.${currentKey}` : currentKey;
-                entries.push([fullPath, schemaEntry]);
-            } else {
-                stack.push({
-                    key: key.slice(1),
-                    nested: [...nested, currentKey],
-                });
-            }
-        }
+
         return entries;
     };
-    
-    _processEntries = async() => {
-        const paths = Object.entries(this.mongoModel.schema.paths);
-        const schemaEntries = this.mongoModel.schema.obj;
-        const entries = [];
-
-        const doAsync = async(key) => {
-            const slicedKey = key.split(".");
-            this._processEntry(slicedKey, schemaEntries, entries);
-        }
-
-        await this._processInChunks(
-            paths.map(async ([key, _]) => 
-                doAsync(key)
-            ),
-            10
-        );
-
-        return entries;
-    }
 
     _getActiveForeignKeys = async () => {
         const activeFks = [];
-        const schemaEntries = await this._processEntries();
+        const paths = Object.entries(this.mongoModel.schema.paths);
+        const schemaEntries = this.mongoModel.schema.obj;
     
-        const doAsync = async(key, value) => {
-            const isArray = Array.isArray(value);
+        const doAsync = async(key) => {
+            const slicedKey = key.split(".");
+            const stack = [{ key: slicedKey, nested: [] }];
+        
+            while (stack.length > 0) {
+                const { key, nested } = stack.pop();
+                const currentKey = key[0];
+                const schemaEntry = schemaEntries[currentKey];
+                
+                if (!schemaEntry) continue;
+                
+                if (key.length === 1) {
+                    const fullPath = nested.length ? `${nested.join(".")}.${currentKey}` : currentKey;
+                    console.log(([fullPath, schemaEntry]));
+                } else {
+                    stack.push({
+                        key: key.slice(1),
+                        nested: [...nested, currentKey],
+                    });
+                }
+            }
+
+            this._processEntry(slicedKey, schemaEntries, entries);
+
+            //
+            //const isArray = Array.isArray(value);
     
-            if (isArray) value = value[0];
+            //if (isArray) value = value[0];
 
-            if (!this._isForeignKey(value)) return;
+            //if (!this._isForeignKey(value)) return;
 
-            await this._findOrCreateForeignKeyModel(key, value, isArray, activeFks);
+            //await this._findOrCreateForeignKeyModel(key, value, isArray, activeFks);
         }
 
-        await this._processInChunks(
-            schemaEntries.map(async ([key, value]) => 
-                doAsync(key, value)
-            ),
-            10
+        Promise.all(
+            paths.map(async ([key, _]) => doAsync(key))
         );
     
         return activeFks;

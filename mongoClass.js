@@ -3,68 +3,34 @@ import { ForeignKeyProcessor } from "./generateModel.js";
 import { _FKS_, _FKS_MODEL_ } from "./models.js";
 import { getFuncs, changeCreation, changeDeletion, changeDrop } from "./changeFuncs.js";
 
-export class SyncedModels {
+
+export class InitMongoModels {
     constructor() {
-        this.syncModels = {};
+        this.models = {};
     }
 
-    get() {
-        return { ...this.syncModels };
-    }
+    async MongoModel (
+        name,
+        schema,
+        collection,
+        options
+    ) {
+        if (name in this.models) throw new Error("Model already exists");
 
-    _addVerifyError(key, oldModels) {
-        if (key in this.syncModels) {
-            this.syncModels = oldModels;
-            throw new Error("Synced model already exists for key: " + key);
-        }
-    }
-
-    set(models) {
-        const oldModels = this.get();
-        const newModels = {};
-
-        for (const [key, value] of models) {
-            this._addVerifyError(key, oldModels);
-            newModels[key] = value;
-        }
-
-        this.syncModels = newModels;
-    }
-
-    add(models) {
-        const oldModels = this.get();
-
-        for (const [key, value] of models) {
-            this._addVerifyError(key, oldModels);
-            this.syncModels[key] = value;
-        }
-    }
-}
-
-const syncedModelsInstance = new SyncedModels();
-
-export const InitMongoModels = () => {
-    return syncedModelsInstance;
-};
-
-export const MongoModel = async(
-    name,
-    schema,
-    collection,
-    options
-) => {
-    const mongoModel = await mongoose.model(name, schema, collection, options);
-
-    const foreignKeyProcessor = new ForeignKeyProcessor(
-        mongoModel
-    );
-    await foreignKeyProcessor.processForeignKeys();
-
-    //const oldFuncs = await getFuncs(mongoModel);
+        const mongoModel = await mongoose.model(name, schema, collection, options);
     
-    //await changeDrop(mongoModel, oldFuncs);
-    //await changeCreation(mongoModel, oldFuncs);
-    //await changeDeletion(mongoModel, oldFuncs);
-
-    return mongoModel;
-};
+        const foreignKeyProcessor = new ForeignKeyProcessor(
+            mongoModel
+        );
+        await foreignKeyProcessor.processForeignKeys();
+    
+        //const oldFuncs = await getFuncs(mongoModel);
+        
+        //await changeDrop(mongoModel, oldFuncs);
+        //await changeCreation(mongoModel, oldFuncs);
+        //await changeDeletion(mongoModel, oldFuncs);
+    
+        this.models[name] = mongoModel;
+        return mongoModel;
+    };
+}
