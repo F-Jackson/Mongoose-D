@@ -31,7 +31,7 @@ export class ForeignKeyProcessor {
             if (this._isLeafNode(keys)) {
                 this._processLeafNode(path, currentEntry, activeForeignKeys);
             } else {
-                this._addNestedKeyToStack(stack, keys, nested);
+                await this._addNestedKeyToStack(stack, keys, nested);
             }
         }
     };
@@ -40,24 +40,24 @@ export class ForeignKeyProcessor {
 
     _isLeafNode = (keys) => keys.length === 1;
 
-    _processLeafNode = (path, schemaField, activeForeignKeys) => {
+    _processLeafNode = async (path, schemaField, activeForeignKeys) => {
         if (!schemaField.type) return;
 
-        const { type, ref, isArray } = this._extractFieldTypeAndRef(schemaField);
+        const { ref, isArray } = await this._extractFieldTypeAndRef(schemaField);
         if (!ref) return;
 
-        const metadata = this._createForeignKeyMetadata(path, schemaField, isArray);
-        this._addForeignKeyMetadata(activeForeignKeys, ref, metadata);
+        const metadata = await this._createForeignKeyMetadata(path, schemaField, isArray);
+        await this._addForeignKeyMetadata(activeForeignKeys, ref, metadata);
     };
 
-    _extractFieldTypeAndRef = (schemaField) => {
+    _extractFieldTypeAndRef = async (schemaField) => {
         const isArray = Array.isArray(schemaField.type);
         const type = isArray ? schemaField.type[0] : schemaField.type;
         const ref = type.schemaName === "ObjectId" ? schemaField.ref : null;
         return { type, ref, isArray };
     };
 
-    _createForeignKeyMetadata = (path, schemaField, isArray) => ({
+    _createForeignKeyMetadata = async (path, schemaField, isArray) => ({
         path,
         required: schemaField.required || false,
         immutable: schemaField.immutable || false,
@@ -65,14 +65,14 @@ export class ForeignKeyProcessor {
         array: isArray,
     });
 
-    _addForeignKeyMetadata = (activeForeignKeys, ref, metadata) => {
+    _addForeignKeyMetadata = async (activeForeignKeys, ref, metadata) => {
         if (!activeForeignKeys[ref]) {
             activeForeignKeys[ref] = [];
         }
         activeForeignKeys[ref].push(metadata);
     };
 
-    _addNestedKeyToStack = (stack, keys, nested) => {
+    _addNestedKeyToStack = async (stack, keys, nested) => {
         stack.push({
             keys: keys.slice(1),
             nested: [...nested, keys[0]],
