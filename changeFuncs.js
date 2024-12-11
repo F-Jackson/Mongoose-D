@@ -38,7 +38,7 @@ export const changeDrop = async(mongoD, mongoModel, oldFuncs) => {
                     }
                 });
 
-                if ()
+                delete mongoD.relations[mongoModel.modelName];
             }
 
             delete mongoD.models[mongoModel.modelName];
