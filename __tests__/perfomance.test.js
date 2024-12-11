@@ -24,23 +24,13 @@ const connectMongoDb = async function connect(url) {
 };
 
 describe("Mongo instance creation", () => {
-    const syncedModels = InitMongoModels();
+    let mongoD = undefined;
 
     beforeEach(async () => {
         await connectMongoDb("mongodb+srv://jacksonjfs18:eUAqgrGoVxd5vboT@cluster0.o5i8utp.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0");
 
-        /*
         await _FKS_MODEL_.deleteMany({});
         await _FKS_.deleteMany({});
-
-        const synced = await syncedModels.get();
-        
-        for (const value of Object.values(synced)) {
-            await value.deleteMany({});
-            await value.collection.drop();
-        }
-
-        await syncedModels.set([]);
 
         const collections = await mongoose.connection.db.listCollections().toArray();
         const dropPromises = collections.map((collection) =>
@@ -51,16 +41,24 @@ describe("Mongo instance creation", () => {
 
         for (let model in mongoose.models) {
             delete mongoose.models[model];
-        }*/
-    }, 0);
+        }
+
+        if (mongoD) {
+            for (const value of Object.values(mongoD.models)) {
+                await value.deleteMany({});
+                await value.collection.drop();
+            }
+        }
+
+        mongoD = new InitMongoModels();
+    });
 
     afterEach(async () => {
-        //vi.restoreAllMocks();
-        //await mongoose.connection.close();
+        vi.restoreAllMocks();
+        await mongoose.connection.close();
     });
 
     it("test 100", async () => {
-        return;
         const startTime = performance.now();  // Start timing
 
         for (let i = 0; i < 100; i++) {
@@ -87,10 +85,10 @@ describe("Mongo instance creation", () => {
         const startTime = performance.now();  // Start timing
 
         for (let i = 0; i < 100; i++) {
-            const RelatedModel = await MongoModel(`RelatedModel-${i}`, new mongoose.Schema({
+            const RelatedModel = await mongoD.MongoModel(`RelatedModel-${i}`, new mongoose.Schema({
                 title: { type: String, required: true },
             }));
-            const TestModel = await MongoModel(`TestModel-${i}`, new mongoose.Schema({
+            const TestModel = await mongoD.MongoModel(`TestModel-${i}`, new mongoose.Schema({
                 name: { type: String, required: true },
                 related: {
                     type: mongoose.Schema.Types.ObjectId,
