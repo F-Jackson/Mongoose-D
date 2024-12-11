@@ -9,12 +9,6 @@ export class ForeignKeyProcessor {
         //this._populateForeignKeyMetadata(activeFks);
     };
 
-    _processEntry = (slicedKey, schemaEntries) => {
-        const entries = [];
-
-        return entries;
-    };
-
     _getActiveForeignKeys = async () => {
         const activeFks = [];
         const paths = Object.entries(this.mongoModel.schema.paths);
@@ -26,6 +20,7 @@ export class ForeignKeyProcessor {
         
             while (stack.length > 0) {
                 const { key, nested } = stack.pop();
+                console.log(key, nested);
                 const currentKey = key[0];
                 const schemaEntry = schemaEntries[currentKey];
                 
@@ -42,8 +37,6 @@ export class ForeignKeyProcessor {
                 }
             }
 
-            this._processEntry(slicedKey, schemaEntries, entries);
-
             //
             //const isArray = Array.isArray(value);
     
@@ -55,7 +48,7 @@ export class ForeignKeyProcessor {
         }
 
         Promise.all(
-            paths.map(async ([key, _]) => doAsync(key))
+            paths.map(([key, _]) => doAsync(key))
         );
     
         return activeFks;
