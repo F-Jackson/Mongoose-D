@@ -93,7 +93,7 @@ describe("Mongo instance creation", () => {
                 related: {
                     type: mongoose.Schema.Types.ObjectId,
                     ref: `RelatedModel-${i}`,
-                    __linked: true,
+                    linked: true,
                     required: true,
                 },
             }));
