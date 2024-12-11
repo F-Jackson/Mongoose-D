@@ -24,9 +24,9 @@ export class InitMongoModels {
         );
         await foreignKeyProcessor.processForeignKeys();
     
-        const oldFuncs = await getFuncs(mongoModel);
+        //const oldFuncs = await getFuncs(mongoModel);
         
-        await changeDrop(this, mongoModel, oldFuncs);
+        //await changeDrop(this, mongoModel, oldFuncs);
         //await changeCreation(mongoModel, oldFuncs);
         //await changeDeletion(mongoModel, oldFuncs);
     

@@ -25,7 +25,7 @@ export const changeDrop = async(this, mongoModel, oldFuncs) => {
         const result = await oldFuncs.drop.call(this, options);
 
         if (result) {
-            this.models.delete(mongoModel.modelName);
+            //this.models.delete(mongoModel.modelName);
         }
 
         return result;
