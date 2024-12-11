@@ -25,21 +25,23 @@ export const changeDrop = async(mongoD, mongoModel, oldFuncs) => {
         const result = await oldFuncs.drop.call(this, options);
 
         if (result) {
-            console.log(mongoD.relations);
+            console.log(mongoD.relations, mongoD.models);
             const relations = mongoD.relations[mongoModel.modelName];
-            if (!relations) return;
-
-            relations.forEach(relation => {
-                const relationModel = mongoD.models[relation];
-
-                delete relationModel._FKS[mongoModel.modelName];
-                
-                if (Object.entries(relationModel._FKS).length === 0) {
-                    delete relationModel["_FKS"];
-                }
-            });
+            if (relations) {
+                relations.forEach(relation => {
+                    const relationModel = mongoD.models[relation];
+    
+                    delete relationModel._FKS[mongoModel.modelName];
+                    
+                    if (Object.entries(relationModel._FKS).length === 0) {
+                        delete relationModel["_FKS"];
+                    }
+                });
+            }
 
             delete mongoD.models[mongoModel.modelName];
+
+            console.log(mongoD.relations, mongoD.models);
         }
 
         return result;
