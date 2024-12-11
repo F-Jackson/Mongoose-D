@@ -8,6 +8,7 @@ export class InitMongoModels {
     constructor() {
         this.models = {};
         this.Schema = mongoose.Schema;
+        this.relations = {};
     }
 
     async MongoModel (
@@ -21,7 +22,8 @@ export class InitMongoModels {
         const mongoModel = await mongoose.model(name, schema, collection, options);
     
         const foreignKeyProcessor = new ForeignKeyProcessor(
-            mongoModel
+            mongoModel,
+            this
         );
         await foreignKeyProcessor.processForeignKeys();
     

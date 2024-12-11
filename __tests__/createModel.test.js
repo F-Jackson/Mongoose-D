@@ -220,52 +220,21 @@ describe("Mongo model creation", () => {
     });
 
     it("should handle optional foreign keys", async () => {
-        return;
         const optionalSchema = new mongoD.Schema({
             optionalField: {
                 type: mongoD.Schema.Types.ObjectId,
                 ref: "RelatedModel",
-                __linked: true,
+                _linked: false,
                 required: false,
             },
         });
 
         const OptionalModel = await mongoD.MongoModel("OptionalModel", optionalSchema);
 
-        const fksModels = await _FKS_MODEL_.find({ model: "OptionalModel" });
-        expect(fksModels).toHaveLength(1);
-        expect(fksModels[0]).toHaveProperty("fk_isRequired", false);
-    });
+        expect(Object.entries(mongoD.models)).toHaveLength(1);
+        expect(mongoD.models).toHaveProperty("OptionalModel");
 
-    //
-    it("should handle foreign keys with non-required fields and validate properly", async () => {
-        return;
-        const nonRequiredFKSchema = new mongoD.Schema({
-            nonRequiredField: {
-                type: mongoD.Schema.Types.ObjectId,
-                ref: "RelatedModel",
-                __linked: true,
-                required: false,
-            },
-        });
-
-        const NonRequiredFKModel = await mongoD.MongoModel("NonRequiredFKModel", nonRequiredFKSchema);
-
-        const fksModels = await _FKS_MODEL_.find({ model: "NonRequiredFKModel" });
-        expect(fksModels).toHaveLength(1);
-        expect(fksModels[0]).toHaveProperty("fk_isRequired", false);
-    });
-
-    it("should handle foreign key deletion correctly when reference model is deleted", async () => {
-        return;
-        const RelatedModel = await mongoD.MongoModel("RelatedModel", relatedSchema);
-        const TestModel = await mongoD.MongoModel("TestModel", testSchema);
-
-        expect(await _FKS_MODEL_.countDocuments()).toBe(1);
-
-        await RelatedModel.collection.drop();
-
-        expect(await _FKS_MODEL_.countDocuments()).toBe(0);
+        expect(OptionalModel).not.toHaveProperty("_FKS");
     });
 
     it("should process foreign keys when multiple models reference the same model", async () => {
@@ -293,14 +262,14 @@ describe("Mongo model creation", () => {
     });
 
     it("should correctly delete a foreign key model and not affect other models", async () => {
-        return;
         const RelatedModel = await mongoD.MongoModel("RelatedModel", relatedSchema);
         const TestModel = await mongoD.MongoModel("TestModel", testSchema);
         const AnotherTestModel = await mongoD.MongoModel("AnotherTestModell", testSchema);
 
-        expect(await _FKS_MODEL_.countDocuments()).toBe(2);
+        expect(Object.entries(mongoD.models)).toHaveLength(3);
 
         await RelatedModel.collection.drop();
+        expect(Object.entries(mongoD.models)).toHaveLength(2);
         expect(await _FKS_MODEL_.countDocuments()).toBe(0);
 
         const fksModelsTest = await _FKS_MODEL_.find({ model: "TestModel" });

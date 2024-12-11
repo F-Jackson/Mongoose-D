@@ -1,23 +1,24 @@
 export class ForeignKeyProcessor {
-    constructor(mongoModel) {
+    constructor(mongoModel, mongoD) {
         this.mongoModel = mongoModel;
+        this.mongoD = mongoD;
+        this.activeForeignKeys = [];
+        this.relations = [];
     }
 
     processForeignKeys = async () => {
-        const activeForeignKeys = await this._getActiveForeignKeys();
-        this._populateForeignKeyMetadata(activeForeignKeys);
+        await this._getActiveForeignKeys();
+        await this._populateForeignKeyMetadata();
     };
 
     _getActiveForeignKeys = async () => {
         const schemaPaths = Object.entries(this.mongoModel.schema.paths);
         const schemaEntries = this.mongoModel.schema.obj;
-        const activeForeignKeys = {};
 
-        await Promise.all(schemaPaths.map(([path]) => this._processPath(path, schemaEntries, activeForeignKeys)));
-        return activeForeignKeys;
+        await Promise.all(schemaPaths.map(([path]) => this._processPath(path, schemaEntries)));
     };
 
-    _processPath = async (path, schemaEntries, activeForeignKeys) => {
+    _processPath = async (path, schemaEntries, ) => {
         const slicedKeys = path.split(".");
         const stack = [{ keys: slicedKeys, nested: [] }];
         let currentEntry = schemaEntries;
@@ -29,7 +30,7 @@ export class ForeignKeyProcessor {
             if (!currentEntry) continue;
 
             if (this._isLeafNode(keys)) {
-                this._processLeafNode(path, currentEntry, activeForeignKeys);
+                await this._processLeafNode(path, currentEntry);
             } else {
                 await this._addNestedKeyToStack(stack, keys, nested);
             }
@@ -40,20 +41,21 @@ export class ForeignKeyProcessor {
 
     _isLeafNode = (keys) => keys.length === 1;
 
-    _processLeafNode = async (path, schemaField, activeForeignKeys) => {
+    _processLeafNode = async (path, schemaField, ) => {
         if (!schemaField.type) return;
 
         const { ref, isArray } = await this._extractFieldTypeAndRef(schemaField);
         if (!ref) return;
 
         const metadata = await this._createForeignKeyMetadata(path, schemaField, isArray);
-        await this._addForeignKeyMetadata(activeForeignKeys, ref, metadata);
+        await this._addForeignKeyMetadata(ref, metadata);
     };
 
     _extractFieldTypeAndRef = async (schemaField) => {
         const isArray = Array.isArray(schemaField.type);
         const type = isArray ? schemaField.type[0] : schemaField.type;
-        const ref = type.schemaName === "ObjectId" ? schemaField.ref : null;
+        const linked = !("_linked" in schemaField && !schemaField["_linked"]);
+        const ref = (type.schemaName === "ObjectId" && linked) ? schemaField.ref : null;
         return { type, ref, isArray };
     };
 
@@ -65,11 +67,15 @@ export class ForeignKeyProcessor {
         array: isArray,
     });
 
-    _addForeignKeyMetadata = async (activeForeignKeys, ref, metadata) => {
-        if (!activeForeignKeys[ref]) {
-            activeForeignKeys[ref] = [];
+    _addForeignKeyMetadata = async (ref, metadata) => {
+        if (!this.activeForeignKeys[ref]) {
+            this.activeForeignKeys[ref] = [];
+            
+            if (!this.relations.includes(ref)) {
+                this.relations.push(ref);
+            }
         }
-        activeForeignKeys[ref].push(metadata);
+        this.activeForeignKeys[ref].push(metadata);
     };
 
     _addNestedKeyToStack = async (stack, keys, nested) => {
@@ -79,9 +85,21 @@ export class ForeignKeyProcessor {
         });
     };
 
-    _populateForeignKeyMetadata = (activeForeignKeys) => {
-        if (Object.keys(activeForeignKeys).length > 0) {
-            this.mongoModel._FKS = activeForeignKeys;
+    _populateForeignKeyMetadata = async () => {
+        if (Object.keys(this.activeForeignKeys).length > 0) {
+            this.mongoModel._FKS = this.activeForeignKeys;
+        }
+
+        const modelName = this.mongoModel.modelName;
+
+        if (this.relations.length > 0) {
+            this.relations.forEach(relation => {
+                if (!this.mongoD.relations[relation]) {
+                    this.mongoD.relations[relation] = [ modelName ];
+                } else if (!this.mongoD.relations[relation].includes(modelName)) {
+                    this.mongoD.relations[relation].push(modelName);
+                }
+            });
         }
     };
 }
