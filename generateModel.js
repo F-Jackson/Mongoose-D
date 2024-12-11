@@ -2,7 +2,7 @@ export class ForeignKeyProcessor {
     constructor(mongoModel, mongoD) {
         this.mongoModel = mongoModel;
         this.mongoD = mongoD;
-        this.activeForeignKeys = [];
+        this.activeForeignKeys = {};
         this.relations = [];
     }
 
@@ -42,7 +42,7 @@ export class ForeignKeyProcessor {
     _isLeafNode = (keys) => keys.length === 1;
 
     _processLeafNode = async (path, schemaField, ) => {
-        if (!schemaField.type) return;
+        if (!schemaField.type || !schemaField.ref) return;
 
         const { ref, isArray } = await this._extractFieldTypeAndRef(schemaField);
         if (!ref) return;
