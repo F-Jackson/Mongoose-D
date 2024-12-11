@@ -20,9 +20,10 @@ export class ForeignKeyProcessor {
 
             while (stack.length > 0) {
                 const { key, nested } = stack.pop();
-                console.log(`key: ${key}, nested: ${nested}`);
                 const currentKey = key[0];
                 const schemaEntry = schemaEntries[currentKey];
+
+                console.log(`key: ${key}, nested: ${nested}, ck: ${currentKey}, schema: ${schemaEntry}`);
                 
                 if (!schemaEntry) continue;
                 
