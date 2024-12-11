@@ -29,29 +29,20 @@ describe("Mongo instance creation", () => {
     beforeEach(async () => {
         await connectMongoDb("mongodb+srv://jacksonjfs18:eUAqgrGoVxd5vboT@cluster0.o5i8utp.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0");
 
-        await _FKS_MODEL_.deleteMany({});
-        await _FKS_.deleteMany({});
-
-        const collections = await mongoose.connection.db.listCollections().toArray();
-        const dropPromises = collections.map((collection) =>
-            mongoose.connection.db.dropCollection(collection.name)
-        );
-
-        await Promise.all(dropPromises);
-
         for (let model in mongoose.models) {
             delete mongoose.models[model];
         }
 
         if (mongoD) {
             for (const value of Object.values(mongoD.models)) {
+                console.log(value);
                 await value.deleteMany({});
                 await value.collection.drop();
             }
         }
 
         mongoD = new InitMongoModels();
-    });
+    }, 0);
 
     afterEach(async () => {
         vi.restoreAllMocks();
@@ -78,6 +69,8 @@ describe("Mongo instance creation", () => {
         const endTime = performance.now();  // End timing
         const timeTaken = endTime - startTime;  // Calculate the time taken
 
+        expect(Object.keys(mongoose.models)).toHaveLength(2000);
+
         logToFile(`***********1K*********** ${timeTaken.toFixed(2)} ms`);  // Log time taken
     });
 
@@ -101,6 +94,8 @@ describe("Mongo instance creation", () => {
 
         const endTime = performance.now();  // End timing
         const timeTaken = endTime - startTime;  // Calculate the time taken
+
+        expect(Object.keys(mongoose.models)).toHaveLength(2000);
 
         logToFile(`***********__FKS_MODEL__ 1K*********** ${timeTaken.toFixed(2)} ms`);  // Log time taken
     });
