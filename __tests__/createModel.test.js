@@ -267,15 +267,18 @@ describe("Mongo model creation", () => {
         const AnotherTestModel = await mongoD.MongoModel("AnotherTestModell", testSchema);
 
         expect(Object.entries(mongoD.models)).toHaveLength(3);
+        expect(Object.entries(mongoD.relations)).toHaveLength(1);
+        expect(mongoD.relations["RelatedModel"]).toContain(["TestModel", "AnotherTestModell"]);
+        expect(TestModel).toHaveProperty("_FKS");
+        expect(AnotherTestModel).toHaveProperty("_FKS");
 
         await RelatedModel.collection.drop();
-        expect(Object.entries(mongoD.models)).toHaveLength(2);
-        expect(await _FKS_MODEL_.countDocuments()).toBe(0);
 
-        const fksModelsTest = await _FKS_MODEL_.find({ model: "TestModel" });
-        const fksModelsAnotherTest = await _FKS_MODEL_.find({ model: "AnotherTestModell" });
-        expect(fksModelsTest).toHaveLength(0);
-        expect(fksModelsAnotherTest).toHaveLength(0);
+        expect(Object.entries(mongoD.models)).toHaveLength(2);
+        expect(TestModel).not.toHaveProperty("_FKS");
+        expect(AnotherTestModel).not.toHaveProperty("_FKS");
+
+        expect(Object.entries(mongoD.relations)).toHaveLength(0);
     });
 
     it("should handle multiple foreign key relationships in a single model", async () => {
