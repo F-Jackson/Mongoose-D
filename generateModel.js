@@ -43,10 +43,10 @@ export class ForeignKeyProcessor {
     _processLeafNode = (path, schemaField, activeForeignKeys) => {
         if (!schemaField.type) return;
 
-        const { type, ref } = this._extractFieldTypeAndRef(schemaField);
+        const { type, ref, isArray } = this._extractFieldTypeAndRef(schemaField);
         if (!ref) return;
 
-        const metadata = this._createForeignKeyMetadata(path, schemaField, type.isArray);
+        const metadata = this._createForeignKeyMetadata(path, schemaField, isArray);
         this._addForeignKeyMetadata(activeForeignKeys, ref, metadata);
     };
 
