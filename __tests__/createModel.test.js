@@ -275,7 +275,7 @@ describe("Mongo model creation", () => {
 
         expect(Object.entries(mongoD.models)).toHaveLength(3);
         expect(Object.entries(mongoD.relations)).toHaveLength(1);
-        expect(mongoD.relations["RelatedModel"]).toContain(["TestModel", "AnotherTestModell"]);
+        expect(mongoD.relations["RelatedModel"]).toMatchObject(["TestModel", "AnotherTestModell"]);
         expect(TestModel).toHaveProperty("_FKS");
         expect(AnotherTestModel).toHaveProperty("_FKS");
 
