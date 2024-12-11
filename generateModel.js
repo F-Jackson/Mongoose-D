@@ -22,8 +22,12 @@ export class ForeignKeyProcessor {
         const slicedKeys = path.split(".");
         const stack = [{ keys: slicedKeys, nested: [] }];
         let currentEntry = schemaEntries;
+        let limit = 100;
 
         while (stack.length > 0) {
+            limit--;
+            if (limit < 1) throw new Error("Exceeded maximum iteration limit while processing path");
+
             const { keys, nested } = stack.pop();
             currentEntry = this._getNextSchemaEntry(currentEntry, keys[0]);
 
