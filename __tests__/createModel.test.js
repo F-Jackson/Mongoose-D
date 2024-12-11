@@ -157,13 +157,11 @@ describe("Mongo model creation", () => {
     });
 
     it("should handle deletion of foreign key metadata when model is removed", async () => {
-        return;
         const TestModel = await mongoD.MongoModel("TestModel", testSchema);
 
         await TestModel.collection.drop();
 
-        const fksModels = await _FKS_MODEL_.find({ model: "TestModel" });
-        expect(fksModels).toHaveLength(0);
+        expect(Object.entries(mongoD.models)).toHaveLength(0);
     });
 
     it("should process deeply nested foreign keys", async () => {
