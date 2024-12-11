@@ -17,10 +17,10 @@ export class ForeignKeyProcessor {
         const doAsync = async(key) => {
             const slicedKey = key.split(".");
             const stack = [{ key: slicedKey, nested: [] }];
-        
+
             while (stack.length > 0) {
                 const { key, nested } = stack.pop();
-                console.log(key, nested);
+                console.log(`key: ${key}, nested: ${nested}`);
                 const currentKey = key[0];
                 const schemaEntry = schemaEntries[currentKey];
                 
