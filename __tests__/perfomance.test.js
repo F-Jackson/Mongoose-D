@@ -61,11 +61,11 @@ describe("Mongo instance creation", () => {
     it("test 100", async () => {
         const startTime = performance.now();  // Start timing
 
-        for (let i = 0; i < 100; i++) {
-            const RelatedModel = await mongoose.model(`RelatedModel-${i}`, new mongoose.Schema({
+        for (let i = 0; i < 1000; i++) {
+            await mongoose.model(`RelatedModel-${i}`, new mongoose.Schema({
                 title: { type: String, required: true },
             }));
-            const TestModel = await mongoose.model(`TestModel-${i}`, new mongoose.Schema({
+            await mongoose.model(`TestModel-${i}`, new mongoose.Schema({
                 name: { type: String, required: true },
                 related: {
                     type: mongoose.Schema.Types.ObjectId,
@@ -84,11 +84,11 @@ describe("Mongo instance creation", () => {
     it("test __FKS_MODEL__ 100", async () => {
         const startTime = performance.now();  // Start timing
 
-        for (let i = 0; i < 100; i++) {
-            const RelatedModel = await mongoD.MongoModel(`RelatedModel-${i}`, new mongoose.Schema({
+        for (let i = 0; i < 1000; i++) {
+            await mongoD.MongoModel(`RelatedModel-${i}`, new mongoose.Schema({
                 title: { type: String, required: true },
             }));
-            const TestModel = await mongoD.MongoModel(`TestModel-${i}`, new mongoose.Schema({
+            await mongoD.MongoModel(`TestModel-${i}`, new mongoose.Schema({
                 name: { type: String, required: true },
                 related: {
                     type: mongoose.Schema.Types.ObjectId,
