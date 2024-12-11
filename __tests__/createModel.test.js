@@ -12,19 +12,9 @@ const connectMongoDb = async function connect(url) {
 };
 
 describe("Mongo model creation", () => {
-    const testSchema = new mongoose.Schema({
-        name: { type: String, required: true },
-        related: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "RelatedModel",
-            __linked: true,
-            required: true,
-        },
-    });
+    let testSchema = undefined;
 
-    const relatedSchema = new mongoose.Schema({
-        title: { type: String, required: true },
-    });
+    let relatedSchema = undefined;
 
     let mongoD = undefined;
 
@@ -53,6 +43,18 @@ describe("Mongo model creation", () => {
         }
 
         mongoD = new InitMongoModels();
+        relatedSchema = new mongoD.Schema({
+            title: { type: String, required: true },
+        });
+        testSchema = new mongoD.Schema({
+            name: { type: String, required: true },
+            related: {
+                type: mongoD.Schema.Types.ObjectId,
+                ref: "RelatedModel",
+                __linked: true,
+                required: true,
+            },
+        });
     });
 
     afterEach(async () => {
@@ -106,7 +108,7 @@ describe("Mongo model creation", () => {
     });
 
     it("should handle models with no foreign keys", async () => {
-        const simpleSchema = new mongoose.Schema({
+        const simpleSchema = new mongoD.Schema({
             simpleField: { type: String, required: true },
         });
 
@@ -119,15 +121,15 @@ describe("Mongo model creation", () => {
     });
 
     it("should support multiple foreign keys in a single model", async () => {
-        const multiFKSchema = new mongoose.Schema({
+        const multiFKSchema = new mongoD.Schema({
             name: { type: String, required: true },
             related1: {
-                type: mongoose.Schema.Types.ObjectId,
+                type: mongoD.Schema.Types.ObjectId,
                 ref: "RelatedModel",
                 required: true,
             },
             related2: {
-                type: mongoose.Schema.Types.ObjectId,
+                type: mongoD.Schema.Types.ObjectId,
                 ref: "RelatedModel",
                 required: false,
             },
@@ -165,10 +167,10 @@ describe("Mongo model creation", () => {
     });
 
     it("should process deeply nested foreign keys", async () => {
-        const nestedSchema = new mongoose.Schema({
+        const nestedSchema = new mongoD.Schema({
             nestedField: {
                 subField: {
-                    type: mongoose.Schema.Types.ObjectId,
+                    type: mongoD.Schema.Types.ObjectId,
                     ref: "RelatedModel",
                     required: true,
                     unique: true,
@@ -183,7 +185,7 @@ describe("Mongo model creation", () => {
             nestedField2: {
                 po2: {
                     subField: {
-                        type: [mongoose.Schema.Types.ObjectId],
+                        type: [mongoD.Schema.Types.ObjectId],
                         ref: "RelatedModel",
                     }
                 }
@@ -219,9 +221,9 @@ describe("Mongo model creation", () => {
 
     it("should handle optional foreign keys", async () => {
         return;
-        const optionalSchema = new mongoose.Schema({
+        const optionalSchema = new mongoD.Schema({
             optionalField: {
-                type: mongoose.Schema.Types.ObjectId,
+                type: mongoD.Schema.Types.ObjectId,
                 ref: "RelatedModel",
                 __linked: true,
                 required: false,
@@ -238,9 +240,9 @@ describe("Mongo model creation", () => {
     //
     it("should handle foreign keys with non-required fields and validate properly", async () => {
         return;
-        const nonRequiredFKSchema = new mongoose.Schema({
+        const nonRequiredFKSchema = new mongoD.Schema({
             nonRequiredField: {
-                type: mongoose.Schema.Types.ObjectId,
+                type: mongoD.Schema.Types.ObjectId,
                 ref: "RelatedModel",
                 __linked: true,
                 required: false,
@@ -268,10 +270,10 @@ describe("Mongo model creation", () => {
 
     it("should process foreign keys when multiple models reference the same model", async () => {
         return;
-        const anotherTestSchema = new mongoose.Schema({
+        const anotherTestSchema = new mongoD.Schema({
             anotherName: { type: String, required: true },
             related: {
-                type: mongoose.Schema.Types.ObjectId,
+                type: mongoD.Schema.Types.ObjectId,
                 ref: "RelatedModel",
                 __linked: true,
                 required: true,
@@ -309,16 +311,16 @@ describe("Mongo model creation", () => {
 
     it("should handle multiple foreign key relationships in a single model", async () => {
         return;
-        const multiRelatedSchema = new mongoose.Schema({
+        const multiRelatedSchema = new mongoD.Schema({
             name: { type: String, required: true },
             relatedOne: {
-                type: mongoose.Schema.Types.ObjectId,
+                type: mongoD.Schema.Types.ObjectId,
                 ref: "RelatedModel",
                 __linked: true,
                 required: true,
             },
             relatedTwo: {
-                type: mongoose.Schema.Types.ObjectId,
+                type: mongoD.Schema.Types.ObjectId,
                 ref: "RelatedModel",
                 __linked: true,
                 required: false,
@@ -350,10 +352,10 @@ describe("Mongo model creation", () => {
             fk_isUnique: false,
         });
 
-        const testSchema2 = new mongoose.Schema({
+        const testSchema2 = new mongoD.Schema({
             name: { type: String, required: true },
             related2: {
-                type: mongoose.Schema.Types.ObjectId,
+                type: mongoD.Schema.Types.ObjectId,
                 ref: "RelatedModel",
                 __linked: true,
                 required: true,
@@ -376,20 +378,20 @@ describe("Mongo model creation", () => {
 
     it("should handle circular references", async () => {
         return;
-        const circularSchemaA = new mongoose.Schema({
+        const circularSchemaA = new mongoD.Schema({
             name: { type: String, required: true },
             related: {
-                type: mongoose.Schema.Types.ObjectId,
+                type: mongoD.Schema.Types.ObjectId,
                 ref: "ModelB",
                 __linked: true,
                 required: true,
             },
         });
     
-        const circularSchemaB = new mongoose.Schema({
+        const circularSchemaB = new mongoD.Schema({
             name: { type: String, required: true },
             related: {
-                type: mongoose.Schema.Types.ObjectId,
+                type: mongoD.Schema.Types.ObjectId,
                 ref: "ModelA",
                 __linked: true,
                 required: true,
@@ -414,18 +416,18 @@ describe("Mongo model creation", () => {
 
     it("should error if not given ref in foreign key", async () => {
         return;
-        const schemaWithObjectIdFK = new mongoose.Schema({
+        const schemaWithObjectIdFK = new mongoD.Schema({
             related: {
-                type: mongoose.Schema.Types.ObjectId,
+                type: mongoD.Schema.Types.ObjectId,
                 ref: "RelatedModel",
                 required: true,
                 __linked: true
             },
         });
     
-        const schemaWithEmbeddedDocFK = new mongoose.Schema({
+        const schemaWithEmbeddedDocFK = new mongoD.Schema({
             related: {
-                type: mongoose.Schema.Types.ObjectId,
+                type: mongoD.Schema.Types.ObjectId,
                 required: true,
                 __linked: true
             },
@@ -446,10 +448,10 @@ describe("Mongo model creation", () => {
 
     it("should create a model and process foreign indexed keys", async () => {
         return;
-        const testSchema2 = new mongoose.Schema({
+        const testSchema2 = new mongoD.Schema({
             name: { type: String, required: true },
             related: {
-                type: mongoose.Schema.Types.ObjectId,
+                type: mongoD.Schema.Types.ObjectId,
                 ref: "RelatedModel",
                 __linked: true,
                 required: true,
@@ -476,10 +478,10 @@ describe("Mongo model creation", () => {
     it("should handle cyclic foreign key reference", async () => {
         return;
         const TestModel = await mongoD.MongoModel("TestModel", testSchema);
-        const RelatedModel = await mongoD.MongoModel("RelatedModel", new mongoose.Schema({
+        const RelatedModel = await mongoD.MongoModel("RelatedModel", new mongoD.Schema({
             name: { type: String, required: true },
             test: {
-                type: mongoose.Schema.Types.ObjectId,
+                type: mongoD.Schema.Types.ObjectId,
                 ref: "TestModel",
                 __linked: true,
                 required: true,
@@ -507,11 +509,11 @@ describe("Mongo model creation", () => {
 
     it("should create with an array of references", async () => {
         return;
-        const TestModel = await mongoD.MongoModel("TestModel", new mongoose.Schema({
+        const TestModel = await mongoD.MongoModel("TestModel", new mongoD.Schema({
             label: { type: String, required: true },
         }));
-        const RelatedModel = await mongoD.MongoModel("RelatedModel", new mongoose.Schema({
-            children: [{ type: mongoose.Schema.Types.ObjectId, ref: "TestModel", __linked: true, required: true }],
+        const RelatedModel = await mongoD.MongoModel("RelatedModel", new mongoD.Schema({
+            children: [{ type: mongoD.Schema.Types.ObjectId, ref: "TestModel", __linked: true, required: true }],
             po: [String]
         }));
 

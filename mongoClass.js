@@ -7,6 +7,7 @@ import { getFuncs, changeCreation, changeDeletion, changeDrop } from "./changeFu
 export class InitMongoModels {
     constructor() {
         this.models = {};
+        this.Schema = mongoose.Schema;
     }
 
     async MongoModel (
