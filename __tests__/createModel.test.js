@@ -197,7 +197,7 @@ describe("Mongo model creation", () => {
 
         const NestedModel = await mongoD.MongoModel("NestedModel", nestedSchema);
 
-        console.log(NestedModel);
+        console.log(NestedModel._FKS);
     });
 
     it("should handle optional foreign keys", async () => {
