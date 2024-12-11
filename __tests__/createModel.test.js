@@ -170,7 +170,6 @@ describe("Mongo model creation", () => {
                 subField: {
                     type: mongoose.Schema.Types.ObjectId,
                     ref: "RelatedModel",
-                    linked: true,
                     required: true,
                     unique: true,
                     immutable: true
@@ -186,7 +185,6 @@ describe("Mongo model creation", () => {
                     subField: {
                         type: [mongoose.Schema.Types.ObjectId],
                         ref: "RelatedModel",
-                        linked: true,
                     }
                 }
             },
@@ -195,7 +193,28 @@ describe("Mongo model creation", () => {
 
         const NestedModel = await mongoD.MongoModel("NestedModel", nestedSchema);
 
-        console.log(NestedModel._FKS);
+        expect(Object.entries(mongoD.models)).toHaveLength(1);
+        expect(mongoD.models).toHaveProperty("NestedModel");
+
+        expect(Object.entries(NestedModel._FKS)).toHaveLength(1);
+        expect(NestedModel._FKS).toMatchObject({
+            "RelatedModel": [
+                {
+                    path: "nestedField.subField",
+                    required: true,
+                    immutable: true,
+                    unique: true,
+                    array: false,
+                },
+                {
+                    path: "nestedField2.po2.subField",
+                    required: false,
+                    immutable: false,
+                    unique: false,
+                    array: true,
+                },
+            ]
+        });
     });
 
     it("should handle optional foreign keys", async () => {
