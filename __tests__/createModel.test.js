@@ -183,7 +183,7 @@ describe("Mongo model creation", () => {
             nestedField2: {
                 po2: {
                     subField: {
-                        type: mongoose.Schema.Types.ObjectId,
+                        type: [mongoose.Schema.Types.ObjectId],
                         ref: "RelatedModel",
                         __linked: true,
                     }

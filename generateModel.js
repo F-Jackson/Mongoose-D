@@ -14,8 +14,8 @@ export class ForeignKeyProcessor {
         const paths = Object.entries(this.mongoModel.schema.paths);
         const schemaEntries = this.mongoModel.schema.obj;
     
-        const doAsync = async(key) => {
-            const slicedKey = key.split(".");
+        const doAsync = async(path) => {
+            const slicedKey = path.split(".");
             const stack = [{ key: slicedKey, nested: [] }];
             let schemaEntry = schemaEntries;
 
@@ -27,7 +27,14 @@ export class ForeignKeyProcessor {
                 if (!schemaEntry) continue;
                 
                 if (key.length === 1) {
-                    console.log(([key, schemaEntry]));
+                    const entrie = schemaEntry;
+                    if (!entrie.type) continue;
+
+                    const isArray = Array.isArray(entrie.type);
+                    const tp = isArray ? entrie.type[0] : entrie.type;
+
+                    console.log(([key[0], path, tp]));
+                    if (tp.schemaName !== "ObjectId") continue;
                 } else {
                     stack.push({
                         key: key.slice(1),
@@ -51,11 +58,6 @@ export class ForeignKeyProcessor {
         );
     
         return activeFks;
-    };    
-
-    _isForeignKey = (value) => {
-        if (value.type?.schemaName !== "ObjectId") return false;
-        return value.__linked;
     };
 
     _findOrCreateForeignKeyModel = async(key, value, isArray, activeFks) => {
