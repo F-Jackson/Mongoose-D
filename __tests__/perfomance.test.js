@@ -49,10 +49,10 @@ describe("Mongo instance creation", () => {
         await mongoose.connection.close();
     });
 
-    it("test 100", async () => {
+    it("test 10k", async () => {
         const startTime = performance.now();  // Start timing
 
-        for (let i = 0; i < 1000; i++) {
+        for (let i = 0; i < 10000; i++) {
             await mongoose.model(`RelatedModel-${i}`, new mongoose.Schema({
                 title: { type: String, required: true },
             }));
@@ -69,15 +69,15 @@ describe("Mongo instance creation", () => {
         const endTime = performance.now();  // End timing
         const timeTaken = endTime - startTime;  // Calculate the time taken
 
-        expect(Object.keys(mongoose.models)).toHaveLength(2000);
+        expect(Object.keys(mongoose.models)).toHaveLength(20000);
 
         logToFile(`***********1K*********** ${timeTaken.toFixed(2)} ms`);  // Log time taken
     });
 
-    it("test __FKS_MODEL__ 100", async () => {
+    it("test __FKS_MODEL__ 10k", async () => {
         const startTime = performance.now();  // Start timing
 
-        for (let i = 0; i < 1000; i++) {
+        for (let i = 0; i < 10000; i++) {
             await mongoD.MongoModel(`RelatedModel-${i}`, new mongoose.Schema({
                 title: { type: String, required: true },
             }));
@@ -95,7 +95,7 @@ describe("Mongo instance creation", () => {
         const endTime = performance.now();  // End timing
         const timeTaken = endTime - startTime;  // Calculate the time taken
 
-        expect(Object.keys(mongoose.models)).toHaveLength(2000);
+        expect(Object.keys(mongoose.models)).toHaveLength(20000);
 
         logToFile(`***********__FKS_MODEL__ 1K*********** ${timeTaken.toFixed(2)} ms`);  // Log time taken
     });
