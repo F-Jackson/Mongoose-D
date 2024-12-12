@@ -520,4 +520,26 @@ describe("Mongo model creation", () => {
             });
         }
     });
+
+    it("should handle collection drop data inside db", async () => {
+        const RelatedModel = await mongoD.MongoModel("RelatedModel", relatedSchema);
+        await RelatedModel.create({
+            title: "test"
+        });
+
+        expect((await RelatedModel.find({}))).toHaveLength(1);
+        let db = mongoose.connection.db;
+        let collections = await db.listCollections().toArray();
+        expect(collections.map(col => col.name)).toHaveLength(1);
+        expect(collections.map(col => col.name)).toHaveProperty("relatedmodels");
+
+        RelatedModel.collection.drop();
+        db = mongoose.connection.db;
+        collections = await db.listCollections().toArray();
+        expect(collections.map(col => col.name)).toHaveLength(0);
+        expect(collections.map(col => col.name)).not.toHaveProperty("relatedmodels");
+
+        const RelatedModel2 = await mongoD.MongoModel("RelatedModel", relatedSchema);
+        expect((await RelatedModel2.find({}))).toHaveLength(1);
+    });
 }, 0);
