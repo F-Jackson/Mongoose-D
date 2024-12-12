@@ -9,22 +9,24 @@ export class InitMongoModels {
     constructor() {
         this.models = {};
         this.relations = {};
+        this.oldRelations = {};
         this.Schema = mongoose.Schema;
     }
 
     addRelations(relations, modelName) {
-        this.relations.forEach(relation => {
-            this.mongoD.addRelation(relation, modelName);
+        relations.forEach(relation => {
+            if (!this.relations[relation]) {
+                this.relations[relation] = [ modelName ];
+                this.oldRelations[relation] = [ modelName ];
+            } else if (!this.relations[relation].includes(modelName)) {
+                this.relations[relation].push(modelName);
+                this.oldRelations[relation].push(modelName);
+            }
         });
-        if (!this.relations[relation]) {
-            this.relations[relation] = [ modelName ];
-        } else if (!this.relations[relation].includes(modelName)) {
-            this.relations[relation].push(modelName);
-        }
     }
 
-    getRelations() {
-        return JSON.parse(JSON.stringify(this.relations));
+    resetRelations() {
+        this.relations = JSON.parse(JSON.stringify(this.oldRelations));
     }
 
     async MongoModel (
