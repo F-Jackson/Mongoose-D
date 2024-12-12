@@ -35,7 +35,6 @@ export class InitMongoModels {
         );
         await foreignKeyProcessor.processForeignKeys();
     
-        console.log(mongoModel["_FKS"]);
         const oldFuncs = await getFuncs(mongoModel);
         
         await changeDrop(this, mongoModel, oldFuncs);
