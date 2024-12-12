@@ -28,7 +28,10 @@ export class InitMongoModels {
         name,
         schema,
         collection,
-        options
+        options,
+        kwargs = {
+            modelCreator: ForeignKeyProcessor
+        }
     ) {
         const mongoModel = await mongoose.model(name, schema, collection, options);
 
@@ -41,7 +44,7 @@ export class InitMongoModels {
             throw err;
         }
 
-        const foreignKeyProcessor = new ForeignKeyProcessor(
+        const foreignKeyProcessor = new kwargs.modelCreator(
             mongoModel,
             this
         );
