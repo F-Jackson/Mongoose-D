@@ -21,7 +21,7 @@ export const getFuncs = async(mongoModel) => {
     };
 };
 
-export const changeDrop = async(mongoD, mongoModel, oldFuncs) => {
+export const changeDrop = async(mongoD, mongoModel, oldFuncs, dbCollections) => {
     mongoModel.collection.drop = async function(options) {
         const modelName = mongoModel.modelName;
 

@@ -32,7 +32,7 @@ export class InitMongoModels {
         if (name in this.models) throw new Error("Model already exists");
 
         const mongoModel = await mongoose.model(name, schema, collection, options);
-        const dbCollections = await mongoose.connection.db.listCollections().toArray();
+        const dbCollections = (await mongoose.connection.db.listCollections().toArray()).map(col => col.name);
 
         try {
             const oldFuncs = await getFuncs(mongoModel);
