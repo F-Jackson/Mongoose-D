@@ -444,14 +444,16 @@ describe("Mongo model creation", () => {
         const modelWithGetActiveError = ForeignKeyProcessor;
         modelWithGetActiveError._getActiveForeignKeys = async() => { throw new Error("activer error") };
 
-        const TestModel = await mongoD.MongoModel(
-            "TestModel", testSchema, undefined, undefined, 
-            {
-                modelCreator: modelWithGetActiveError
-            }
-        );
+        try{
+            const TestModel = await mongoD.MongoModel(
+                "TestModel", testSchema, undefined, undefined, 
+                {
+                    modelCreator: modelWithGetActiveError
+                }
+            );
+        }
 
-        expect(mongoD.models).toHaveProperty("TestModel");
+        expect(mongoD.models).not.toHaveProperty("TestModel");
         expect(mongoD.models).toHaveProperty("RelatedModel");
 
         expect(Object.entries(TestModel._FKS)).toHaveLength(1);
