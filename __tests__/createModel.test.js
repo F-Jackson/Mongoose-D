@@ -433,6 +433,7 @@ describe("Mongo model creation", () => {
         await TestModel.collection.drop();
 
         const dbCollections = (await mongoose.connection.db.listCollections().toArray()).map(col => col.name);
+        console.log(dbCollections);
 
         expect(dbCollections).toHaveLength(0);
         expect(Object.entries(mongoose.models)).toHaveLength(0);
