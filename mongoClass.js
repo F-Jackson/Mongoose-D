@@ -31,6 +31,8 @@ export class InitMongoModels {
         options,
         mocksFunctions = undefined
     ) {
+        if (name in this.models) throw new Error("Model already exists");
+        
         const mongoModel = await mongoose.model(name, schema, collection, options);
 
         try {
