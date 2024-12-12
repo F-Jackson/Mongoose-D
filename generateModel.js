@@ -2,14 +2,20 @@ import { deleteFromMongoose } from "./utils.js";
 
 
 export class ForeignKeyProcessor {
-    constructor(mongoModel, mongoD) {
+    constructor(mongoModel, mongoD, mocks) {
         this.mongoModel = mongoModel;
         this.mongoD = mongoD;
         this.activeForeignKeys = {};
         this.relations = [];
     }
 
-    processForeignKeys = async () => {
+    processForeignKeys = async (mocks) => {
+        if (mocks) {
+            Object.entries(mocks).forEach(key, mockFunc => {
+                this[key] = mockFunc;
+            });
+        }
+
         try {
             await this._getActiveForeignKeys();
             await this._populateForeignKeyMetadata();

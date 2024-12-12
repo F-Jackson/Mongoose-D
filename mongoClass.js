@@ -29,9 +29,7 @@ export class InitMongoModels {
         schema,
         collection,
         options,
-        kwargs = {
-            modelCreator: ForeignKeyProcessor
-        }
+        mocksFunctions = undefined
     ) {
         const mongoModel = await mongoose.model(name, schema, collection, options);
 
@@ -44,11 +42,11 @@ export class InitMongoModels {
             throw err;
         }
 
-        const foreignKeyProcessor = new kwargs.modelCreator(
+        const foreignKeyProcessor = new ForeignKeyProcessor(
             mongoModel,
             this
         );
-        await foreignKeyProcessor.processForeignKeys();
+        await foreignKeyProcessor.processForeignKeys(mocksFunctions);
 
         try {
             //await changeCreation(mongoModel, oldFuncs);

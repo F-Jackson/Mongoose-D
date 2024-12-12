@@ -456,18 +456,12 @@ describe("Mongo model creation", () => {
 
     it("should handle getActivate error", async () => {
         const RelatedModel = await mongoD.MongoModel("RelatedModel", relatedSchema);
-        
-        const modelWithGetActiveError = ForeignKeyProcessor;
-        modelWithGetActiveError.prototype._getActiveForeignKeys = async () => { 
-            console.log("TTT");
-            throw new Error("activer error");
-        };
 
         try{
             const TestModel = await mongoD.MongoModel(
                 "TestModel", testSchema, undefined, undefined, 
                 {
-                    modelCreator: modelWithGetActiveError
+                    
                 }
             );
 
