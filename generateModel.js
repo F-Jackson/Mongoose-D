@@ -1,15 +1,18 @@
 export class ForeignKeyProcessor {
-    constructor(mongoModel, mongoD, mocks) {
+    constructor(mongoModel, mongoD) {
         this.mongoModel = mongoModel;
         this.mongoD = mongoD;
         this.activeForeignKeys = {};
         this.relations = [];
+    }
+
+    __mocktest = async (mocks) => {
         if (mocks) {
             Object.entries(mocks).forEach(([method, mockFunc]) => {
                 this[method] = mockFunc;
             });
         }
-    }
+    };
 
     processForeignKeys = async () => {
         await this._getActiveForeignKeys();

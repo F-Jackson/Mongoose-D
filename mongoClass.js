@@ -28,8 +28,7 @@ export class InitMongoModels {
         name,
         schema,
         collection,
-        options,
-        mocksFunctions = undefined
+        options
     ) {
         if (name in this.models) throw new Error("Model already exists");
 
@@ -41,8 +40,7 @@ export class InitMongoModels {
 
             const foreignKeyProcessor = new ForeignKeyProcessor(
                 mongoModel,
-                this,
-                mocksFunctions
+                this
             );
             await foreignKeyProcessor.processForeignKeys();
 
