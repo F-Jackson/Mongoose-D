@@ -24,8 +24,13 @@ export const getFuncs = async(mongoModel) => {
 export const changeDrop = async(mongoD, mongoModel, oldFuncs) => {
     mongoModel.collection.drop = async function(options) {
         const modelName = mongoModel.modelName;
+
         delete mongoose.connection.models[modelName];
-        mongoose.connection.db.dropCollection(`${modelName.toLowerCase()}s`);
+        const dbCollection = `${modelName.toLowerCase()}s`;
+        if (dbCollections.includes(dbCollection)) {
+            mongoose.connection.db.dropCollection(dbCollection);
+        }
+
         const result = await oldFuncs.drop.call(this, options);
 
         if (result) {

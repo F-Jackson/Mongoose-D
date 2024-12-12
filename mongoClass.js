@@ -32,13 +32,18 @@ export class InitMongoModels {
         if (name in this.models) throw new Error("Model already exists");
 
         const mongoModel = await mongoose.model(name, schema, collection, options);
+        const dbCollections = await mongoose.connection.db.listCollections().toArray();
 
         try {
             const oldFuncs = await getFuncs(mongoModel);
-            await changeDrop(this, mongoModel, oldFuncs);
+            await changeDrop(this, mongoModel, oldFuncs, dbCollections);
         } catch (err) {
             delete mongoose.connection.models[name];
-            mongoose.connection.db.dropCollection(`${name.toLowerCase()}s`);
+
+            const dbCollection = `${name.toLowerCase()}s`;
+            if (dbCollections.includes(dbCollection)) {
+                mongoose.connection.db.dropCollection(dbCollection);
+            }
 
             throw err;
         }
