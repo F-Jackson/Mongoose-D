@@ -580,11 +580,22 @@ describe("Mongo model creation", () => {
             title: "test",
             name: "test"
         });
-        expect((await RelatedModel2.find({}))).toHaveLength(2);
+
+        const models = await RelatedModel2.find({});
+
+        expect(models).toHaveLength(2);
         db = mongoose.connection.db;
         collections = await db.listCollections().toArray();
         expect(collections.map(col => col.name)).toHaveLength(1);
         expect(collections.map(col => col.name)).toContain("relatedmodels");
-        console.log(await RelatedModel.find({}));
+        expect(models).toMatchObject([
+            {
+                title: 'test',
+            },
+            {
+                title: 'test',
+                name: 'test',
+            }
+        ]);
     });
 }, 0);
