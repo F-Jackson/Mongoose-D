@@ -113,14 +113,10 @@ export class ForeignKeyProcessor {
         const modelName = this.mongoModel.modelName;
 
         if (this.relations.length > 0) {
-            const mongoDOldRelations = this.mongoD.getRelations();
-
             try {
-                this.relations.forEach(relation => {
-                    this.mongoD.addRelation(relation, modelName);
-                });
+                this.mongoD.addRelations(this.relations, modelName);
             } catch (err) {
-                this.mongoD.relations = mongoDOldRelations;
+                this.mongoD.resetRelations();
 
                 throw err;
             }

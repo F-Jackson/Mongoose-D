@@ -12,7 +12,10 @@ export class InitMongoModels {
         this.Schema = mongoose.Schema;
     }
 
-    addRelation(relation, modelName) {
+    addRelations(relations, modelName) {
+        this.relations.forEach(relation => {
+            this.mongoD.addRelation(relation, modelName);
+        });
         if (!this.relations[relation]) {
             this.relations[relation] = [ modelName ];
         } else if (!this.relations[relation].includes(modelName)) {
