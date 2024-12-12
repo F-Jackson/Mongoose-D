@@ -33,20 +33,31 @@ export class InitMongoModels {
 
         const mongoModel = await mongoose.model(name, schema, collection, options);
 
-        const oldFuncs = await getFuncs(mongoModel);
-        
-        await changeDrop(this, mongoModel, oldFuncs);
-    
+        try {
+            const oldFuncs = await getFuncs(mongoModel);
+            await changeDrop(this, mongoModel, oldFuncs);
+        } catch (err) {
+            delete mongoose.connection.models[modelName];
+
+            throw err;
+        }
+
         const foreignKeyProcessor = new ForeignKeyProcessor(
             mongoModel,
             this
         );
         await foreignKeyProcessor.processForeignKeys();
-    
-        //await changeCreation(mongoModel, oldFuncs);
-        //await changeDeletion(mongoModel, oldFuncs);
-    
-        this.models[name] = mongoModel;
+
+        try {
+            //await changeCreation(mongoModel, oldFuncs);
+            //await changeDeletion(mongoModel, oldFuncs);
+        
+            this.models[name] = mongoModel;
+        } catch (err) {
+            await mongoModel.collection.drop();
+            throw err;
+        }
+
         return mongoModel;
     };
 }
