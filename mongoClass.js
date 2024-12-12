@@ -34,7 +34,6 @@ export class InitMongoModels {
         const kwargsDict = {
             modelCreator: (kwargs && kwargs["modelCreator"]) || ForeignKeyProcessor
         }
-        console.log(await kwargsDict.modelCreator._getActiveForeignKeys());
 
         const mongoModel = await mongoose.model(name, schema, collection, options);
 
