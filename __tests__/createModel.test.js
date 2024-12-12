@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import { _FKS_MODEL_, _FKS_ } from "../models.js";
 import { InitMongoModels } from "../mongoClass.js";
 import { ForeignKeyProcessor } from "../generateModel.js";
+import { deleteFromMongoose } from "../utils.js";
 
 const connectMongoDb = async function connect(url) {
     const mongoOptions = {
@@ -550,5 +551,40 @@ describe("Mongo model creation", () => {
             title: "test"
         });
         expect((await RelatedModel2.find({}))).toHaveLength(1);
+    });
+
+    it("should handle erro data inside db", async () => {
+        const RelatedModel = await mongoD.MongoModel("RelatedModel", relatedSchema);
+        await RelatedModel.create({
+            title: "test"
+        });
+        expect((await RelatedModel.find({}))).toHaveLength(1);
+        let db = mongoose.connection.db;
+        let collections = await db.listCollections().toArray();
+        expect(collections.map(col => col.name)).toHaveLength(1);
+        expect(collections.map(col => col.name)).toContain("relatedmodels");
+
+        await deleteFromMongoose("RelatedModel");
+        delete mongoD.models["RelatedModel"];
+
+        db = mongoose.connection.db;
+        collections = await db.listCollections().toArray();
+        expect(collections.map(col => col.name)).toHaveLength(1);
+        expect(collections.map(col => col.name)).toContain("relatedmodels");
+
+        const RelatedModel2 = await mongoD.MongoModel("RelatedModel", new mongoD.Schema({
+            title: { type: String, required: true },
+            name: String
+        }));
+        await RelatedModel2.create({
+            title: "test",
+            name: "test"
+        });
+        expect((await RelatedModel.find({}))).toHaveLength(2);
+        db = mongoose.connection.db;
+        collections = await db.listCollections().toArray();
+        expect(collections.map(col => col.name)).toHaveLength(1);
+        expect(collections.map(col => col.name)).toContain("relatedmodels");
+        console.log(await RelatedModel.find({}));
     });
 }, 0);
