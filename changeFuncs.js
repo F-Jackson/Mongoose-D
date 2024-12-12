@@ -28,13 +28,6 @@ export const changeDrop = async(mongoD, mongoModel, oldFuncs) => {
 
         await deleteFromMongoose(modelName);
 
-
-        const dbCollections = (await mongoose.connection.db.listCollections().toArray()).map(col => col.name);
-        const dbCollection = `${modelName.toLowerCase()}s`;
-        if (dbCollections.includes(dbCollection)) {
-            mongoose.connection.db.dropCollection(dbCollection);
-        }
-
         const result = await oldFuncs.drop.call(this, options);
 
         if (result) {

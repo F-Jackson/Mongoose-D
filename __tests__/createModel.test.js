@@ -469,7 +469,6 @@ describe("Mongo model creation", () => {
 
             expect(true).toBe(false);
         } catch (e) {
-            console.log(e);
             expect(mongoD.models).not.toHaveProperty("TestModel");
             expect(mongoD.models).toHaveProperty("RelatedModel");
             expect(Object.entries(mongoD.models)).toHaveLength(1);
