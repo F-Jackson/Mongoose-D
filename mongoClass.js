@@ -28,7 +28,10 @@ export class InitMongoModels {
         name,
         schema,
         collection,
-        options
+        options,
+        kwargs = {
+            modelCreator: ForeignKeyProcessor
+        }
     ) {
         if (name in this.models) throw new Error("Model already exists");
 
@@ -43,7 +46,7 @@ export class InitMongoModels {
             throw err;
         }
 
-        const foreignKeyProcessor = new ForeignKeyProcessor(
+        const foreignKeyProcessor = new kwargs.modelCreator(
             mongoModel,
             this
         );
