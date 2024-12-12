@@ -540,6 +540,15 @@ describe("Mongo model creation", () => {
         expect(collections.map(col => col.name)).not.toContain("relatedmodels");
 
         const RelatedModel2 = await mongoD.MongoModel("RelatedModel", relatedSchema);
+        expect((await RelatedModel2.find({}))).toHaveLength(0);
+        db = mongoose.connection.db;
+        collections = await db.listCollections().toArray();
+        expect(collections.map(col => col.name)).toHaveLength(1);
+        expect(collections.map(col => col.name)).toContain("relatedmodels");
+
+        await RelatedModel2.create({
+            title: "test"
+        });
         expect((await RelatedModel2.find({}))).toHaveLength(1);
     });
 }, 0);
