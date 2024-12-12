@@ -67,6 +67,7 @@ export class ForeignKeyProcessor {
     };
 
     _extractFieldTypeAndRef = async (schemaField) => {
+        console.log(schemaField);
         const isArray = Array.isArray(schemaField.type);
         const type = isArray ? schemaField.type[0] : schemaField.type;
 
@@ -75,7 +76,7 @@ export class ForeignKeyProcessor {
         let ref = null; 
         if (type.schemaName === "ObjectId" && linked) {
             if (!schemaField["ref"]) throw new Error("Cant link without reference");
-            console.log(schemaField);
+
             ref = schemaField.ref;
         }
 
