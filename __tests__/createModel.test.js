@@ -438,4 +438,33 @@ describe("Mongo model creation", () => {
         expect(Object.entries(mongoose.models)).toHaveLength(0);
         expect(Object.entries(mongoD.models)).toHaveLength(0);
     });
+
+    it("should create a model and process foreign keys", async () => {
+        const RelatedModel = await mongoD.MongoModel("RelatedModel", relatedSchema);
+        const modelWithGetActiveError = ForeignKeyProcessor;
+        modelWithGetActiveError._getActiveForeignKeys = async() => { throw new Error("activer error") };
+
+        const TestModel = await mongoD.MongoModel(
+            "TestModel", testSchema, undefined, undefined, 
+            {
+                modelCreator: modelWithGetActiveError
+            }
+        );
+
+        expect(mongoD.models).toHaveProperty("TestModel");
+        expect(mongoD.models).toHaveProperty("RelatedModel");
+
+        expect(Object.entries(TestModel._FKS)).toHaveLength(1);
+        expect(TestModel._FKS).toMatchObject({
+            "RelatedModel": [
+                {
+                    path: "related",
+                    required: true,
+                    immutable: false,
+                    unique: false,
+                    array: false,
+                }
+            ]
+        });
+    });
 }, 0);
