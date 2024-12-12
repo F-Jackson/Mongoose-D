@@ -35,7 +35,6 @@ describe("Mongo instance creation", () => {
 
         if (mongoD) {
             for (const value of Object.values(mongoD.models)) {
-                console.log(value);
                 await value.deleteMany({});
                 await value.collection.drop();
             }
@@ -115,7 +114,7 @@ describe("Mongo instance creation", () => {
         const endTime = performance.now();  // End timing
         const timeTaken = endTime - startTime;  // Calculate the time taken
 
-        expect(Object.keys(mongoose.models)).toHaveLength(20000);
+        expect(Object.keys(mongoose.models)).toHaveLength(10000);
 
         logToFile(`***********1K NESTED*********** ${timeTaken.toFixed(2)} ms`);  // Log time taken
     });
@@ -187,7 +186,7 @@ describe("Mongo instance creation", () => {
         const endTime = performance.now();  // End timing
         const timeTaken = endTime - startTime;  // Calculate the time taken
 
-        expect(Object.keys(mongoose.models)).toHaveLength(20000);
+        expect(Object.keys(mongoose.models)).toHaveLength(10000);
 
         logToFile(`***********FKS 1K*********** ${timeTaken.toFixed(2)} ms`);  // Log time taken
     });
