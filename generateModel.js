@@ -1,3 +1,6 @@
+const _ = require('lodash');
+
+
 export class ForeignKeyProcessor {
     constructor(mongoModel, mongoD) {
         this.mongoModel = mongoModel;
@@ -28,15 +31,13 @@ export class ForeignKeyProcessor {
     };
 
     getNestedValue = async (obj, path) => {
-        return path.reduce((current, key) => {
-            return current ? current[key] : undefined;
-        }, obj);
+        return _.get(obj, path);
     };
 
     _processPath = async (path, value, schemaEntries) => {
         const slicedKeys = path.split(".");
-        const k = await this.getNestedProperty(schemaEntries, slicedKeys);
-        console.log(`${path}: ${JSON.stringify(k)}`);
+        const k = await this.getNestedValue(schemaEntries, path);
+        //console.log(`${path}: ${JSON.stringify(k)}`);
         const stack = [{ keys: slicedKeys, nested: [] }];
         let currentEntry = schemaEntries;
         let limit = 100;

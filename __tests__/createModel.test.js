@@ -23,18 +23,17 @@ describe("Mongo model creation", () => {
         await connectMongoDb("mongodb+srv://jacksonjfs18:eUAqgrGoVxd5vboT@cluster0.o5i8utp.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0");
 
         mongoD = new InitMongoModels();
-        relatedSchema = new mongoD.Schema({
-            title: { type: String, required: true },
-        });
-        testSchema = new mongoD.Schema({
-            name: { type: String, required: true },
-            related: {
-                type: mongoD.Schema.Types.ObjectId,
-                ref: "RelatedModel",
-                __linked: true,
-                required: true,
-            },
-        });
+        //relatedSchema = new mongoD.Schema({
+            //title: { type: String, required: true },
+        //});
+        //testSchema = new mongoD.Schema({
+            //name: { type: String, required: true },
+            //related: {
+                //type: mongoD.Schema.Types.ObjectId,
+                //ref: "RelatedModel",
+                //required: true,
+            //},
+        //});
     });
 
     afterEach(async () => {
@@ -196,6 +195,7 @@ describe("Mongo model creation", () => {
             },
             lo: [String]
         });
+        //console.log(nestedSchema);
 
         const NestedModel = await mongoD.MongoModel("NestedModel", nestedSchema);
 
