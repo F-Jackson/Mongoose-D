@@ -29,19 +29,13 @@ describe("Mongo instance creation", () => {
     beforeEach(async () => {
         await connectMongoDb("mongodb+srv://jacksonjfs18:eUAqgrGoVxd5vboT@cluster0.o5i8utp.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0");
 
-        const collections = await mongoose.connection.db.listCollections().toArray();
-        const dropPromises = collections.map((collection) =>
-            mongoose.connection.db.dropCollection(collection.name)
-        );
-
-        await Promise.all(dropPromises);
-
         for (let model in mongoose.models) {
             delete mongoose.models[model];
         }
 
         if (mongoD) {
             for (const value of Object.values(mongoD.models)) {
+                console.log(value);
                 await value.deleteMany({});
                 await value.collection.drop();
             }
@@ -68,6 +62,52 @@ describe("Mongo instance creation", () => {
                     type: mongoose.Schema.Types.ObjectId,
                     ref: `RelatedModel-${i}`,
                     required: true,
+                },
+            }));
+        }
+
+        const endTime = performance.now();  // End timing
+        const timeTaken = endTime - startTime;  // Calculate the time taken
+
+        expect(Object.keys(mongoose.models)).toHaveLength(20000);
+
+        logToFile(`***********1K*********** ${timeTaken.toFixed(2)} ms`);  // Log time taken
+    });
+
+    it("test 10k NESTED", async () => {
+        const startTime = performance.now();  // Start timing
+
+        for (let i = 0; i < 10000; i++) {
+            await mongoose.model(`TestModel-${i}`, new mongoose.Schema({
+                name: { type: String, required: true },
+                nested: {
+                    name0: [String],
+                    nested1: {
+                        name1: [String],
+                        nested3: {
+                            name2: [String],
+                            nested5: {
+                                name3: [String],
+                                nested6: {
+                                    name4: [String],
+                                    nested7: {
+                                        name5: [String],
+                                        nested8: {
+                                            name6: [String],
+                                            nested9: {
+                                                name7: [String],
+                                                related: {
+                                                    type: mongoose.Schema.Types.ObjectId,
+                                                    ref: `RelatedModel-${i}`,
+                                                    required: true,
+                                                }
+                                            }
+                                        }
+                                    }
+                                } 
+                            }
+                        }
+                    }
                 },
             }));
         }
