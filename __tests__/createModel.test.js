@@ -580,7 +580,7 @@ describe("Mongo model creation", () => {
             title: "test",
             name: "test"
         });
-        expect((await RelatedModel.find({}))).toHaveLength(2);
+        expect((await RelatedModel2.find({}))).toHaveLength(2);
         db = mongoose.connection.db;
         collections = await db.listCollections().toArray();
         expect(collections.map(col => col.name)).toHaveLength(1);
