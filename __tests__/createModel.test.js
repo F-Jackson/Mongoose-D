@@ -436,4 +436,18 @@ describe("Mongo model creation", () => {
             expect(UnlikedRelatedModel).not.toHaveProperty("_FKS");
         }
     });
+
+    it("should delete all cach after collection drop", async () => {
+        const TestModel = await mongoD.MongoModel("TestModel", new mongoD.Schema({
+            label: { type: String, required: true },
+        }));
+        
+        await TestModel.collection.drop();
+
+        const dbCollections = (await mongoose.connection.db.listCollections().toArray()).map(col => col.name);
+
+        expect(dbCollections).toHaveLength(0);
+        expect(mongoose.models).toHaveLength(0);
+        expect(mongoD.models).toHaveLength(0);
+    });
 }, 0);
