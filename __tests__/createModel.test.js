@@ -2,7 +2,6 @@ import { describe, it, beforeEach, expect } from "vitest";
 import mongoose from "mongoose";
 import { _FKS_MODEL_, _FKS_ } from "../models.js";
 import { InitMongoModels } from "../mongoClass.js";
-import { ForeignKeyProcessor } from "../generateModel.js";
 import { deleteFromMongoose } from "../utils.js";
 
 const connectMongoDb = async function connect(url) {

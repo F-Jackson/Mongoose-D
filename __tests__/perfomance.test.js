@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 import fs from "fs";
 import path from "path";
 import { _FKS_, _FKS_MODEL_ } from "../models.js";
-import { InitMongoModels, MongoModel } from "../mongoClass.js";
+import { InitMongoModels } from "../mongoClass.js";
 
 const LOG_FILE = path.join(__dirname, "performance_test.log");
 
@@ -29,22 +29,40 @@ describe("Mongo instance creation", () => {
     beforeEach(async () => {
         await connectMongoDb("mongodb+srv://jacksonjfs18:eUAqgrGoVxd5vboT@cluster0.o5i8utp.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0");
 
+        mongoD = new InitMongoModels();
+        relatedSchema = new mongoD.Schema({
+            title: { type: String, required: true },
+        });
+        testSchema = new mongoD.Schema({
+            name: { type: String, required: true },
+            related: {
+                type: mongoD.Schema.Types.ObjectId,
+                ref: "RelatedModel",
+                __linked: true,
+                required: true,
+            },
+        });
+    }, 0);
+
+    afterEach(async () => {
+        const collections = await mongoose.connection.db.listCollections().toArray();
+        const dropPromises = collections.map((collection) =>
+            mongoose.connection.db.dropCollection(collection.name)
+        );
+
+        await Promise.all(dropPromises);
+
         for (let model in mongoose.models) {
             delete mongoose.models[model];
         }
 
         if (mongoD) {
             for (const value of Object.values(mongoD.models)) {
-                console.log(value);
                 await value.deleteMany({});
                 await value.collection.drop();
             }
         }
 
-        mongoD = new InitMongoModels();
-    }, 0);
-
-    afterEach(async () => {
         vi.restoreAllMocks();
         await mongoose.connection.close();
     });
