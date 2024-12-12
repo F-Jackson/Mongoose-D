@@ -44,9 +44,10 @@ export class InitMongoModels {
 
         const foreignKeyProcessor = new ForeignKeyProcessor(
             mongoModel,
-            this
+            this,
+            mocksFunctions
         );
-        await foreignKeyProcessor.processForeignKeys(mocksFunctions);
+        await foreignKeyProcessor.processForeignKeys();
 
         try {
             //await changeCreation(mongoModel, oldFuncs);

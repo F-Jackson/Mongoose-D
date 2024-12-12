@@ -461,7 +461,10 @@ describe("Mongo model creation", () => {
             const TestModel = await mongoD.MongoModel(
                 "TestModel", testSchema, undefined, undefined, 
                 {
-                    
+                    "_getActiveForeignKeys": async () => {
+                        console.log("err");
+                        throw new Error("Mocked error")
+                    }
                 }
             );
 
