@@ -281,50 +281,12 @@ describe("Mongo model creation", () => {
         expect(Object.entries(mongoD.relations)).toHaveLength(0);
     });
 
-    it("should handle foreign key field name updates correctly", async () => {
-        const RelatedModel = await mongoD.MongoModel("RelatedModel", relatedSchema);
-        const fks_models = await _FKS_MODEL_.create({
-            model: "TestModel",
-            fk: "related",
-            fk_ref: "RelatedModel",
-            fk_isArray: false,
-            fk_isImmutable: false,
-            fk_isRequired: false,
-            fk_isUnique: false,
-        });
-
-        const testSchema2 = new mongoD.Schema({
-            name: { type: String, required: true },
-            related2: {
-                type: mongoD.Schema.Types.ObjectId,
-                ref: "RelatedModel",
-                __linked: true,
-                required: true,
-            },
-        });
-        const TestModel = await mongoD.MongoModel("TestModel", testSchema2);
-    
-        const fksModels = await _FKS_MODEL_.find({});
-        expect(fksModels).toHaveLength(2);
-
-        const fks = TestModel.__FKS__;
-
-        console.log(fks);
-        expect(Object.entries(fks)).toHaveLength(1);
-        expect(fks["related2"]).toMatchObject({
-            ref: "RelatedModel",
-            activated: true
-        });
-    });
-
     it("should handle circular references", async () => {
-        return;
         const circularSchemaA = new mongoD.Schema({
             name: { type: String, required: true },
             related: {
                 type: mongoD.Schema.Types.ObjectId,
                 ref: "ModelB",
-                __linked: true,
                 required: true,
             },
         });
@@ -334,7 +296,6 @@ describe("Mongo model creation", () => {
             related: {
                 type: mongoD.Schema.Types.ObjectId,
                 ref: "ModelA",
-                __linked: true,
                 required: true,
             },
         });
@@ -342,16 +303,34 @@ describe("Mongo model creation", () => {
         const ModelA = await mongoD.MongoModel("ModelA", circularSchemaA);
         const ModelB = await mongoD.MongoModel("ModelB", circularSchemaB);
     
-        const fksModels = await _FKS_MODEL_.find({});
-        expect(fksModels).toHaveLength(2);
+        expect(Object.entries(mongoD.models)).toHaveLength(2);
+        expect(Object.entries(mongoD.relations)).toHaveLength(2);
 
-        expect(fksModels[0]).toMatchObject({
-            model: "ModelA",
-            fk_ref: "ModelB"
+        expect(mongoD.relations["ModelA"]).toMatchObject(["ModelB"]);
+        expect(mongoD.relations["ModelB"]).toMatchObject(["ModelA"]);
+
+        expect(Object.entries(ModelA._FKS)).toHaveLength(1);
+        expect(ModelA._FKS).toMatchObject({
+            "ModelB": [,
+                {
+                    path: "related",
+                    required: true,
+                    immutable: false,
+                    unique: false
+                },
+            ]
         });
-        expect(fksModels[1]).toMatchObject({
-            model: "ModelB",
-            fk_ref: "ModelA"
+
+        expect(Object.entries(ModelB._FKS)).toHaveLength(1);
+        expect(ModelB._FKS).toMatchObject({
+            "ModelA": [,
+                {
+                    path: "related",
+                    required: true,
+                    immutable: false,
+                    unique: false
+                },
+            ]
         });
     });
 
