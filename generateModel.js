@@ -13,12 +13,13 @@ export class ForeignKeyProcessor {
 
     _getActiveForeignKeys = async () => {
         const schemaPaths = Object.entries(this.mongoModel.schema.paths);
+        console.log(schemaPaths);
         const schemaEntries = this.mongoModel.schema.obj;
 
-        await Promise.all(schemaPaths.map(([path]) => this._processPath(path, schemaEntries)));
+        await Promise.all(schemaPaths.map(([path, info]) => this._processPath(path, info, schemaEntries)));
     };
 
-    _processPath = async (path, schemaEntries, ) => {
+    _processPath = async (path, info, schemaEntries, ) => {
         const slicedKeys = path.split(".");
         const stack = [{ keys: slicedKeys, nested: [] }];
         let currentEntry = schemaEntries;
@@ -34,7 +35,7 @@ export class ForeignKeyProcessor {
             if (!currentEntry) continue;
 
             if (this._isLeafNode(keys)) {
-                await this._processLeafNode(path, currentEntry);
+                await this._processLeafNode(path, info, currentEntry);
             } else {
                 await this._addNestedKeyToStack(stack, keys, nested);
             }
@@ -45,17 +46,17 @@ export class ForeignKeyProcessor {
 
     _isLeafNode = (keys) => keys.length === 1;
 
-    _processLeafNode = async (path, schemaField, ) => {
+    _processLeafNode = async (path, info, schemaField, ) => {
         if (!schemaField.type) return;
 
-        const { ref, isArray } = await this._extractFieldTypeAndRef(schemaField);
+        const { ref, isArray } = await this._extractFieldTypeAndRef(schemaField, info);
         if (!ref) return;
 
         const metadata = await this._createForeignKeyMetadata(path, schemaField, isArray);
         await this._addForeignKeyMetadata(ref, metadata);
     };
 
-    _extractFieldTypeAndRef = async (schemaField) => {
+    _extractFieldTypeAndRef = async (schemaField, info) => {
         const isArray = Array.isArray(schemaField.type);
         const type = isArray ? schemaField.type[0] : schemaField.type;
 
@@ -64,7 +65,8 @@ export class ForeignKeyProcessor {
         let ref = null; 
         if (type.schemaName === "ObjectId" && linked) {
             if (!schemaField["ref"]) throw new Error("Cant link without reference");
-            
+            if (info["$isMongooseArray"]) throw new Error("Linkeds references does not accept be inside array, use type: [ObjectId] or unlink the reference");
+
             ref = schemaField.ref;
         }
 
