@@ -56,14 +56,18 @@ export class ForeignKeyProcessor {
     };
 
     _extractFieldTypeAndRef = async (schemaField) => {
-        const linked = !("_linked" in schemaField && !schemaField["_linked"]);
-
-        if (linked && !schemaField["ref"]) throw new Error("Cant link with reference");
-
         const isArray = Array.isArray(schemaField.type);
         const type = isArray ? schemaField.type[0] : schemaField.type;
 
-        const ref = (type.schemaName === "ObjectId" && linked) ? schemaField.ref : null;
+        const linked = !("_linked" in schemaField && !schemaField["_linked"]);
+
+        let ref = null; 
+        if (type.schemaName === "ObjectId" && linked) {
+            if (!schemaField["ref"]) throw new Error("Cant link without reference");
+            
+            ref = schemaField.ref;
+        }
+
         return { type, ref, isArray };
     };
 
