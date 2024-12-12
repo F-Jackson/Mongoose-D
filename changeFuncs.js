@@ -51,7 +51,6 @@ export const changeDrop = async(mongoD, mongoModel, oldFuncs) => {
             delete mongoD.models[modelName];
         }
 
-        mongoModel = null;
         return result;
     };
 };

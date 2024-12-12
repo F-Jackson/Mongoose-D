@@ -435,7 +435,6 @@ describe("Mongo model creation", () => {
 
         expect(Object.entries(mongoose.models)).toHaveLength(0);
         expect(Object.entries(mongoD.models)).toHaveLength(0);
-        expect(TestModel).toBe(null);
     });
 
     it("should handle getActivate error", async () => {
