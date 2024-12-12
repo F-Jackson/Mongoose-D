@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import { ForeignKeyCreator } from "./creation.js";
 import { ForeignKeyDeleter } from "./deletion.js";
 import { _FKS_MODEL_ } from "./models.js";
+import { deleteFromMongoose } from "./utils.js";
 
 
 export const getFuncs = async(mongoModel) => {
@@ -25,7 +26,8 @@ export const changeDrop = async(mongoD, mongoModel, oldFuncs, dbCollections) => 
     mongoModel.collection.drop = async function(options) {
         const modelName = mongoModel.modelName;
 
-        delete mongoose.connection.models[modelName];
+        await deleteFromMongoose(modelName);
+
         const dbCollection = `${modelName.toLowerCase()}s`;
         if (dbCollections.includes(dbCollection)) {
             mongoose.connection.db.dropCollection(dbCollection);
