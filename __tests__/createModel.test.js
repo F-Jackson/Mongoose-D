@@ -21,19 +21,12 @@ describe("Mongo model creation", () => {
     beforeEach(async () => {
         await connectMongoDb("mongodb+srv://jacksonjfs18:eUAqgrGoVxd5vboT@cluster0.o5i8utp.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0");
 
-        await _FKS_MODEL_.deleteMany({});
-        await _FKS_.deleteMany({});
-
         const collections = await mongoose.connection.db.listCollections().toArray();
         const dropPromises = collections.map((collection) =>
             mongoose.connection.db.dropCollection(collection.name)
         );
 
         await Promise.all(dropPromises);
-
-        for (let model in mongoose.models) {
-            delete mongoose.models[model];
-        }
 
         if (mongoD) {
             for (const value of Object.values(mongoD.models)) {
@@ -256,7 +249,7 @@ describe("Mongo model creation", () => {
 
         expect(Object.entries(mongoD.models)).toHaveLength(3);
         expect(Object.entries(mongoD.relations)).toHaveLength(1);
-        expect(mongoD.relations["RelatedModel"]).toMatchObject(["TestModel", "AnotherTestModell"]);
+        expect(mongoD.relations["RelatedModel"]).toMatchObject(["TestModel", "AnotherTestModel"]);
         expect(TestModel).toHaveProperty("_FKS");
         expect(AnotherTestModel).toHaveProperty("_FKS");
     });
@@ -311,58 +304,62 @@ describe("Mongo model creation", () => {
 
         expect(Object.entries(ModelA._FKS)).toHaveLength(1);
         expect(ModelA._FKS).toMatchObject({
-            "ModelB": [,
+            "ModelB": [
                 {
                     path: "related",
                     required: true,
                     immutable: false,
-                    unique: false
+                    unique: false,
+                    array: false
                 },
             ]
         });
 
         expect(Object.entries(ModelB._FKS)).toHaveLength(1);
         expect(ModelB._FKS).toMatchObject({
-            "ModelA": [,
+            "ModelA": [
                 {
                     path: "related",
                     required: true,
                     immutable: false,
-                    unique: false
+                    unique: false,
+                    array: false
                 },
             ]
         });
     });
 
     it("should error if not given ref in foreign key", async () => {
-        return;
+        console.log("que porra");
         const schemaWithObjectIdFK = new mongoD.Schema({
             related: {
                 type: mongoD.Schema.Types.ObjectId,
                 ref: "RelatedModel",
                 required: true,
-                __linked: true
             },
         });
     
+        console.log("schema");
         const schemaWithEmbeddedDocFK = new mongoD.Schema({
             related: {
                 type: mongoD.Schema.Types.ObjectId,
                 required: true,
-                __linked: true
             },
         });
 
+        console.log("//////////////////");
         const ModelWithObjectIdFK = await mongoD.MongoModel("ModelWithObjectIdFK", schemaWithObjectIdFK);
+        console.log(ModelWithObjectIdFK);
 
         try {
             const ModelWithEmbeddedDocFK = await mongoD.MongoModel("ModelWithEmbeddedDocFK", schemaWithEmbeddedDocFK);
 
+            console.log("ModelWithEmbeddedDocFK");
             expect(true).toBe(false);
         } catch (error) {
-            expect(Object.entries(mongoose.models)).toHaveLength(2);
-            const fks = await _FKS_MODEL_.find({});
-            expect(fks).toHaveLength(1);
+            console.log("****************");
+            expect(Object.entries(mongoD.models)).toHaveLength(1);
+            expect(Object.entries(mongoD.relations)).toHaveLength(1);
         }
     });    
 
@@ -373,7 +370,6 @@ describe("Mongo model creation", () => {
             related: {
                 type: mongoD.Schema.Types.ObjectId,
                 ref: "RelatedModel",
-                __linked: true,
                 required: true,
                 index: true
             },
@@ -382,48 +378,21 @@ describe("Mongo model creation", () => {
         const RelatedModel = await mongoD.MongoModel("RelatedModel", relatedSchema);
         const TestModel = await mongoD.MongoModel("TestModel", testSchema2);
 
-        expect(syncedModels.get()).toHaveProperty("TestModel");
-        expect(syncedModels.get()).toHaveProperty("RelatedModel");
+        expect(mongoD.models).toHaveProperty("TestModel");
+        expect(mongoD.models).toHaveProperty("RelatedModel");
+        expect(Object.entries(mongoD.relations)).toHaveLength(1);
 
-        const fksModels = await _FKS_MODEL_.find({});
-        expect(fksModels).toHaveLength(1);
-        expect(fksModels[0]).toMatchObject({
-            model: "TestModel",
-            fk: "related",
-            fk_ref: "RelatedModel",
-            fk_isRequired: true,
-        });
-    });
-
-    it("should handle cyclic foreign key reference", async () => {
-        return;
-        const TestModel = await mongoD.MongoModel("TestModel", testSchema);
-        const RelatedModel = await mongoD.MongoModel("RelatedModel", new mongoD.Schema({
-            name: { type: String, required: true },
-            test: {
-                type: mongoD.Schema.Types.ObjectId,
-                ref: "TestModel",
-                __linked: true,
-                required: true,
-            },
-        }));
-
-        expect(syncedModels.get()).toHaveProperty("TestModel");
-        expect(syncedModels.get()).toHaveProperty("RelatedModel");
-
-        const fksModels = await _FKS_MODEL_.find({});
-        expect(fksModels).toHaveLength(2);
-        expect(fksModels[0]).toMatchObject({
-            model: "TestModel",
-            fk: "related",
-            fk_ref: "RelatedModel",
-            fk_isRequired: true,
-        });
-        expect(fksModels[1]).toMatchObject({
-            model: "RelatedModel",
-            fk: "test",
-            fk_ref: "TestModel",
-            fk_isRequired: true,
+        expect(Object.entries(TestModel._FKS)).toHaveLength(1);
+        expect(TestModel._FKS).toMatchObject({
+            "RelatedModel": [
+                {
+                    path: "related",
+                    required: true,
+                    immutable: false,
+                    unique: false,
+                    array: false,
+                }
+            ]
         });
     });
 
@@ -433,20 +402,25 @@ describe("Mongo model creation", () => {
             label: { type: String, required: true },
         }));
         const RelatedModel = await mongoD.MongoModel("RelatedModel", new mongoD.Schema({
-            children: [{ type: mongoD.Schema.Types.ObjectId, ref: "TestModel", __linked: true, required: true }],
+            children: [{ type: mongoD.Schema.Types.ObjectId, ref: "TestModel", required: true }],
             po: [String]
         }));
 
-        const fksModels = await _FKS_MODEL_.find({});
+        expect(mongoD.models).toHaveProperty("TestModel");
+        expect(mongoD.models).toHaveProperty("RelatedModel");
+        expect(Object.entries(mongoD.relations)).toHaveLength(1);
 
-        expect(fksModels).toHaveLength(1);
-
-        expect(fksModels[0]).toMatchObject({
-            model: "RelatedModel",
-            fk: "children",
-            fk_ref: "TestModel",
-            fk_isRequired: true,
-            fk_isArray: true
+        expect(Object.entries(RelatedModel._FKS)).toHaveLength(1);
+        expect(RelatedModel._FKS).toMatchObject({
+            "TestModel": [
+                {
+                    path: "children",
+                    required: true,
+                    immutable: false,
+                    unique: false,
+                    array: true,
+                }
+            ]
         });
     });
 }, 0);
