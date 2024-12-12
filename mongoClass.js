@@ -36,7 +36,7 @@ export class InitMongoModels {
 
         try {
             const oldFuncs = await getFuncs(mongoModel);
-            await changeDrop(this, mongoModel, oldFuncs, dbCollections);
+            await changeDrop(this, mongoModel, oldFuncs);
         } catch (err) {
             await deleteFromMongoose(name);
 
@@ -56,7 +56,6 @@ export class InitMongoModels {
             this.models[name] = mongoModel;
         } catch (err) {
             await deleteFromMongoose(name);
-            
             throw err;
         }
 
