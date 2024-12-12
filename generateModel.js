@@ -7,8 +7,14 @@ export class ForeignKeyProcessor {
     }
 
     processForeignKeys = async () => {
-        await this._getActiveForeignKeys();
-        await this._populateForeignKeyMetadata();
+        try {
+            await this._getActiveForeignKeys();
+            await this._populateForeignKeyMetadata();
+        } catch (e) {
+            await this.mongoModel.collection.drop();
+
+            throw e;
+        }
     };
 
     _getActiveForeignKeys = async () => {
@@ -103,16 +109,32 @@ export class ForeignKeyProcessor {
     };
 
     _populateForeignKeyMetadata = async () => {
-        if (Object.keys(this.activeForeignKeys).length > 0) {
-            this.mongoModel._FKS = this.activeForeignKeys;
-        }
+        try {
+            if (Object.keys(this.activeForeignKeys).length > 0) {
+                this.mongoModel._FKS = this.activeForeignKeys;
+            }
+    
+            const modelName = this.mongoModel.modelName;
+    
+            if (this.relations.length > 0) {
+                const mongoDOldRelations = this.mongoD.getRelations();
+    
+                try {
+                    this.relations.forEach(relation => {
+                        this.mongoD.addRelation(relation, modelName);
+                    });
+                } catch (err) {
+                    this.mongoD.relations = mongoDOldRelations;
 
-        const modelName = this.mongoModel.modelName;
+                    throw err;
+                }
+            }
+        } catch (err) {
+            if (this.mongoModel["_FKS"]) {
+                delete this.mongoModel["_FKS"]
+            }
 
-        if (this.relations.length > 0) {
-            this.relations.forEach(relation => {
-                this.mongoD.addRelation(relation, modelName);
-            });
+            throw err;
         }
     };
 }

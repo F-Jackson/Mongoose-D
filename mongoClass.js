@@ -19,6 +19,10 @@ export class InitMongoModels {
         }
     }
 
+    getRelations() {
+        return JSON.parse(JSON.stringify(this.relations));
+    }
+
     async MongoModel (
         name,
         schema,
