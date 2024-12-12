@@ -30,6 +30,8 @@ export const changeDrop = async(mongoD, mongoModel, oldFuncs) => {
                 relations.forEach(relation => {
                     const relationModel = mongoD.models[relation];
     
+                    if (!relationModel || !relationModel["_FKS"]) return;
+
                     delete relationModel._FKS[mongoModel.modelName];
                     
                     if (Object.entries(relationModel._FKS).length === 0) {

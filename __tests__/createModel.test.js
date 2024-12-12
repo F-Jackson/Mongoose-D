@@ -28,6 +28,10 @@ describe("Mongo model creation", () => {
 
         await Promise.all(dropPromises);
 
+        for (let model in mongoose.models) {
+            delete mongoose.models[model];
+        }
+
         if (mongoD) {
             for (const value of Object.values(mongoD.models)) {
                 await value.deleteMany({});
