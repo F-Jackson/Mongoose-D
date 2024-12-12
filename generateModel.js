@@ -98,11 +98,7 @@ export class ForeignKeyProcessor {
 
         if (this.relations.length > 0) {
             this.relations.forEach(relation => {
-                if (!this.mongoD.relations[relation]) {
-                    this.mongoD.relations[relation] = [ modelName ];
-                } else if (!this.mongoD.relations[relation].includes(modelName)) {
-                    this.mongoD.relations[relation].push(modelName);
-                }
+                this.mongoD.addRelation(relation, modelName);
             });
         }
     };

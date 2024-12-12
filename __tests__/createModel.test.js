@@ -361,7 +361,7 @@ describe("Mongo model creation", () => {
             console.log("ModelWithEmbeddedDocFK");
             expect(true).toBe(false);
         } catch (error) {
-            console.log("****************");
+            console.log("****************", error);
             expect(Object.entries(mongoD.models)).toHaveLength(1);
             expect(Object.entries(mongoD.relations)).toHaveLength(1);
         }

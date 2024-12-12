@@ -11,6 +11,14 @@ export class InitMongoModels {
         this.Schema = mongoose.Schema;
     }
 
+    addRelation(relation, modelName) {
+        if (!this.relations[relation]) {
+            this.relations[relation] = [ modelName ];
+        } else if (!this.relations[relation].includes(modelName)) {
+            this.relations[relation].push(modelName);
+        }
+    }
+
     async MongoModel (
         name,
         schema,
