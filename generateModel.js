@@ -1,3 +1,6 @@
+import { deleteFromMongoose } from "./utils.js";
+
+
 export class ForeignKeyProcessor {
     constructor(mongoModel, mongoD) {
         this.mongoModel = mongoModel;
@@ -11,7 +14,7 @@ export class ForeignKeyProcessor {
             await this._getActiveForeignKeys();
             await this._populateForeignKeyMetadata();
         } catch (e) {
-            await this.mongoModel.collection.drop();
+            await deleteFromMongoose(this.modelName);
 
             throw e;
         }

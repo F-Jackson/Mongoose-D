@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import { ForeignKeyProcessor } from "./generateModel.js";
 import { _FKS_, _FKS_MODEL_ } from "./models.js";
 import { getFuncs, changeCreation, changeDeletion, changeDrop } from "./changeFuncs.js";
+import { deleteFromMongoose } from "./utils.js";
 
 
 export class InitMongoModels {
@@ -32,18 +33,12 @@ export class InitMongoModels {
         if (name in this.models) throw new Error("Model already exists");
 
         const mongoModel = await mongoose.model(name, schema, collection, options);
-        const dbCollections = (await mongoose.connection.db.listCollections().toArray()).map(col => col.name);
 
         try {
             const oldFuncs = await getFuncs(mongoModel);
             await changeDrop(this, mongoModel, oldFuncs, dbCollections);
         } catch (err) {
-            delete mongoose.connection.models[name];
-
-            const dbCollection = `${name.toLowerCase()}s`;
-            if (dbCollections.includes(dbCollection)) {
-                mongoose.connection.db.dropCollection(dbCollection);
-            }
+            await deleteFromMongoose(name);
 
             throw err;
         }
@@ -60,7 +55,8 @@ export class InitMongoModels {
         
             this.models[name] = mongoModel;
         } catch (err) {
-            await mongoModel.collection.drop();
+            await deleteFromMongoose(name);
+            
             throw err;
         }
 
