@@ -11,7 +11,6 @@ export class ForeignKeyProcessor {
             await this._getActiveForeignKeys();
             await this._populateForeignKeyMetadata();
         } catch (e) {
-            console.log(e);
             await this.mongoModel.collection.drop();
 
             throw e;

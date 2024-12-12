@@ -32,6 +32,10 @@ export class InitMongoModels {
         if (name in this.models) throw new Error("Model already exists");
 
         const mongoModel = await mongoose.model(name, schema, collection, options);
+
+        const oldFuncs = await getFuncs(mongoModel);
+        
+        await changeDrop(this, mongoModel, oldFuncs);
     
         const foreignKeyProcessor = new ForeignKeyProcessor(
             mongoModel,
@@ -39,9 +43,6 @@ export class InitMongoModels {
         );
         await foreignKeyProcessor.processForeignKeys();
     
-        const oldFuncs = await getFuncs(mongoModel);
-        
-        await changeDrop(this, mongoModel, oldFuncs);
         //await changeCreation(mongoModel, oldFuncs);
         //await changeDeletion(mongoModel, oldFuncs);
     
