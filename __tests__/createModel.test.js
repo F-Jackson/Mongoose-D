@@ -409,7 +409,6 @@ describe("Mongo model creation", () => {
     });
 
     it("should create with an array of references", async () => {
-        /************* */
         const TestModel = await mongoD.MongoModel("TestModel", new mongoD.Schema({
             label: { type: String, required: true },
         }));
