@@ -365,13 +365,26 @@ describe("Mongo model creation", () => {
         await mongoD.MongoModel("ModelWithObjectIdFK", schemaWithObjectIdFK);
 
         try {
-            const ModelWithEmbeddedDocFK = await mongoD.MongoModel("ModelWithEmbeddedDocFK", schemaWithEmbeddedDocFK);
+            await mongoD.MongoModel("ModelWithEmbeddedDocFK", schemaWithEmbeddedDocFK);
 
             console.log("ModelWithEmbeddedDocFK");
             expect(true).toBe(false);
         } catch (error) {
             console.log("****************", error);
             expect(Object.entries(mongoD.models)).toHaveLength(1);
+            expect(Object.entries(mongoD.relations)).toHaveLength(1);
+
+            const schemaWithEmbeddedDocFKUnlinked = new mongoD.Schema({
+                related: {
+                    type: mongoD.Schema.Types.ObjectId,
+                    required: true,
+                    _linked: false
+                },
+            });
+
+            await mongoD.MongoModel("ModelWithEmbeddedDocFKUnlinked", schemaWithEmbeddedDocFKUnlinked);
+
+            expect(Object.entries(mongoD.models)).toHaveLength(2);
             expect(Object.entries(mongoD.relations)).toHaveLength(1);
         }
     });    
