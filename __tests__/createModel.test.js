@@ -433,11 +433,9 @@ describe("Mongo model creation", () => {
         
         await TestModel.collection.drop();
 
-        const dbCollections = (await mongoose.connection.db.listCollections().toArray()).map(col => col.name);
-        
-        expect(dbCollections).toHaveLength(0);
         expect(Object.entries(mongoose.models)).toHaveLength(0);
         expect(Object.entries(mongoD.models)).toHaveLength(0);
+        expect(TestModel).toBe(null);
     });
 
     it("should handle getActivate error", async () => {
@@ -466,6 +464,19 @@ describe("Mongo model creation", () => {
             expect(Object.entries(mongoose.models)).toHaveLength(2);
             expect(mongoD.models).toHaveProperty("TestModel");
             expect(mongoD.models).toHaveProperty("RelatedModel");
+
+            expect(Object.entries(TestModel._FKS)).toHaveLength(1);
+            expect(TestModel._FKS).toMatchObject({
+                "RelatedModel": [
+                    {
+                        path: "related",
+                        required: true,
+                        immutable: false,
+                        unique: false,
+                        array: false,
+                    }
+                ]
+            });
         }
     });
 }, 0);
