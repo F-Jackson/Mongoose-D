@@ -462,7 +462,6 @@ describe("Mongo model creation", () => {
                 "TestModel", testSchema, undefined, undefined, 
                 {
                     "_getActiveForeignKeys": async () => {
-                        console.log("err");
                         throw new Error("Mocked error")
                     }
                 }
@@ -470,6 +469,7 @@ describe("Mongo model creation", () => {
 
             expect(true).toBe(false);
         } catch (e) {
+            console.log(e);
             expect(mongoD.models).not.toHaveProperty("TestModel");
             expect(mongoD.models).toHaveProperty("RelatedModel");
             expect(Object.entries(mongoD.models)).toHaveLength(1);

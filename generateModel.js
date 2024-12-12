@@ -19,7 +19,7 @@ export class ForeignKeyProcessor {
             await this._getActiveForeignKeys();
             await this._populateForeignKeyMetadata();
         } catch (e) {
-            await deleteFromMongoose(this.modelName);
+            await deleteFromMongoose(this.mongoModel.modelName);
 
             throw e;
         }
