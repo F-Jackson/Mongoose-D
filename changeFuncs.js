@@ -25,7 +25,6 @@ export const changeDrop = async(mongoD, mongoModel, oldFuncs) => {
         const result = await oldFuncs.drop.call(this, options);
 
         if (result) {
-            console.log(mongoD.relations, mongoD.models);
             const relations = mongoD.relations[mongoModel.modelName];
             if (relations) {
                 relations.forEach(relation => {
@@ -42,8 +41,6 @@ export const changeDrop = async(mongoD, mongoModel, oldFuncs) => {
             }
 
             delete mongoD.models[mongoModel.modelName];
-
-            console.log(mongoD.relations, mongoD.models);
         }
 
         return result;

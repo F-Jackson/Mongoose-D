@@ -241,27 +241,24 @@ describe("Mongo model creation", () => {
     });
 
     it("should process foreign keys when multiple models reference the same model", async () => {
-        return;
         const anotherTestSchema = new mongoD.Schema({
             anotherName: { type: String, required: true },
             related: {
                 type: mongoD.Schema.Types.ObjectId,
                 ref: "RelatedModel",
-                __linked: true,
                 required: true,
             },
         });
 
+        const RelatedModel = await mongoD.MongoModel("RelatedModel", relatedSchema);
+        const TestModel = await mongoD.MongoModel("TestModel", testSchema);
         const AnotherTestModel = await mongoD.MongoModel("AnotherTestModel", anotherTestSchema);
 
-        const fksModels = await _FKS_MODEL_.find({ model: "AnotherTestModel" });
-        expect(fksModels).toHaveLength(1);
-        expect(fksModels[0]).toMatchObject({
-            model: "AnotherTestModel",
-            fk: "related",
-            fk_ref: "RelatedModel",
-            fk_isRequired: true,
-        });
+        expect(Object.entries(mongoD.models)).toHaveLength(3);
+        expect(Object.entries(mongoD.relations)).toHaveLength(1);
+        expect(mongoD.relations["RelatedModel"]).toMatchObject(["TestModel", "AnotherTestModell"]);
+        expect(TestModel).toHaveProperty("_FKS");
+        expect(AnotherTestModel).toHaveProperty("_FKS");
     });
 
     it("should correctly delete a foreign key model and not affect other models", async () => {
@@ -285,7 +282,6 @@ describe("Mongo model creation", () => {
     });
 
     it("should handle foreign key field name updates correctly", async () => {
-        return;
         const RelatedModel = await mongoD.MongoModel("RelatedModel", relatedSchema);
         const fks_models = await _FKS_MODEL_.create({
             model: "TestModel",
