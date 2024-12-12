@@ -63,7 +63,6 @@ describe("Mongo model creation", () => {
     });
 
     it("should create a model and process foreign keys", async () => {
-        return;
         const RelatedModel = await mongoD.MongoModel("RelatedModel", relatedSchema);
         const TestModel = await mongoD.MongoModel("TestModel", testSchema);
 
@@ -85,7 +84,6 @@ describe("Mongo model creation", () => {
     });
 
     it("should throw error if model with same name exists", async () => {
-        return;
         const TestModel = await mongoD.MongoModel("TestModel", testSchema);
 
         await expect(() => mongoD.MongoModel("TestModel", relatedSchema)).rejects.toThrow(
@@ -110,7 +108,6 @@ describe("Mongo model creation", () => {
     });
 
     it("should handle models with no foreign keys", async () => {
-        return;
         const simpleSchema = new mongoD.Schema({
             simpleField: { type: String, required: true },
         });
@@ -124,7 +121,6 @@ describe("Mongo model creation", () => {
     });
 
     it("should support multiple foreign keys in a single model", async () => {
-        return;
         const multiFKSchema = new mongoD.Schema({
             name: { type: String, required: true },
             related1: {
@@ -163,7 +159,6 @@ describe("Mongo model creation", () => {
     });
 
     it("should handle deletion of foreign key metadata when model is removed", async () => {
-        return;
         const TestModel = await mongoD.MongoModel("TestModel", testSchema);
 
         await TestModel.collection.drop();
@@ -172,7 +167,6 @@ describe("Mongo model creation", () => {
     });
 
     it("should process deeply nested foreign keys", async () => {
-        return;
         const nestedSchema = new mongoD.Schema({
             nestedField: {
                 subField: {
@@ -203,6 +197,9 @@ describe("Mongo model creation", () => {
 
         expect(Object.entries(mongoD.models)).toHaveLength(1);
         expect(mongoD.models).toHaveProperty("NestedModel");
+        expect(Object.entries(mongoD.relations)).toHaveLength(1);
+        expect(Object.entries(mongoD.relations["RelatedModel"])).toHaveLength(1);
+        expect(mongoD.relations["RelatedModel"]).toMatchObject(["NestedModel"]);
 
         expect(Object.entries(NestedModel._FKS)).toHaveLength(1);
         expect(NestedModel._FKS).toMatchObject({
@@ -226,7 +223,6 @@ describe("Mongo model creation", () => {
     });
 
     it("should handle optional foreign keys", async () => {
-        return;
         const optionalSchema = new mongoD.Schema({
             optionalField: {
                 type: mongoD.Schema.Types.ObjectId,
@@ -286,36 +282,6 @@ describe("Mongo model creation", () => {
         expect(AnotherTestModel).not.toHaveProperty("_FKS");
 
         expect(Object.entries(mongoD.relations)).toHaveLength(0);
-    });
-
-    it("should handle multiple foreign key relationships in a single model", async () => {
-        return;
-        const multiRelatedSchema = new mongoD.Schema({
-            name: { type: String, required: true },
-            relatedOne: {
-                type: mongoD.Schema.Types.ObjectId,
-                ref: "RelatedModel",
-                __linked: true,
-                required: true,
-            },
-            relatedTwo: {
-                type: mongoD.Schema.Types.ObjectId,
-                ref: "RelatedModel",
-                __linked: true,
-                required: false,
-            },
-        });
-    
-        const MultiRelatedModel = await mongoD.MongoModel("MultiRelatedModel", multiRelatedSchema);
-    
-        const fksModels = await _FKS_MODEL_.find({ model: "MultiRelatedModel" });
-        expect(fksModels).toHaveLength(2);
-        expect(fksModels).toEqual(
-            expect.arrayContaining([
-                expect.objectContaining({ fk: "relatedOne" }),
-                expect.objectContaining({ fk: "relatedTwo" }),
-            ])
-        );
     });
 
     it("should handle foreign key field name updates correctly", async () => {
