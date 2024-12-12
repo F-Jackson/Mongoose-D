@@ -25,6 +25,7 @@ export class ForeignKeyProcessor {
     };
 
     _processPath = async (path, info, schemaEntries, ) => {
+        console.log(info);
         if (info["caster"] && info["instance"] && info["caster"]["instance"] === "ObjectId" && info["$isMongooseArray"]) {
             throw new Error("Linkeds references does not accept be inside array, use type: [ObjectId] or unlink the reference");
         }
