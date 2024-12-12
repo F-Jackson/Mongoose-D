@@ -28,13 +28,8 @@ export class InitMongoModels {
         name,
         schema,
         collection,
-        options,
-        kwargs
+        options
     ) {
-        const kwargsDict = {
-            modelCreator: (kwargs && kwargs["modelCreator"]) || ForeignKeyProcessor
-        }
-
         const mongoModel = await mongoose.model(name, schema, collection, options);
 
         try {
@@ -46,7 +41,7 @@ export class InitMongoModels {
             throw err;
         }
 
-        const foreignKeyProcessor = new kwargsDict.modelCreator(
+        const foreignKeyProcessor = new ForeignKeyProcessor(
             mongoModel,
             this
         );

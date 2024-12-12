@@ -457,19 +457,14 @@ describe("Mongo model creation", () => {
     it("should handle getActivate error", async () => {
         const RelatedModel = await mongoD.MongoModel("RelatedModel", relatedSchema);
         
-        const modelWithGetActiveError = ForeignKeyProcessor;
-        modelWithGetActiveError.prototype._getActiveForeignKeys = async () => { 
+        const oldActive = ForeignKeyProcessor.prototype._getActiveForeignKeys;
+        ForeignKeyProcessor.prototype._getActiveForeignKeys = async () => { 
             console.log("TTT");
             throw new Error("activer error");
         };
 
         try{
-            const TestModel = await mongoD.MongoModel(
-                "TestModel", testSchema, undefined, undefined, 
-                {
-                    modelCreator: modelWithGetActiveError
-                }
-            );
+            const TestModel = await mongoD.MongoModel("TestModel", testSchema);
 
             expect(true).toBe(false);
         } catch (e) {
@@ -482,7 +477,9 @@ describe("Mongo model creation", () => {
             expect(dbCollections).toHaveLength(1);
             expect(dbCollections).toHaveProperty("relatedmodels");
 
-            const TestModel = await mongoD.MongoModel("TestModel", testSchema, undefined, undefined);
+            const TestModel = await mongoD.MongoModel("TestModel", testSchema);
         }
+
+        ForeignKeyProcessor.prototype._getActiveForeignKeys = oldActive;
     });
 }, 0);
