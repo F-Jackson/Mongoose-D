@@ -117,7 +117,7 @@ describe("Mongo instance creation", () => {
 
         expect(Object.keys(mongoose.models)).toHaveLength(20000);
 
-        logToFile(`***********1K*********** ${timeTaken.toFixed(2)} ms`);  // Log time taken
+        logToFile(`***********1K NESTED*********** ${timeTaken.toFixed(2)} ms`);  // Log time taken
     });
 
     it("test __FKS_MODEL__ 10k", async () => {
@@ -143,6 +143,52 @@ describe("Mongo instance creation", () => {
 
         expect(Object.keys(mongoose.models)).toHaveLength(20000);
 
-        logToFile(`***********__FKS_MODEL__ 1K*********** ${timeTaken.toFixed(2)} ms`);  // Log time taken
+        logToFile(`***********FKS 1K*********** ${timeTaken.toFixed(2)} ms`);  // Log time taken
+    });
+
+    it("test __FKS_MODEL__ 10k NESTED", async () => {
+        const startTime = performance.now();  // Start timing
+
+        for (let i = 0; i < 10000; i++) {
+            await mongoD.MongoModel(`TestModel-${i}`, new mongoose.Schema({
+                name: { type: String, required: true },
+                nested: {
+                    name0: [String],
+                    nested1: {
+                        name1: [String],
+                        nested3: {
+                            name2: [String],
+                            nested5: {
+                                name3: [String],
+                                nested6: {
+                                    name4: [String],
+                                    nested7: {
+                                        name5: [String],
+                                        nested8: {
+                                            name6: [String],
+                                            nested9: {
+                                                name7: [String],
+                                                related: {
+                                                    type: mongoose.Schema.Types.ObjectId,
+                                                    ref: `RelatedModel-${i}`,
+                                                    required: true,
+                                                }
+                                            }
+                                        }
+                                    }
+                                } 
+                            }
+                        }
+                    }
+                },
+            }));
+        }
+
+        const endTime = performance.now();  // End timing
+        const timeTaken = endTime - startTime;  // Calculate the time taken
+
+        expect(Object.keys(mongoose.models)).toHaveLength(20000);
+
+        logToFile(`***********FKS 1K*********** ${timeTaken.toFixed(2)} ms`);  // Log time taken
     });
 }, 0);
