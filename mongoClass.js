@@ -34,9 +34,7 @@ export class InitMongoModels {
         const kwargsDict = {
             modelCreator: (kwargs && kwargs["modelCreator"]) || ForeignKeyProcessor
         }
-        
-
-        if (name in this.models) throw new Error("Model already exists");
+        console.log(await kwargsDict.modelCreator._getActiveForeignKeys());
 
         const mongoModel = await mongoose.model(name, schema, collection, options);
 
