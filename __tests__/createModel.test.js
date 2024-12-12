@@ -189,7 +189,8 @@ describe("Mongo model creation", () => {
                     subField: {
                         type: [mongoD.Schema.Types.ObjectId],
                         ref: "RelatedModel",
-                    }
+                    },
+                    arrayTest: [{ type: mongoD.Schema.Types.ObjectId, ref: "RelatedModel", required: true }]
                 }
             },
             lo: [String]

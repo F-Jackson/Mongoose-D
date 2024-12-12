@@ -24,10 +24,10 @@ export class ForeignKeyProcessor {
         await Promise.all(schemaPaths.map(([path, info]) => this._processPath(path, info, schemaEntries)));
     };
 
-    _processPath = async (path, info, schemaEntries, ) => {
-        console.log(info);
+    _processPath = async (path, info, schemaEntries) => {
         if (info["caster"] && info["instance"] && info["caster"]["instance"] === "ObjectId" && info["$isMongooseArray"]) {
-            throw new Error("Linkeds references does not accept be inside array, use type: [ObjectId] or unlink the reference");
+            console.log(info);
+            //throw new Error("Linkeds references does not accept be inside array, use type: [ObjectId] or unlink the reference");
         }
 
         const slicedKeys = path.split(".");
@@ -56,7 +56,7 @@ export class ForeignKeyProcessor {
 
     _isLeafNode = (keys) => keys.length === 1;
 
-    _processLeafNode = async (path, schemaField, ) => {
+    _processLeafNode = async (path, schemaField) => {
         if (!schemaField.type) return;
 
         const { ref, isArray } = await this._extractFieldTypeAndRef(schemaField);
@@ -75,7 +75,7 @@ export class ForeignKeyProcessor {
         let ref = null; 
         if (type.schemaName === "ObjectId" && linked) {
             if (!schemaField["ref"]) throw new Error("Cant link without reference");
-
+            console.log(schemaField);
             ref = schemaField.ref;
         }
 
