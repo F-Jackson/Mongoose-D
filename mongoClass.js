@@ -11,13 +11,14 @@ export class InitMongoModels {
         this.relations = {};
         this.oldRelations = {};
         this.Schema = mongoose.Schema;
-        //const oldPathFunction = {
-            //old: this.Schema.prototype.path
-        //}
-        //this.Schema.prototype.path = (path, obj) => {
-            //console.log(path, obj);
-            //return oldPathFunction.old.call(this.Schema, path, obj);
-        //};
+        const oldPathFunction = {
+            old: mongoose.Schema.prototype.path
+        }
+        this.Schema.prototype.path = (path, obj) => {
+            console.log(path, obj);
+            if (!obj) return;
+            return oldPathFunction.old.call(this.Schema, path);
+        };
     }
 
     addRelations(relations, modelName) {
