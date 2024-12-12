@@ -205,6 +205,7 @@ describe("Mongo model creation", () => {
         expect(mongoD.relations["RelatedModel"]).toMatchObject(["NestedModel"]);
 
         expect(Object.entries(NestedModel._FKS)).toHaveLength(1);
+        expect(Object.entries(NestedModel._FKS["RelatedModel"])).toHaveLength(2);
         expect(NestedModel._FKS).toMatchObject({
             "RelatedModel": [
                 {

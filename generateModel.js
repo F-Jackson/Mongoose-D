@@ -56,6 +56,8 @@ export class ForeignKeyProcessor {
     _isLeafNode = (keys) => keys.length === 1;
 
     _processLeafNode = async (path, schemaField) => {
+        if (!schemaField.type) return;
+        
         const { ref, isArray } = await this._extractFieldTypeAndRef(schemaField);
         if (!ref) return;
 
@@ -64,13 +66,6 @@ export class ForeignKeyProcessor {
     };
 
     _extractFieldTypeAndRef = async (schemaField) => {
-        console.log(schemaField);
-        if (Array.isArray(schemaField)) {
-
-        }
-    
-        if (!schemaField.type) return;
-
         const isArray = Array.isArray(schemaField.type);
         const type = isArray ? schemaField.type[0] : schemaField.type;
 
