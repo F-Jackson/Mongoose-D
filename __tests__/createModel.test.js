@@ -533,7 +533,7 @@ describe("Mongo model creation", () => {
         expect(collections.map(col => col.name)).toHaveLength(1);
         expect(collections.map(col => col.name)).toContain("relatedmodels");
 
-        RelatedModel.collection.drop();
+        await RelatedModel.collection.drop();
         db = mongoose.connection.db;
         collections = await db.listCollections().toArray();
         expect(collections.map(col => col.name)).toHaveLength(0);
