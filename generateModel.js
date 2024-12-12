@@ -11,6 +11,7 @@ export class ForeignKeyProcessor {
             await this._getActiveForeignKeys();
             await this._populateForeignKeyMetadata();
         } catch (e) {
+            console.log(e);
             await this.mongoModel.collection.drop();
 
             throw e;
@@ -19,7 +20,6 @@ export class ForeignKeyProcessor {
 
     _getActiveForeignKeys = async () => {
         const schemaPaths = Object.entries(this.mongoModel.schema.paths);
-        console.log(schemaPaths);
         const schemaEntries = this.mongoModel.schema.obj;
 
         await Promise.all(schemaPaths.map(([path, info]) => this._processPath(path, info, schemaEntries)));

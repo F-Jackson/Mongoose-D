@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import { ForeignKeyCreator } from "./creation.js";
 import { ForeignKeyDeleter } from "./deletion.js";
 import { _FKS_MODEL_ } from "./models.js";
@@ -22,27 +23,30 @@ export const getFuncs = async(mongoModel) => {
 
 export const changeDrop = async(mongoD, mongoModel, oldFuncs) => {
     mongoModel.collection.drop = async function(options) {
+        const modelName = mongoModel.modelName;
+        console.log(modelName);
+        delete mongoose.connection.models[modelName];
         const result = await oldFuncs.drop.call(this, options);
 
         if (result) {
-            const relations = mongoD.relations[mongoModel.modelName];
+            const relations = mongoD.relations[modelName];
             if (relations) {
                 relations.forEach(relation => {
                     const relationModel = mongoD.models[relation];
     
                     if (!relationModel || !relationModel["_FKS"]) return;
 
-                    delete relationModel._FKS[mongoModel.modelName];
+                    delete relationModel._FKS[modelName];
                     
                     if (Object.entries(relationModel._FKS).length === 0) {
                         delete relationModel["_FKS"];
                     }
                 });
 
-                delete mongoD.relations[mongoModel.modelName];
+                delete mongoD.relations[modelName];
             }
 
-            delete mongoD.models[mongoModel.modelName];
+            delete mongoD.models[modelName];
         }
 
         return result;

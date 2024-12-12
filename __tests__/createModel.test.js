@@ -435,6 +435,7 @@ describe("Mongo model creation", () => {
             expect(mongoD.models).not.toHaveProperty("RelatedModel");
             expect(Object.entries(mongoD.relations)).toHaveLength(0);
     
+            console.log(mongoose.connection.models);
             const UnlikedRelatedModel = await mongoD.MongoModel("RelatedModel", new mongoD.Schema({
                 children: [{ type: mongoD.Schema.Types.ObjectId, ref: "TestModel", required: true, _linked: false }],
                 po: [String]
