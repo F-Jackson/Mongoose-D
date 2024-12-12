@@ -22,12 +22,19 @@ export class ForeignKeyProcessor {
     _getActiveForeignKeys = async () => {
         const schemaPaths = Object.entries(this.mongoModel.schema.paths);
         const schemaEntries = this.mongoModel.schema.obj;
+        console.log(`schema: ${JSON.stringify(schemaEntries)}`);
 
-        await Promise.all(schemaPaths.map(([path, _]) => this._processPath(path, schemaEntries)));
+        await Promise.all(schemaPaths.map(([path, value]) => this._processPath(path, value, schemaEntries)));
     };
 
-    _processPath = async (path, schemaEntries) => {
+    getNestedProperty = async (obj, keys) => {
+        return keys.reduce((current, key) => (current && key in current ? current[key] : undefined), obj);
+    }
+
+    _processPath = async (path, value, schemaEntries) => {
         const slicedKeys = path.split(".");
+        const k = await this.getNestedProperty(schemaEntries, slicedKeys);
+        console.log(`${path}: ${JSON.stringify(k)}`);
         const stack = [{ keys: slicedKeys, nested: [] }];
         let currentEntry = schemaEntries;
         let limit = 100;
@@ -42,6 +49,7 @@ export class ForeignKeyProcessor {
             if (!currentEntry) continue;
 
             if (this._isLeafNode(keys)) {
+                console.log(path, currentEntry);
                 await this._processLeafNode(path, currentEntry);
             } else {
                 await this._addNestedKeyToStack(stack, keys, nested);
