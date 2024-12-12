@@ -32,32 +32,27 @@ export class InitMongoModels {
         mocksFunctions = undefined
     ) {
         if (name in this.models) throw new Error("Model already exists");
-        
+
         const mongoModel = await mongoose.model(name, schema, collection, options);
 
         try {
             const oldFuncs = await getFuncs(mongoModel);
             await changeDrop(this, mongoModel, oldFuncs);
-        } catch (err) {
-            await deleteFromMongoose(name);
 
-            throw err;
-        }
+            const foreignKeyProcessor = new ForeignKeyProcessor(
+                mongoModel,
+                this,
+                mocksFunctions
+            );
+            await foreignKeyProcessor.processForeignKeys();
 
-        const foreignKeyProcessor = new ForeignKeyProcessor(
-            mongoModel,
-            this,
-            mocksFunctions
-        );
-        await foreignKeyProcessor.processForeignKeys();
-
-        try {
             //await changeCreation(mongoModel, oldFuncs);
             //await changeDeletion(mongoModel, oldFuncs);
         
             this.models[name] = mongoModel;
         } catch (err) {
             await deleteFromMongoose(name);
+
             throw err;
         }
 

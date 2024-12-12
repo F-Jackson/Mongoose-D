@@ -6,6 +6,7 @@ import { ForeignKeyProcessor } from "../generateModel.js";
 
 const connectMongoDb = async function connect(url) {
     const mongoOptions = {
+        useUnifiedTopology: true,
         serverSelectionTimeoutMS: 5000,
     };
 
@@ -58,6 +59,7 @@ describe("Mongo model creation", () => {
     afterEach(async () => {
         vi.restoreAllMocks();
         await mongoose.connection.close();
+        await mongoose.disconnect();
     });
 
     it("should create a model and process foreign keys", async () => {
@@ -445,6 +447,54 @@ describe("Mongo model creation", () => {
                 "TestModel", testSchema, undefined, undefined, 
                 {
                     "_getActiveForeignKeys": async () => {
+                        throw new Error("Mocked error")
+                    }
+                }
+            );
+
+            expect(true).toBe(false);
+        } catch (e) {
+            expect(mongoD.models).not.toHaveProperty("TestModel");
+            expect(mongoD.models).toHaveProperty("RelatedModel");
+            expect(Object.entries(mongoD.models)).toHaveLength(1);
+            expect(Object.entries(mongoose.models)).toHaveLength(1);
+            expect(mongoose.models).toHaveProperty("RelatedModel");
+
+            await mongoose.connection.close(false);
+            await mongoose.disconnect();
+            const connectionState = mongoose.connection.readyState;
+            expect(connectionState).toBe(0);
+            //await connectMongoDb("mongodb+srv://jacksonjfs18:eUAqgrGoVxd5vboT@cluster0.o5i8utp.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0");
+
+            const TestModel = await mongoD.MongoModel("TestModel", testSchema);
+            expect(Object.entries(mongoD.models)).toHaveLength(2);
+            expect(Object.entries(mongoose.models)).toHaveLength(2);
+            expect(mongoD.models).toHaveProperty("TestModel");
+            expect(mongoD.models).toHaveProperty("RelatedModel");
+
+            expect(Object.entries(TestModel._FKS)).toHaveLength(1);
+            expect(TestModel._FKS).toMatchObject({
+                "RelatedModel": [
+                    {
+                        path: "related",
+                        required: true,
+                        immutable: false,
+                        unique: false,
+                        array: false,
+                    }
+                ]
+            });
+        }
+    });
+
+    it("should handle populateForeignKeyMetadata error", async () => {
+        const RelatedModel = await mongoD.MongoModel("RelatedModel", relatedSchema);
+
+        try{
+            const TestModel = await mongoD.MongoModel(
+                "TestModel", testSchema, undefined, undefined, 
+                {
+                    "_populateForeignKeyMetadata": async () => {
                         throw new Error("Mocked error")
                     }
                 }

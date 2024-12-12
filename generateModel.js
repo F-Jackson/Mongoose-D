@@ -1,6 +1,3 @@
-import { deleteFromMongoose } from "./utils.js";
-
-
 export class ForeignKeyProcessor {
     constructor(mongoModel, mongoD, mocks) {
         this.mongoModel = mongoModel;
@@ -15,14 +12,8 @@ export class ForeignKeyProcessor {
     }
 
     processForeignKeys = async () => {
-        try {
-            await this._getActiveForeignKeys();
-            await this._populateForeignKeyMetadata();
-        } catch (e) {
-            await deleteFromMongoose(this.mongoModel.modelName);
-
-            throw e;
-        }
+        await this._getActiveForeignKeys();
+        await this._populateForeignKeyMetadata();
     };
 
     _getActiveForeignKeys = async () => {
@@ -112,32 +103,24 @@ export class ForeignKeyProcessor {
     };
 
     _populateForeignKeyMetadata = async () => {
-        try {
-            if (Object.keys(this.activeForeignKeys).length > 0) {
-                this.mongoModel._FKS = this.activeForeignKeys;
-            }
-    
-            const modelName = this.mongoModel.modelName;
-    
-            if (this.relations.length > 0) {
-                const mongoDOldRelations = this.mongoD.getRelations();
-    
-                try {
-                    this.relations.forEach(relation => {
-                        this.mongoD.addRelation(relation, modelName);
-                    });
-                } catch (err) {
-                    this.mongoD.relations = mongoDOldRelations;
+        if (Object.keys(this.activeForeignKeys).length > 0) {
+            this.mongoModel._FKS = this.activeForeignKeys;
+        }
 
-                    throw err;
-                }
-            }
-        } catch (err) {
-            if (this.mongoModel["_FKS"]) {
-                delete this.mongoModel["_FKS"]
-            }
+        const modelName = this.mongoModel.modelName;
 
-            throw err;
+        if (this.relations.length > 0) {
+            const mongoDOldRelations = this.mongoD.getRelations();
+
+            try {
+                this.relations.forEach(relation => {
+                    this.mongoD.addRelation(relation, modelName);
+                });
+            } catch (err) {
+                this.mongoD.relations = mongoDOldRelations;
+
+                throw err;
+            }
         }
     };
 }
