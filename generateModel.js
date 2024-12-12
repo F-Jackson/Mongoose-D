@@ -21,14 +21,10 @@ export class ForeignKeyProcessor {
         const schemaPaths = Object.entries(this.mongoModel.schema.paths);
         const schemaEntries = this.mongoModel.schema.obj;
 
-        await Promise.all(schemaPaths.map(([path, info]) => this._processPath(path, info, schemaEntries)));
+        await Promise.all(schemaPaths.map(([path, _]) => this._processPath(path, schemaEntries)));
     };
 
-    _processPath = async (path, info, schemaEntries) => {
-        if (info["caster"] && info["instance"] && info["caster"]["instance"] === "ObjectId" && info["$isMongooseArray"]) {
-            //throw new Error("Linkeds references does not accept be inside array, use type: [ObjectId] or unlink the reference");
-        }
-
+    _processPath = async (path, schemaEntries) => {
         const slicedKeys = path.split(".");
         const stack = [{ keys: slicedKeys, nested: [] }];
         let currentEntry = schemaEntries;
@@ -57,7 +53,7 @@ export class ForeignKeyProcessor {
 
     _processLeafNode = async (path, schemaField) => {
         if (!schemaField.type) return;
-        
+
         const { ref, isArray } = await this._extractFieldTypeAndRef(schemaField);
         if (!ref) return;
 
