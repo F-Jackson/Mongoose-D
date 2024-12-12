@@ -422,26 +422,30 @@ describe("Mongo model creation", () => {
         const TestModel = await mongoD.MongoModel("TestModel", new mongoD.Schema({
             label: { type: String, required: true },
         }));
-        const RelatedModel = await mongoD.MongoModel("RelatedModel", new mongoD.Schema({
-            children: [{ type: mongoD.Schema.Types.ObjectId, ref: "TestModel", required: true }],
-            po: [String]
-        }));
+        try {
+            await mongoD.MongoModel("RelatedModel", new mongoD.Schema({
+                children: [{ type: mongoD.Schema.Types.ObjectId, ref: "TestModel", required: true }],
+                po: [String]
+            }));
 
-        expect(Object.entries(mongoD.models)).toHaveLength(1);
-        expect(mongoD.models).toHaveProperty("TestModel");
-        expect(mongoD.models).not.toHaveProperty("RelatedModel");
-        expect(Object.entries(mongoD.relations)).toHaveLength(0);
-
-        const UnlikedRelatedModel = await mongoD.MongoModel("RelatedModel", new mongoD.Schema({
-            children: [{ type: mongoD.Schema.Types.ObjectId, ref: "TestModel", required: true, _linked: false }],
-            po: [String]
-        }));
-
-        expect(Object.entries(mongoD.models)).toHaveLength(1);
-        expect(mongoD.models).toHaveProperty("TestModel");
-        expect(mongoD.models).toHaveProperty("RelatedModel");
-        expect(Object.entries(mongoD.relations)).toHaveLength(1);
-
-        expect(UnlikedRelatedModel).not.toHaveProperty("_FKS");
+            expect(true).toBe(false);
+        } catch (err) {
+            expect(Object.entries(mongoD.models)).toHaveLength(1);
+            expect(mongoD.models).toHaveProperty("TestModel");
+            expect(mongoD.models).not.toHaveProperty("RelatedModel");
+            expect(Object.entries(mongoD.relations)).toHaveLength(0);
+    
+            const UnlikedRelatedModel = await mongoD.MongoModel("RelatedModel", new mongoD.Schema({
+                children: [{ type: mongoD.Schema.Types.ObjectId, ref: "TestModel", required: true, _linked: false }],
+                po: [String]
+            }));
+    
+            expect(Object.entries(mongoD.models)).toHaveLength(1);
+            expect(mongoD.models).toHaveProperty("TestModel");
+            expect(mongoD.models).toHaveProperty("RelatedModel");
+            expect(Object.entries(mongoD.relations)).toHaveLength(1);
+    
+            expect(UnlikedRelatedModel).not.toHaveProperty("_FKS");
+        }
     });
 }, 0);
