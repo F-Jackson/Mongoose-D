@@ -37,7 +37,8 @@ export class InitMongoModels {
             const oldFuncs = await getFuncs(mongoModel);
             await changeDrop(this, mongoModel, oldFuncs);
         } catch (err) {
-            delete mongoose.connection.models[modelName];
+            delete mongoose.connection.models[name];
+            mongoose.connection.db.dropCollection(`${name.toLowerCase()}s`);
 
             throw err;
         }
