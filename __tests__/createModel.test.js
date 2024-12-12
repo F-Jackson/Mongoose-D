@@ -437,7 +437,7 @@ describe("Mongo model creation", () => {
         }
     });
 
-    it("should delete all cach after collection drop", async () => {
+    it("should delete all cache after collection drop", async () => {
         const TestModel = await mongoD.MongoModel("TestModel", new mongoD.Schema({
             label: { type: String, required: true },
         }));
