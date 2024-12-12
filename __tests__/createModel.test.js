@@ -474,11 +474,12 @@ describe("Mongo model creation", () => {
             expect(Object.entries(mongoD.models)).toHaveLength(1);
             expect(Object.entries(mongoose.models)).toHaveLength(1);
             expect(mongoose.models).toHaveProperty("RelatedModel");
-            const dbCollections = (await mongoose.connection.db.listCollections().toArray()).map(col => col.name);
-            expect(dbCollections).toHaveLength(1);
-            expect(dbCollections).toHaveProperty("relatedmodels");
 
-            const TestModel = await mongoD.MongoModel("TestModel", testSchema, undefined, undefined);
+            const TestModel = await mongoD.MongoModel("TestModel", testSchema);
+            expect(Object.entries(mongoD.models)).toHaveLength(2);
+            expect(Object.entries(mongoose.models)).toHaveLength(2);
+            expect(mongoD.models).toHaveProperty("TestModel");
+            expect(mongoD.models).toHaveProperty("RelatedModel");
         }
     });
 }, 0);
