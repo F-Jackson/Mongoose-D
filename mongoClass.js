@@ -15,7 +15,7 @@ export class InitMongoModels {
             old: mongoose.Schema.prototype.path
         }
         this.Schema.prototype.path = (path, obj) => {
-            console.log(path, obj);
+            console.log(path, obj, this);
             if (!obj) return;
             return oldPathFunction.old.call(this.Schema, path);
         };
