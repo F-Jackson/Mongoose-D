@@ -163,6 +163,52 @@ describe("Mongo model creation", () => {
         expect(Object.entries(mongoD.models)).toHaveLength(0);
     });
 
+    it("should process paths in schema", async () => {
+        const nestedSchema = mongoD.NewSchema({
+            nestedField: {
+                subField: {
+                    type: mongoD.Schema.Types.ObjectId,
+                    ref: "RelatedModel",
+                    required: true,
+                    unique: true,
+                    immutable: true
+                },
+                po: String,
+                ll: {
+                    io: String,
+                    h: String
+                }
+            },
+            nestedField2: {
+                po2: {
+                    subField: {
+                        type: [mongoD.Schema.Types.ObjectId],
+                        ref: "RelatedModel",
+                    },
+                    arrayTest: [{ type: mongoD.Schema.Types.ObjectId, ref: "RelatedModel", required: true }]
+                }
+            },
+            lo: [String]
+        });
+        const NestedModel = await mongoD.MongoModel("NestedModel", nestedSchema);
+
+        expect(nestedSchema).toHaveProperty("__properties");
+        const propertiesKeys = Object.entries(nestedSchema.__properties).map(([key, _]) => key);
+        expect(propertiesKeys).toMatchObject(
+            [
+                "nestedField.subField",
+                "nestedField.po",
+                "nestedField.ll.io",
+                "nestedField.ll.h",
+                "nestedField2.po2.subField",
+                "nestedField2.po2.arrayTest",
+                "lo",
+                "_id",
+                "__v"
+            ]
+        );
+    });
+
     it("should process deeply nested foreign keys", async () => {
         const nestedSchema = mongoD.NewSchema({
             nestedField: {
