@@ -33,7 +33,7 @@ export class InitMongoModels {
         const mongoSchema = mongoose.Schema;
         const properties = {};
         
-        const oldFunc = mongoSchema.prototype.path ;
+        const oldFunc = mongoSchema.prototype.path;
         mongoSchema.prototype.path = (path, obj) => {
             if (!obj) return;
             properties[path] = obj;
