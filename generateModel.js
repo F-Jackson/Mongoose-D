@@ -1,6 +1,3 @@
-const _ = require('lodash');
-
-
 export class ForeignKeyProcessor {
     constructor(mongoModel, mongoD) {
         this.mongoModel = mongoModel;

@@ -22,8 +22,6 @@
   },
   "homepage": "https://github.com/F-Jackson/Mongoose-D#readme",
   "dependencies": {
-    "easy-access": "^0.0.10",
-    "lodash": "^4.17.21",
     "mongoose": "^8.8.4"
   },
   "devDependencies": {
