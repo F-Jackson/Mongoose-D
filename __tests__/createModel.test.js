@@ -225,6 +225,64 @@ describe("Mongo model creation", () => {
         );
     });
 
+    it("should isolate process paths in schema", async () => {
+        const nestedSchema = mongoD.NewSchema({
+            nestedField: {
+                subField: {
+                    type: mongoD.Schema.Types.ObjectId,
+                    ref: "RelatedModel",
+                    required: true,
+                    unique: true,
+                    immutable: true
+                },
+                po: String,
+                ll: {
+                    io: String,
+                    h: String
+                }
+            },
+            nestedField2: {
+                po2: {
+                    subField: {
+                        type: [mongoD.Schema.Types.ObjectId],
+                        ref: "RelatedModel",
+                    },
+                    arrayTest: [{ type: mongoD.Schema.Types.ObjectId, ref: "RelatedModel", required: true }]
+                }
+            },
+            lo: [String]
+        });
+        const nestedSchema2 = mongoD.NewSchema({
+            isolated: [String]
+        });
+
+        expect(nestedSchema).toHaveProperty("__properties");
+        const propertiesKeys = Object.entries(nestedSchema.__properties).map(([key, _]) => key);
+        expect(propertiesKeys).toHaveLength(8);
+        expect(propertiesKeys).toMatchObject(
+            [
+                "nestedField.subField",
+                "nestedField.po",
+                "nestedField.ll.io",
+                "nestedField.ll.h",
+                "nestedField2.po2.subField",
+                "nestedField2.po2.arrayTest",
+                "lo",
+                "_id",
+            ]
+        );
+
+        expect(nestedSchema2).toHaveProperty("__properties");
+        const propertiesKeys2 = Object.entries(nestedSchema2.__properties).map(([key, _]) => key);
+        expect(propertiesKeys2).toHaveLength(2);
+        expect(propertiesKeys2).toMatchObject(
+            [
+                "isolated",
+                "_id",
+            ]
+        );
+    });
+
     it("should process deeply nested foreign keys", async () => {
         const nestedSchema = mongoD.NewSchema({
             nestedField: {
