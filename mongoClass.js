@@ -38,11 +38,14 @@ export class InitMongoModels {
         const properties = {};
         const originalPath = mongoSchema.prototype.path;
 
-        mongoSchema.prototype.path = (path, obj) => {
-            if (!obj) return;
-            console.log(path, obj);
+        // Substituir o método `path` do protótipo do Schema
+        mongoSchema.prototype.path = function (path, obj) {
+            if (!obj) {
+                return originalPath.call(this, path); // Contexto correto
+            }
+            // Salvar as propriedades personalizadas
             properties[path] = obj;
-            return originalPath.call(this, path, obj);
+            return originalPath.call(this, path, obj); // Chamada com o contexto correto
         };
 
         const schema = mongoSchema(obj, options);
