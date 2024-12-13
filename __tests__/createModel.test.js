@@ -220,15 +220,12 @@ function NewSchema(obj, options) {
 async function test() {
     console.log("Iniciando...");
 
-    const result1 = await NewSchema({ name: "User" }, { optionA: true });
+    const result1 = NewSchema({ name: "User" }, { optionA: true });
     console.log("Resultado 1:", result1);
-    console.log("1***");
-    const result2 = await NewSchema({ name: "Product" }, { optionB: false });
+    const result2 = NewSchema({ name: "Product" }, { optionB: false });
     console.log("Resultado 2:", result2);
-    console.log("2***");
-    const result3 = await NewSchema({ name: "Order" }, { optionC: "value" });
+    const result3 = NewSchema({ name: "Order" }, { optionC: "value" });
     console.log("Resultado 3:", result3);
-    console.log("3***");
     console.log("Todos os schemas foram criados sequencialmente.");
 }
 
