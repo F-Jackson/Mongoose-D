@@ -45,14 +45,13 @@ export class InitMongoModels {
 
     NewSchema(obj, options) {
         // Criar uma cópia simples do mongoose.Schema
-        const mongoSchema = mongoose.Schema.bind();
+        const mongoSchema = class extends mongoose.Schema {};
 
         const properties = {};
         const originalPath = mongoSchema.prototype.path;
 
         // Substituir o método `path` do protótipo do Schema
         mongoSchema.prototype.path = function (path, obj) {
-            console.log(path, obj);
             if (!obj) {
                 return originalPath.call(this, path); // Contexto correto
             }
@@ -61,8 +60,9 @@ export class InitMongoModels {
             return originalPath.call(this, path, obj); // Chamada com o contexto correto
         };
 
-        const schema = mongoSchema(obj, options);
+        const schema = new mongoSchema(obj, options);
         schema.__properties = properties;
+        console.log(properties);
 
         return schema;
     }
