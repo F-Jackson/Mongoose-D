@@ -195,8 +195,8 @@ describe("Mongo model creation", () => {
             },
             lo: [String]
         });
+        console.log(nestedSchema);
         const NestedModel = await mongoD.MongoModel("NestedModel", nestedSchema);
-        console.log(mongoose.Schema)
 
         expect(Object.entries(mongoD.models)).toHaveLength(1);
         expect(mongoD.models).toHaveProperty("NestedModel");

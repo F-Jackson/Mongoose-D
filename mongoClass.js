@@ -30,18 +30,24 @@ export class InitMongoModels {
     }
 
     NewSchema(obj, options) {
+        // Criar uma cópia simples do mongoose.Schema
         const mongoSchema = mongoose.Schema;
+        //Object.setPrototypeOf(mongoSchema, mongoose.Schema);
+        //mongoSchema.prototype = Object.create(mongoose.Schema.prototype);
+
         const properties = {};
-        
-        const oldFunc = mongoSchema.prototype.path;
+        const originalPath = mongoSchema.prototype.path;
+
         mongoSchema.prototype.path = (path, obj) => {
             if (!obj) return;
+            console.log(path, obj);
             properties[path] = obj;
-            oldFunc.call(mongoSchema, path, obj);
+            return originalPath.call(this, path, obj);
         };
 
-        const schema = new mongoSchema(obj, options);
-        schema["__properties"] = properties;
+        const schema = mongoSchema(obj, options);
+        schema.__properties = properties;
+
         return schema;
     }
 
