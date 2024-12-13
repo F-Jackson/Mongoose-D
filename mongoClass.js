@@ -45,7 +45,7 @@ export class InitMongoModels {
 
     NewSchema(obj, options) {
         // Criar uma cópia simples do mongoose.Schema
-        const mongoSchema = mongoose.Schema;
+        const mongoSchema = mongoose.Schema.bind();
 
         const properties = {};
         const originalPath = mongoSchema.prototype.path;
