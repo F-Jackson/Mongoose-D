@@ -226,35 +226,41 @@ describe("Mongo model creation", () => {
     });
 
     it("should isolate process paths in schema", async () => {
-        const nestedSchema = mongoD.NewSchema({
-            nestedField: {
-                subField: {
-                    type: mongoD.Schema.Types.ObjectId,
-                    ref: "RelatedModel",
-                    required: true,
-                    unique: true,
-                    immutable: true
-                },
-                po: String,
-                ll: {
-                    io: String,
-                    h: String
-                }
-            },
-            nestedField2: {
-                po2: {
+        const concurrentSchemaCreations = Promise.all([
+            mongoD.NewSchema({
+                nestedField: {
                     subField: {
-                        type: [mongoD.Schema.Types.ObjectId],
+                        type: mongoD.Schema.Types.ObjectId,
                         ref: "RelatedModel",
+                        required: true,
+                        unique: true,
+                        immutable: true,
                     },
-                    arrayTest: [{ type: mongoD.Schema.Types.ObjectId, ref: "RelatedModel", required: true }]
-                }
-            },
-            lo: [String]
-        });
-        const nestedSchema2 = mongoD.NewSchema({
-            isolated: [String]
-        });
+                    po: String,
+                    ll: {
+                        io: String,
+                        h: String,
+                    },
+                },
+                nestedField2: {
+                    po2: {
+                        subField: {
+                            type: [mongoD.Schema.Types.ObjectId],
+                            ref: "RelatedModel",
+                        },
+                        arrayTest: [
+                            { type: mongoD.Schema.Types.ObjectId, ref: "RelatedModel", required: true },
+                        ],
+                    },
+                },
+                lo: [String],
+            }),
+            mongoD.NewSchema({
+                isolated: [String],
+            }),
+        ]);
+    
+        const [nestedSchema, nestedSchema2] = await concurrentSchemaCreations;
 
         expect(nestedSchema).toHaveProperty("__properties");
         const propertiesKeys = Object.entries(nestedSchema.__properties).map(([key, _]) => key);
