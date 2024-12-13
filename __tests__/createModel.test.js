@@ -195,9 +195,6 @@ describe("Mongo model creation", () => {
             },
             lo: [String]
         });
-        const k = new mongoose.Schema({
-            k: [String]
-        });
         const NestedModel = await mongoD.MongoModel("NestedModel", nestedSchema);
 
         expect(Object.entries(mongoD.models)).toHaveLength(1);
