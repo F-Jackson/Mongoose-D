@@ -60,31 +60,25 @@ export const changeCreation = async(mongoModel, oldFuncs) => {
         const creator = new ForeignKeyCreator(
             mongoModel
         );
-        await creator.create(models);
+        return await creator.create(models);
     };
 
     mongoModel.create = async function(options, callback) {
         const result = await oldFuncs.create.call(this, options, callback);
 
-        await createFunc(result);
-
-        return result;
+        return await createFunc(result);
     };
 
     mongoModel.prototype.save = async function(options, callback) {
         const result = await oldFuncs.save.call(this, options, callback);
 
-        await createFunc(result);
-
-        return result;
+        return await createFunc(result);
     };
 
     mongoModel.insertMany = async function(arr, options) {
         const result = await oldFuncs.insertMany.call(this, arr, options);
 
-        await createFunc(result);
-
-        return result;
+        return await createFunc(result);
     };
 };
 

@@ -88,7 +88,7 @@ export class InitMongoModels {
             await foreignKeyProcessor.__mocktest(__mocks);
             await foreignKeyProcessor.processForeignKeys();
 
-            //await changeCreation(mongoModel, oldFuncs);
+            await changeCreation(mongoModel, oldFuncs);
             //await changeDeletion(mongoModel, oldFuncs);
         
             this.models[name] = mongoModel;
