@@ -28,44 +28,12 @@ export class ForeignKeyProcessor {
     };
 
     _processPath = async (path, obj) => {
-        const slicedKeys = path.split(".");
-        const key = slicedKeys[slicedKeys.length - 1];
-
         if (!obj.type) return;
 
         const { ref, isArray } = await this._extractFieldTypeAndRef(obj);
         if (!ref) return;
 
-        const stack = [{ keys: slicedKeys, nested: [] }];
-        let currentEntry = schemaEntries;
-        let limit = 100;
-
-        while (stack.length > 0) {
-            limit--;
-            if (limit < 1) throw new Error("Exceeded maximum iteration limit while processing path");
-
-            const { keys, nested } = stack.pop();
-            currentEntry = this._getNextSchemaEntry(currentEntry, keys[0]);
-
-            if (!currentEntry) continue;
-
-            if (this._isLeafNode(keys)) {
-                //console.log(path, currentEntry);
-                await this._processLeafNode(path, currentEntry);
-            } else {
-                await this._addNestedKeyToStack(stack, keys, nested);
-            }
-        }
-    };
-
-    _getNextSchemaEntry = (currentEntry, key) => currentEntry[key];
-
-    _isLeafNode = (keys) => keys.length === 1;
-
-    _processLeafNode = async (path, schemaField) => {
-        if (!schemaField.type) return;
-
-        const metadata = await this._createForeignKeyMetadata(path, schemaField, isArray);
+        const metadata = await this._createForeignKeyMetadata(path, obj, isArray);
         await this._addForeignKeyMetadata(ref, metadata);
     };
 
@@ -85,11 +53,11 @@ export class ForeignKeyProcessor {
         return { type, ref, isArray };
     };
 
-    _createForeignKeyMetadata = async (path, schemaField, isArray) => ({
+    _createForeignKeyMetadata = async (path, obj, isArray) => ({
         path,
-        required: schemaField.required || false,
-        immutable: schemaField.immutable || false,
-        unique: schemaField.unique || false,
+        required: obj.required || false,
+        immutable: obj.immutable || false,
+        unique: obj.unique || false,
         array: isArray,
     });
 
@@ -102,13 +70,6 @@ export class ForeignKeyProcessor {
             }
         }
         this.activeForeignKeys[ref].push(metadata);
-    };
-
-    _addNestedKeyToStack = async (stack, keys, nested) => {
-        stack.push({
-            keys: keys.slice(1),
-            nested: [...nested, keys[0]],
-        });
     };
 
     _populateForeignKeyMetadata = async () => {
