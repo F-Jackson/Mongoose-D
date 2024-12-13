@@ -10,6 +10,7 @@ export class InitMongoModels {
         this.models = {};
         this.relations = {};
         this.oldRelations = {};
+        this.Schema = mongoose.Schema;
     }
 
     addRelations(relations, modelName) {
@@ -28,7 +29,7 @@ export class InitMongoModels {
         this.relations = JSON.parse(JSON.stringify(this.oldRelations));
     }
 
-    Schema(obj, options) {
+    NewSchema(obj, options) {
         const mongoSchema = mongoose.Schema;
         const properties = {};
         
