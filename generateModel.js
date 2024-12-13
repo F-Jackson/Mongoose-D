@@ -26,10 +26,6 @@ export class ForeignKeyProcessor {
         await Promise.all(schemaPaths.map(([path, value]) => this._processPath(path, value, schemaEntries)));
     };
 
-    getNestedValue = async (obj, path) => {
-        return _.get(obj, path);
-    };
-
     _processPath = async (path, value, schemaEntries) => {
         const slicedKeys = path.split(".");
         const k = await this.getNestedValue(schemaEntries, path);
