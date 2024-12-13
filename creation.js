@@ -1,8 +1,8 @@
 export class ForeignKeyCreator {
-    constructor(mongoModel, doc) {
+    constructor(mongoModel, mongoD) {
         this.mongoModel = mongoModel;
         this.modelName = mongoModel.modelName;
-        this.doc = doc;
+        this.mongoD = mongoD;
     }
 
     async _creationFks(instance) {
@@ -26,14 +26,33 @@ export class ForeignKeyCreator {
     async create(models) {
         if (!Array.isArray(models)) models = [models];
         const fkEntries = Object.entries(this.mongoModel._FKS);
+        const modelsRelations = {};
 
         for (let i = 0; i < fkEntries.length; i++) {
-            const [key, values] = fkEntries[i];
+            const [modelName, fks] = fkEntries[i];
+            modelsRelations[modelName] = {
+                model: this.mongoD.models[modelName],
+                relations: {}
+            };
 
-            for (let x = 0; x < values.length; x++) {
-                
+            for (let o = 0; o < models.length; o++) {
+                const model = models[0];
+
+                modelsRelations[modelName][relations][model._id] = [];
+
+                for (let x = 0; x < fks.length; x++) {
+                    const fk = fks[x];
+                    const modelFk = await getNestedProperty(model, fk.path)
+                    modelsRelations[modelName][relations][model._id].push({
+                        path,
+                        value: modelFk
+                    })
+                }
             }
         }
+
+        console.log(modelsRelations);
+        return;
 
         try {
             const allRelations = [];

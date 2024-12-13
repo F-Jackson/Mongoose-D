@@ -66,8 +66,7 @@ export const changeCreation = async(mongoModel, oldFuncs) => {
     mongoModel.create = async function(doc, callback) {
         const result = await oldFuncs.create.call(this, doc, callback);
 
-        console.dir(result);
-        //return await createFunc(result, doc);
+        await createFunc(result, doc);
         return result;
     };
 
