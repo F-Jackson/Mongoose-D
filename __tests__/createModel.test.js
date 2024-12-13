@@ -169,7 +169,7 @@ describe("Mongo model creation", () => {
     });
 
     it("should process deeply nested foreign keys", async () => {
-        const nestedSchema = mongoD.Schema({
+        const nestedSchema = new mongoD.Schema({
             nestedField: {
                 subField: {
                     type: mongoD.Schema.Types.ObjectId,
@@ -195,9 +195,8 @@ describe("Mongo model creation", () => {
             },
             lo: [String]
         });
-        console.dir(nestedSchema);
-
         const NestedModel = await mongoD.MongoModel("NestedModel", nestedSchema);
+        //console.dir(mongoose.Schema)
 
         expect(Object.entries(mongoD.models)).toHaveLength(1);
         expect(mongoD.models).toHaveProperty("NestedModel");

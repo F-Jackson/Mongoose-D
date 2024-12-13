@@ -10,7 +10,6 @@ export class InitMongoModels {
         this.models = {};
         this.relations = {};
         this.oldRelations = {};
-        this.Schema = mongoose.Schema;
     }
 
     addRelations(relations, modelName) {
@@ -27,6 +26,22 @@ export class InitMongoModels {
 
     resetRelations() {
         this.relations = JSON.parse(JSON.stringify(this.oldRelations));
+    }
+
+    Schema(obj, options) {
+        const mongoSchema = mongoose.Schema;
+        const properties = {};
+        
+        const oldFunc = mongoSchema.prototype.path ;
+        mongoSchema.prototype.path = (path, obj) => {
+            if (!obj) return;
+            properties[path] = obj;
+            oldFunc.call(mongoSchema, path, obj);
+        };
+
+        const schema = new mongoSchema(obj, options);
+        schema["__properties"] = properties;
+        return schema;
     }
 
     async MongoModel (

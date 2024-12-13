@@ -25,7 +25,6 @@ export class ForeignKeyProcessor {
     _getActiveForeignKeys = async () => {
         const schemaPaths = Object.entries(this.mongoModel.schema.paths);
         const schemaEntries = this.mongoModel.schema.obj;
-        console.log(`schema:`, schemaEntries);
 
         await Promise.all(schemaPaths.map(([path, value]) => this._processPath(path, value, schemaEntries)));
     };
