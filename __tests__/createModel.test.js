@@ -172,7 +172,7 @@ describe("Mongo model creation", () => {
         // Simulação do método `NewSchema`
 function simulateNewSchema(obj, options) {
     return new Promise((resolve) => {
-        const delay = Math.random() * 2000; // Tempo de delay aleatório
+        const delay = Math.floor(Math.random() * (4000 - 1000 + 1)) + 2000; // Tempo de delay aleatório
         setTimeout(() => {
             const result = {
                 schemaName: obj.name,
@@ -222,17 +222,17 @@ async function test() {
 
     const result1 = await NewSchema({ name: "User" }, { optionA: true });
     console.log("Resultado 1:", result1);
-
+    console.log("1***");
     const result2 = await NewSchema({ name: "Product" }, { optionB: false });
     console.log("Resultado 2:", result2);
-
+    console.log("2***");
     const result3 = await NewSchema({ name: "Order" }, { optionC: "value" });
     console.log("Resultado 3:", result3);
-
+    console.log("3***");
     console.log("Todos os schemas foram criados sequencialmente.");
 }
 
-test();
+await test();
 
 return;
   
