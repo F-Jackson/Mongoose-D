@@ -62,7 +62,6 @@ export class InitMongoModels {
 
         const schema = new mongoSchema(obj, options);
         schema.__properties = properties;
-        console.log(properties);
 
         return schema;
     }

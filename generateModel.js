@@ -28,8 +28,6 @@ export class ForeignKeyProcessor {
 
     _processPath = async (path, value, schemaEntries) => {
         const slicedKeys = path.split(".");
-        const k = await this.getNestedValue(schemaEntries, path);
-        //console.log(`${path}: ${JSON.stringify(k)}`);
         const stack = [{ keys: slicedKeys, nested: [] }];
         let currentEntry = schemaEntries;
         let limit = 100;
