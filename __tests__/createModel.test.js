@@ -172,7 +172,7 @@ describe("Mongo model creation", () => {
         // Simulação do método `NewSchema`
 function simulateNewSchema(obj, options) {
     return new Promise((resolve) => {
-        const delay = Math.floor(Math.random() * (4000 - 1000 + 1)) + 2000; // Tempo de delay aleatório
+        const delay = Math.floor(Math.random() * (1000 - 100 + 1)) + 2000; // Tempo de delay aleatório
         setTimeout(() => {
             const result = {
                 schemaName: obj.name,
