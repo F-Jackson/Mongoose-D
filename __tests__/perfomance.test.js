@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 import fs from "fs";
 import path from "path";
 import { InitMongoModels } from "../mongoClass.js";
-import { MongoMemoryServer } from 'mongodb-memory-server'
+import { MongoMemoryServer } from 'mongodb-memory-server';
 
 const LOG_FILE = path.join(__dirname, "performance_test.log");
 
@@ -15,22 +15,11 @@ const logToFile = (message) => {
     console.log(logMessage.trim());
 };
 
-const connectMongoDb = async function connect(url) {
-    const mongoOptions = {
-        serverSelectionTimeoutMS: 5000,
-    };
-
-    return await mongoose.connect(url, mongoOptions);
-};
-
 describe("Mongo instance creation", () => {
     let mongoD = undefined;
     let mongoServer;
 
     beforeEach(async () => {
-        const url = "mongodb+srv://jacksonjfs18:eUAqgrGoVxd5vboT@cluster0.o5i8utp.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
-
-
         mongoServer = await MongoMemoryServer.create();
         const uri = mongoServer.getUri();
         await mongoose.connect(uri, {

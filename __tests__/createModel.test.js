@@ -3,6 +3,8 @@ import mongoose from "mongoose";
 import { _FKS_MODEL_, _FKS_ } from "../models.js";
 import { InitMongoModels } from "../mongoClass.js";
 import { deleteFromMongoose } from "../utils.js";
+import { MongoMemoryServer } from 'mongodb-memory-server';
+
 
 const connectMongoDb = async function connect(url) {
     const mongoOptions = {
@@ -20,9 +22,25 @@ describe("Mongo model creation", () => {
     let mongoD = undefined;
 
     beforeEach(async () => {
-        await connectMongoDb("mongodb+srv://jacksonjfs18:eUAqgrGoVxd5vboT@cluster0.o5i8utp.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0");
+        mongoServer = await MongoMemoryServer.create();
+        const uri = mongoServer.getUri();
+        await mongoose.connect(uri, {
+            useNewUrlParser: true,
+            useUnifiedTopology: true,
+        });
+
+        const collections = await mongoose.connection.db.listCollections().toArray();
+        const dropPromises = collections.map((collection) =>
+            mongoose.connection.db.dropCollection(collection.name)
+        );
+        await Promise.all(dropPromises);
+
+        for (let model in mongoose.models) {
+            delete mongoose.models[model];
+        }
 
         mongoD = new InitMongoModels();
+
         relatedSchema = mongoD.NewSchema({
             title: { type: String, required: true },
         });
@@ -37,26 +55,9 @@ describe("Mongo model creation", () => {
     });
 
     afterEach(async () => {
-        const collections = await mongoose.connection.db.listCollections().toArray();
-        const dropPromises = collections.map((collection) =>
-            mongoose.connection.db.dropCollection(collection.name)
-        );
-
-        await Promise.all(dropPromises);
-
-        for (let model in mongoose.models) {
-            delete mongoose.models[model];
-        }
-
-        if (mongoD) {
-            for (const value of Object.values(mongoD.models)) {
-                await value.deleteMany({});
-                await value.collection.drop();
-            }
-        }
-
         vi.restoreAllMocks();
-        await mongoose.connection.close();
+        await mongoose.disconnect();
+        if (mongoServer) await mongoServer.stop();
     });
 
     it("should create a model and process foreign keys", async () => {
