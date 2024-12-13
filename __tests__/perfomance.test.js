@@ -1,4 +1,4 @@
-import { describe, it, beforeEach, afterEach, expect, beforeAll } from "vitest";
+import { describe, it, beforeEach, afterEach, expect } from "vitest";
 import mongoose from "mongoose";
 import fs from "fs";
 import path from "path";
@@ -25,11 +25,9 @@ const connectMongoDb = async function connect(url) {
 describe("Mongo instance creation", () => {
     let mongoD = undefined;
 
-    beforeAll(async () => {
-        await connectMongoDb("mongodb+srv://jacksonjfs18:eUAqgrGoVxd5vboT@cluster0.o5i8utp.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0");
-    }, 0);
-
     beforeEach(async () => {
+        await connectMongoDb("mongodb+srv://jacksonjfs18:eUAqgrGoVxd5vboT@cluster0.o5i8utp.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0");
+
         const collections = await mongoose.connection.db.listCollections().toArray();
         const dropPromises = collections.map((collection) =>
             mongoose.connection.db.dropCollection(collection.name)
@@ -50,6 +48,11 @@ describe("Mongo instance creation", () => {
 
         mongoD = new InitMongoModels();
     }, 0);
+
+    afterEach(async () => {
+        vi.restoreAllMocks();
+        await mongoose.connection.close();
+    });
 
     it("test 10k", async () => {
         const startTime = performance.now();  // Start timing
@@ -123,11 +126,9 @@ describe("Mongo instance creation", () => {
     });
 
     it("test __FKS_MODEL__ 10k NESTED", async () => {
-        const startTime = performance.now();  // Start timing
-        console.log("started");
+        const startTime = performance.now();
 
         for (let i = 0; i < 10000; i++) {
-            console.log("start", i);
             const schema = mongoD.NewSchema({
                 name: { type: String, required: true },
                 nested: {
@@ -160,7 +161,6 @@ describe("Mongo instance creation", () => {
                     }
                 },
             });
-            //console.log("Schema", i);
             await mongoD.MongoModel(`TestModel-${i}`, schema);
         }
 
