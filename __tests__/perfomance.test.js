@@ -1,4 +1,4 @@
-import { describe, it, beforeEach, afterEach, expect } from "vitest";
+import { describe, it, beforeEach, afterEach, expect, beforeAll } from "vitest";
 import mongoose from "mongoose";
 import fs from "fs";
 import path from "path";
@@ -25,8 +25,17 @@ const connectMongoDb = async function connect(url) {
 describe("Mongo instance creation", () => {
     let mongoD = undefined;
 
-    beforeEach(async () => {
+    beforeAll(async () => {
         await connectMongoDb("mongodb+srv://jacksonjfs18:eUAqgrGoVxd5vboT@cluster0.o5i8utp.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0");
+    }, 0);
+
+    beforeEach(async () => {
+        const collections = await mongoose.connection.db.listCollections().toArray();
+        const dropPromises = collections.map((collection) =>
+            mongoose.connection.db.dropCollection(collection.name)
+        );
+
+        await Promise.all(dropPromises);
 
         for (let model in mongoose.models) {
             delete mongoose.models[model];
@@ -41,11 +50,6 @@ describe("Mongo instance creation", () => {
 
         mongoD = new InitMongoModels();
     }, 0);
-
-    afterEach(async () => {
-        vi.restoreAllMocks();
-        await mongoose.connection.close();
-    });
 
     it("test 10k", async () => {
         const startTime = performance.now();  // Start timing
