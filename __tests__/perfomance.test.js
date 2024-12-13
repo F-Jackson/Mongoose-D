@@ -2,8 +2,7 @@ import { describe, it, beforeEach, afterEach, expect } from "vitest";
 import mongoose from "mongoose";
 import fs from "fs";
 import path from "path";
-import { _FKS_, _FKS_MODEL_ } from "../models.js";
-import { InitMongoModels, MongoModel } from "../mongoClass.js";
+import { InitMongoModels } from "../mongoClass.js";
 
 const LOG_FILE = path.join(__dirname, "performance_test.log");
 
@@ -70,7 +69,7 @@ describe("Mongo instance creation", () => {
 
         expect(Object.keys(mongoose.models)).toHaveLength(20000);
 
-        logToFile(`***********1K*********** ${timeTaken.toFixed(2)} ms`);  // Log time taken
+        logToFile(`***********10K*********** ${timeTaken.toFixed(2)} ms`);  // Log time taken
     });
 
     it("test 10k NESTED", async () => {
@@ -116,40 +115,16 @@ describe("Mongo instance creation", () => {
 
         expect(Object.keys(mongoose.models)).toHaveLength(10000);
 
-        logToFile(`***********1K NESTED*********** ${timeTaken.toFixed(2)} ms`);  // Log time taken
-    });
-
-    it("test __FKS_MODEL__ 10k", async () => {
-        const startTime = performance.now();  // Start timing
-
-        for (let i = 0; i < 10000; i++) {
-            await mongoD.MongoModel(`RelatedModel-${i}`, new mongoose.Schema({
-                title: { type: String, required: true },
-            }));
-            await mongoD.MongoModel(`TestModel-${i}`, new mongoose.Schema({
-                name: { type: String, required: true },
-                related: {
-                    type: mongoose.Schema.Types.ObjectId,
-                    ref: `RelatedModel-${i}`,
-                    linked: true,
-                    required: true,
-                },
-            }));
-        }
-
-        const endTime = performance.now();  // End timing
-        const timeTaken = endTime - startTime;  // Calculate the time taken
-
-        expect(Object.keys(mongoose.models)).toHaveLength(20000);
-
-        logToFile(`***********FKS 1K*********** ${timeTaken.toFixed(2)} ms`);  // Log time taken
+        logToFile(`***********10K NESTED*********** ${timeTaken.toFixed(2)} ms`);  // Log time taken
     });
 
     it("test __FKS_MODEL__ 10k NESTED", async () => {
         const startTime = performance.now();  // Start timing
+        console.log("started");
 
         for (let i = 0; i < 10000; i++) {
-            await mongoD.MongoModel(`TestModel-${i}`, new mongoose.Schema({
+            console.log("start", i);
+            const schema = mongoD.NewSchema({
                 name: { type: String, required: true },
                 nested: {
                     name0: [String],
@@ -180,7 +155,9 @@ describe("Mongo instance creation", () => {
                         }
                     }
                 },
-            }));
+            });
+            //console.log("Schema", i);
+            await mongoD.MongoModel(`TestModel-${i}`, schema);
         }
 
         const endTime = performance.now();  // End timing
@@ -188,6 +165,32 @@ describe("Mongo instance creation", () => {
 
         expect(Object.keys(mongoose.models)).toHaveLength(10000);
 
-        logToFile(`***********FKS 1K*********** ${timeTaken.toFixed(2)} ms`);  // Log time taken
+        logToFile(`***********FKS 10K NESTED*********** ${timeTaken.toFixed(2)} ms`);  // Log time taken
+    });
+
+    it("test __FKS_MODEL__ 10k", async () => {
+        const startTime = performance.now();  // Start timing
+
+        for (let i = 0; i < 10000; i++) {
+            await mongoD.MongoModel(`RelatedModel-${i}`, mongoD.NewSchema({
+                title: { type: String, required: true },
+            }));
+            await mongoD.MongoModel(`TestModel-${i}`, mongoD.NewSchema({
+                name: { type: String, required: true },
+                related: {
+                    type: mongoose.Schema.Types.ObjectId,
+                    ref: `RelatedModel-${i}`,
+                    linked: true,
+                    required: true,
+                },
+            }));
+        }
+
+        const endTime = performance.now();  // End timing
+        const timeTaken = endTime - startTime;  // Calculate the time taken
+
+        expect(Object.keys(mongoose.models)).toHaveLength(20000);
+
+        logToFile(`***********FKS 10K*********** ${timeTaken.toFixed(2)} ms`);  // Log time taken
     });
 }, 0);
