@@ -54,7 +54,7 @@ export class ForeignKeyProcessor {
     };
 
     _createForeignKeyMetadata = async (path, obj, isArray) => ({
-        path,
+        path: path.split("."),
         required: obj.required || false,
         immutable: obj.immutable || false,
         unique: obj.unique || false,

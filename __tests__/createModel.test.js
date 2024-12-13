@@ -70,7 +70,7 @@ describe("Mongo model creation", () => {
         expect(TestModel._FKS).toMatchObject({
             "RelatedModel": [
                 {
-                    path: "related",
+                    path: ["related"],
                     required: true,
                     immutable: false,
                     unique: false,
@@ -94,7 +94,7 @@ describe("Mongo model creation", () => {
         expect(TestModel._FKS).toMatchObject({
             "RelatedModel": [
                 {
-                    path: "related",
+                    path: ["related"],
                     required: true,
                     immutable: false,
                     unique: false,
@@ -138,14 +138,14 @@ describe("Mongo model creation", () => {
         expect(MultiFKModel._FKS).toMatchObject({
             "RelatedModel": [
                 {
-                    path: "related1",
+                    path: ["related1"],
                     required: true,
                     immutable: false,
                     unique: false,
                     array: false,
                 },
                 {
-                    path: "related2",
+                    path: ["related2"],
                     required: false,
                     immutable: false,
                     unique: false,
@@ -329,14 +329,14 @@ describe("Mongo model creation", () => {
         expect(NestedModel._FKS).toMatchObject({
             "RelatedModel": [
                 {
-                    path: "nestedField.subField",
+                    path: ["nestedField", "subField"],
                     required: true,
                     immutable: true,
                     unique: true,
                     array: false,
                 },
                 {
-                    path: "nestedField2.po2.subField",
+                    path: ["nestedField2" , "po2", "subField"],
                     required: false,
                     immutable: false,
                     unique: false,
@@ -437,7 +437,7 @@ describe("Mongo model creation", () => {
         expect(ModelA._FKS).toMatchObject({
             "ModelB": [
                 {
-                    path: "related",
+                    path: ["related"],
                     required: true,
                     immutable: false,
                     unique: false,
@@ -450,7 +450,7 @@ describe("Mongo model creation", () => {
         expect(ModelB._FKS).toMatchObject({
             "ModelA": [
                 {
-                    path: "related",
+                    path: ["related"],
                     required: true,
                     immutable: false,
                     unique: false,
@@ -523,7 +523,7 @@ describe("Mongo model creation", () => {
         expect(TestModel._FKS).toMatchObject({
             "RelatedModel": [
                 {
-                    path: "related",
+                    path: ["related"],
                     required: true,
                     immutable: false,
                     unique: false,
@@ -593,7 +593,7 @@ describe("Mongo model creation", () => {
             expect(TestModel._FKS).toMatchObject({
                 "RelatedModel": [
                     {
-                        path: "related",
+                        path: ["related"],
                         required: true,
                         immutable: false,
                         unique: false,
@@ -636,7 +636,7 @@ describe("Mongo model creation", () => {
             expect(TestModel._FKS).toMatchObject({
                 "RelatedModel": [
                     {
-                        path: "related",
+                        path: ["related"],
                         required: true,
                         immutable: false,
                         unique: false,

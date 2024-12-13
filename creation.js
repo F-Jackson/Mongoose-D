@@ -4,7 +4,6 @@ export class ForeignKeyCreator {
     constructor(mongoModel) {
         this.mongoModel = mongoModel;
         this.modelName = mongoModel.modelName;
-        this.fksModels = Object.entries(mongoModel.__FKS__);
     }
 
     async _creationFks(instance) {
