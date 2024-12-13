@@ -207,6 +207,22 @@ describe("Mongo model creation", () => {
                 "__v"
             ]
         );
+
+        expect(NestedModel.schema).toHaveProperty("__properties");
+        const modelPropertiesKeys = Object.entries(NestedModel.schema.__properties).map(([key, _]) => key);
+        expect(modelPropertiesKeys).toMatchObject(
+            [
+                "nestedField.subField",
+                "nestedField.po",
+                "nestedField.ll.io",
+                "nestedField.ll.h",
+                "nestedField2.po2.subField",
+                "nestedField2.po2.arrayTest",
+                "lo",
+                "_id",
+                "__v"
+            ]
+        );
     });
 
     it("should process deeply nested foreign keys", async () => {
