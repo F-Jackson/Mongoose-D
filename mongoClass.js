@@ -5,6 +5,20 @@ import { getFuncs, changeCreation, changeDeletion, changeDrop } from "./changeFu
 import { deleteFromMongoose } from "./utils.js";
 
 
+function shallowCopyFunction(originalFunction) {
+    // Cria uma função que chama a função original
+    const copiedFunction = function(...args) {
+        return originalFunction.apply(this, args);
+    };
+
+    // Copia as propriedades da função original para a nova função
+    Object.keys(originalFunction).forEach(key => {
+        copiedFunction[key] = originalFunction[key];
+    });
+
+    return copiedFunction;
+}
+
 export class InitMongoModels {
     constructor() {
         this.models = {};
@@ -32,14 +46,13 @@ export class InitMongoModels {
     NewSchema(obj, options) {
         // Criar uma cópia simples do mongoose.Schema
         const mongoSchema = mongoose.Schema;
-        //Object.setPrototypeOf(mongoSchema, mongoose.Schema);
-        //mongoSchema.prototype = Object.create(mongoose.Schema.prototype);
 
         const properties = {};
         const originalPath = mongoSchema.prototype.path;
 
         // Substituir o método `path` do protótipo do Schema
         mongoSchema.prototype.path = function (path, obj) {
+            console.log(path, obj);
             if (!obj) {
                 return originalPath.call(this, path); // Contexto correto
             }
