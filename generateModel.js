@@ -20,14 +20,22 @@ export class ForeignKeyProcessor {
     };
 
     _getActiveForeignKeys = async () => {
-        const schemaPaths = Object.entries(this.mongoModel.schema.paths);
-        const schemaEntries = this.mongoModel.schema.obj;
+        if (!this.mongoModel.schema["__properties"]) return;
 
-        await Promise.all(schemaPaths.map(([path, value]) => this._processPath(path, value, schemaEntries)));
+        const schemaPaths = Object.entries(this.mongoModel.schema.__properties);
+
+        await Promise.all(schemaPaths.map(([path, obj]) => this._processPath(path, obj)));
     };
 
-    _processPath = async (path, value, schemaEntries) => {
+    _processPath = async (path, obj) => {
         const slicedKeys = path.split(".");
+        const key = slicedKeys[slicedKeys.length - 1];
+
+        if (!obj.type) return;
+
+        const { ref, isArray } = await this._extractFieldTypeAndRef(obj);
+        if (!ref) return;
+
         const stack = [{ keys: slicedKeys, nested: [] }];
         let currentEntry = schemaEntries;
         let limit = 100;
@@ -57,24 +65,21 @@ export class ForeignKeyProcessor {
     _processLeafNode = async (path, schemaField) => {
         if (!schemaField.type) return;
 
-        const { ref, isArray } = await this._extractFieldTypeAndRef(schemaField);
-        if (!ref) return;
-
         const metadata = await this._createForeignKeyMetadata(path, schemaField, isArray);
         await this._addForeignKeyMetadata(ref, metadata);
     };
 
-    _extractFieldTypeAndRef = async (schemaField) => {
-        const isArray = Array.isArray(schemaField.type);
-        const type = isArray ? schemaField.type[0] : schemaField.type;
+    _extractFieldTypeAndRef = async (obj) => {
+        const isArray = Array.isArray(obj.type);
+        const type = isArray ? obj.type[0] : obj.type;
 
-        const linked = !("_linked" in schemaField && !schemaField["_linked"]);
+        const linked = !("_linked" in obj && !obj["_linked"]);
 
         let ref = null; 
         if (type.schemaName === "ObjectId" && linked) {
-            if (!schemaField["ref"]) throw new Error("Cant link without reference");
+            if (!obj["ref"]) throw new Error("Cant link without reference");
 
-            ref = schemaField.ref;
+            ref = obj.ref;
         }
 
         return { type, ref, isArray };
@@ -111,9 +116,9 @@ export class ForeignKeyProcessor {
             this.mongoModel._FKS = this.activeForeignKeys;
         }
 
-        const modelName = this.mongoModel.modelName;
-
         if (this.relations.length > 0) {
+            const modelName = this.mongoModel.modelName;
+
             try {
                 this.mongoD.addRelations(this.relations, modelName);
             } catch (err) {
