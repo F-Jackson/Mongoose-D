@@ -54,31 +54,33 @@ export const changeDrop = async(mongoD, mongoModel, oldFuncs) => {
 };
 
 export const changeCreation = async(mongoModel, oldFuncs) => {
-    const createFunc = async(models) => {
-        if (!mongoModel.__FKS__) return;
+    const createFunc = async(models, doc) => {
+        if (!mongoModel.__FKS) return result;
 
         const creator = new ForeignKeyCreator(
             mongoModel
         );
-        return await creator.create(models);
+        return await creator.create(models, doc);
     };
 
-    mongoModel.create = async function(options, callback) {
-        const result = await oldFuncs.create.call(this, options, callback);
+    mongoModel.create = async function(doc, callback) {
+        const result = await oldFuncs.create.call(this, doc, callback);
 
-        return await createFunc(result);
+        console.log(result);
+        //return await createFunc(result, doc);
+        return result;
     };
 
-    mongoModel.prototype.save = async function(options, callback) {
-        const result = await oldFuncs.save.call(this, options, callback);
+    mongoModel.prototype.save = async function(doc, callback) {
+        const result = await oldFuncs.save.call(this, doc, callback);
 
-        return await createFunc(result);
+        return await createFunc(result, doc);
     };
 
     mongoModel.insertMany = async function(arr, options) {
         const result = await oldFuncs.insertMany.call(this, arr, options);
 
-        return await createFunc(result);
+        return await createFunc(result, doc);
     };
 };
 

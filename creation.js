@@ -1,9 +1,8 @@
-import { _FKS_ } from "./models.js";
-
 export class ForeignKeyCreator {
-    constructor(mongoModel) {
+    constructor(mongoModel, doc) {
         this.mongoModel = mongoModel;
         this.modelName = mongoModel.modelName;
+        this.doc = doc;
     }
 
     async _creationFks(instance) {
@@ -20,8 +19,21 @@ export class ForeignKeyCreator {
         }
     }
 
+    async getNestedProperty(obj, keys) {
+        return keys.reduce((current, key) => (current && key in current ? current[key] : undefined), obj);
+    }
+
     async create(models) {
         if (!Array.isArray(models)) models = [models];
+        const fkEntries = Object.entries(this.mongoModel._FKS);
+
+        for (let i = 0; i < fkEntries.length; i++) {
+            const [key, values] = fkEntries[i];
+
+            for (let x = 0; x < values.length; x++) {
+                
+            }
+        }
 
         try {
             const allRelations = [];
