@@ -23,10 +23,10 @@ describe("Mongo model creation", () => {
         await connectMongoDb("mongodb+srv://jacksonjfs18:eUAqgrGoVxd5vboT@cluster0.o5i8utp.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0");
 
         mongoD = new InitMongoModels();
-        //relatedSchema = new mongoD.Schema({
+        //relatedSchema = mongoD.NewSchema({
             //title: { type: String, required: true },
         //});
-        //testSchema = new mongoD.Schema({
+        //testSchema = mongoD.NewSchema({
             //name: { type: String, required: true },
             //related: {
                 //type: mongoD.Schema.Types.ObjectId,
@@ -108,7 +108,7 @@ describe("Mongo model creation", () => {
 
     it("should handle models with no foreign keys", async () => {
         return;
-        const simpleSchema = new mongoD.Schema({
+        const simpleSchema = mongoD.NewSchema({
             simpleField: { type: String, required: true },
         });
 
@@ -122,7 +122,7 @@ describe("Mongo model creation", () => {
 
     it("should support multiple foreign keys in a single model", async () => {
         return;
-        const multiFKSchema = new mongoD.Schema({
+        const multiFKSchema = mongoD.NewSchema({
             name: { type: String, required: true },
             related1: {
                 type: mongoD.Schema.Types.ObjectId,
@@ -169,7 +169,7 @@ describe("Mongo model creation", () => {
     });
 
     it("should process deeply nested foreign keys", async () => {
-        const nestedSchema = new mongoD.Schema({
+        const nestedSchema = mongoD.NewSchema({
             nestedField: {
                 subField: {
                     type: mongoD.Schema.Types.ObjectId,
@@ -228,7 +228,7 @@ describe("Mongo model creation", () => {
 
     it("should handle optional foreign keys", async () => {
         return;
-        const optionalSchema = new mongoD.Schema({
+        const optionalSchema = mongoD.NewSchema({
             optionalField: {
                 type: mongoD.Schema.Types.ObjectId,
                 ref: "RelatedModel",
@@ -247,7 +247,7 @@ describe("Mongo model creation", () => {
 
     it("should process foreign keys when multiple models reference the same model", async () => {
         return;
-        const anotherTestSchema = new mongoD.Schema({
+        const anotherTestSchema = mongoD.NewSchema({
             anotherName: { type: String, required: true },
             related: {
                 type: mongoD.Schema.Types.ObjectId,
@@ -290,7 +290,7 @@ describe("Mongo model creation", () => {
 
     it("should handle circular references", async () => {
         return;
-        const circularSchemaA = new mongoD.Schema({
+        const circularSchemaA = mongoD.NewSchema({
             name: { type: String, required: true },
             related: {
                 type: mongoD.Schema.Types.ObjectId,
@@ -299,7 +299,7 @@ describe("Mongo model creation", () => {
             },
         });
     
-        const circularSchemaB = new mongoD.Schema({
+        const circularSchemaB = mongoD.NewSchema({
             name: { type: String, required: true },
             related: {
                 type: mongoD.Schema.Types.ObjectId,
@@ -346,7 +346,7 @@ describe("Mongo model creation", () => {
 
     it("should error if not given ref in foreign key", async () => {
         return;
-        const schemaWithObjectIdFK = new mongoD.Schema({
+        const schemaWithObjectIdFK = mongoD.NewSchema({
             related: {
                 type: mongoD.Schema.Types.ObjectId,
                 ref: "RelatedModel",
@@ -354,7 +354,7 @@ describe("Mongo model creation", () => {
             },
         });
     
-        const schemaWithEmbeddedDocFK = new mongoD.Schema({
+        const schemaWithEmbeddedDocFK = mongoD.NewSchema({
             related: {
                 type: mongoD.Schema.Types.ObjectId,
                 required: true,
@@ -371,7 +371,7 @@ describe("Mongo model creation", () => {
             expect(Object.entries(mongoD.models)).toHaveLength(1);
             expect(Object.entries(mongoD.relations)).toHaveLength(1);
 
-            const schemaWithEmbeddedDocFKUnlinked = new mongoD.Schema({
+            const schemaWithEmbeddedDocFKUnlinked = mongoD.NewSchema({
                 related: {
                     type: mongoD.Schema.Types.ObjectId,
                     required: true,
@@ -388,7 +388,7 @@ describe("Mongo model creation", () => {
 
     it("should create a model and process foreign indexed keys", async () => {
         return;
-        const testSchema2 = new mongoD.Schema({
+        const testSchema2 = mongoD.NewSchema({
             name: { type: String, required: true },
             related: {
                 type: mongoD.Schema.Types.ObjectId,
@@ -421,10 +421,10 @@ describe("Mongo model creation", () => {
 
     it("should create with an array of references", async () => {
         return;
-        const TestModel = await mongoD.MongoModel("TestModel", new mongoD.Schema({
+        const TestModel = await mongoD.MongoModel("TestModel", mongoD.NewSchema({
             label: { type: String, required: true },
         }));
-        const RelatedModel = await mongoD.MongoModel("RelatedModel", new mongoD.Schema({
+        const RelatedModel = await mongoD.MongoModel("RelatedModel", mongoD.NewSchema({
             children: [{ type: mongoD.Schema.Types.ObjectId, ref: "TestModel", required: true }],
             po: [String]
         }));
@@ -439,7 +439,7 @@ describe("Mongo model creation", () => {
 
     it("should delete all cache after collection drop", async () => {
         return;
-        const TestModel = await mongoD.MongoModel("TestModel", new mongoD.Schema({
+        const TestModel = await mongoD.MongoModel("TestModel", mongoD.NewSchema({
             label: { type: String, required: true },
         }));
         
@@ -589,7 +589,7 @@ describe("Mongo model creation", () => {
         expect(collections.map(col => col.name)).toHaveLength(1);
         expect(collections.map(col => col.name)).toContain("relatedmodels");
 
-        const RelatedModel2 = await mongoD.MongoModel("RelatedModel", new mongoD.Schema({
+        const RelatedModel2 = await mongoD.MongoModel("RelatedModel", mongoD.NewSchema({
             title: { type: String, required: true },
             name: String
         }));
