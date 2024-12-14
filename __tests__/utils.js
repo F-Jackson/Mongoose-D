@@ -19,9 +19,10 @@ export const cleanDb = async (vi) => {
     });
 
     const collections = await mongoose.connection.db.listCollections().toArray();
-    const dropPromises = collections.map((collection) =>
-        mongoose.connection.db.dropCollection(collection.name)
-    );
+    const dropPromises = collections.map(async (collection) => {
+        console.log(collection.name);
+        await mongoose.connection.db.dropCollection(collection.name)
+    });
     await Promise.all(dropPromises);
 
     for (let model in mongoose.models) {

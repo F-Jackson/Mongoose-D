@@ -26,8 +26,6 @@ export const changeDrop = async(mongoD, mongoModel, oldFuncs) => {
     mongoModel.collection.drop = async function(options) {
         const modelName = mongoModel.modelName;
 
-        await deleteFromMongoose(modelName);
-
         const result = await oldFuncs.drop.call(this, options);
 
         const relations = mongoD.relations[modelName];
@@ -48,6 +46,7 @@ export const changeDrop = async(mongoD, mongoModel, oldFuncs) => {
         }
 
         delete mongoD.models[modelName];
+        await deleteFromMongoose(modelName);
 
         return result;
     };
