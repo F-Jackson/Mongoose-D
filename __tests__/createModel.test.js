@@ -129,15 +129,13 @@ describe("Mongo model creation", () => {
 
     it("should handle deletion of foreign key metadata when model is removed", async () => {
         const TestModel = await mongoD.MongoModel("TestModel", relatedSchema);
-
-        let db = client.connection.db;
-        let collections = await db.listCollections().toArray();
-        expect(collections.map(col => col.name)).toHaveLength(1);
-        expect(collections.map(col => col.name)).toContain("testmodels");
-
+        console.log(TestModel);
         await TestModel.dropCollection();
 
         expect(Object.entries(mongoD.models)).toHaveLength(0);
+        let db = client.connection.db;
+        let collections = await db.listCollections().toArray();
+        expect(collections).toHaveLength(0);
     });
 
     it("should process paths in schema", async () => {
@@ -534,10 +532,8 @@ describe("Mongo model creation", () => {
     it("should delete all cache after collection drop", async () => {
         const TestModel = await mongoD.MongoModel("TestModel", testSchema);
         
-        console.log("ooooo");
         await TestModel.dropCollection();
 
-        console.log("-----")
         expect(Object.entries(mongoose.models)).toHaveLength(0);
         expect(Object.entries(mongoD.models)).toHaveLength(0);
     });
