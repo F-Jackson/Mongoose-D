@@ -533,12 +533,12 @@ describe("Mongo model creation", () => {
     });
 
     it("should delete all cache after collection drop", async () => {
-        const TestModel = await mongoD.MongoModel("TestModel", mongoD.NewSchema({
-            label: { type: String, required: true },
-        }));
+        const TestModel = await mongoD.MongoModel("TestModel", testSchema);
         
+        console.log("ooooo");
         await TestModel.dropCollection();
 
+        console.log("-----")
         expect(Object.entries(mongoose.models)).toHaveLength(0);
         expect(Object.entries(mongoD.models)).toHaveLength(0);
     });
