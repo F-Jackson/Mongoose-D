@@ -130,7 +130,8 @@ describe("Mongo model creation", () => {
     it("should handle deletion of foreign key metadata when model is removed", async () => {
         const TestModel = await mongoD.MongoModel("TestModel", relatedSchema);
 
-        let collections = await client.listCollections().toArray();
+        let db = client.connection.db;
+        let collections = await db.listCollections().toArray();
         expect(collections.map(col => col.name)).toHaveLength(1);
         expect(collections.map(col => col.name)).toContain("testmodels");
 

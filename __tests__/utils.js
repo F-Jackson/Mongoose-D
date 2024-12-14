@@ -18,10 +18,10 @@ export const cleanDb = async (vi) => {
         //useUnifiedTopology: true,
     });
 
-    const collections = await mongoose.connection.db.listCollections().toArray();
+    const db = client.connection.db;
+    const collections = await db.listCollections().toArray();
     const dropPromises = collections.map(async (collection) => {
-        console.log(collection.name);
-        await mongoose.connection.db.dropCollection(collection.name)
+        await db.dropCollection(collection.name)
     });
     await Promise.all(dropPromises);
 
