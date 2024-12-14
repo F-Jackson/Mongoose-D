@@ -1,5 +1,4 @@
 import mongoose from "mongoose";
-import { _FKS_MODEL_, _FKS_ } from "../models.js";
 import { InitMongoModels } from "../mongoClass.js";
 import { MongoMemoryServer } from 'mongodb-memory-server';
 
