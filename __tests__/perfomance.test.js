@@ -2,8 +2,6 @@ import { describe, it, beforeEach, afterEach, expect } from "vitest";
 import mongoose from "mongoose";
 import fs from "fs";
 import path from "path";
-import { InitMongoModels } from "../mongoClass.js";
-import { MongoMemoryServer } from 'mongodb-memory-server';
 import { cleanDb } from "./utils.js";
 
 const LOG_FILE = path.join(__dirname, "performance_test.log");
