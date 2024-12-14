@@ -51,7 +51,7 @@ export class ForeignKeyCreator {
             })
         );
 
-        return { model, relations };
+        return { model: model, relations: relations };
     }
 
     /**
