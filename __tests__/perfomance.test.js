@@ -4,6 +4,7 @@ import fs from "fs";
 import path from "path";
 import { InitMongoModels } from "../mongoClass.js";
 import { MongoMemoryServer } from 'mongodb-memory-server';
+import { cleanDb } from "./utils.js";
 
 const LOG_FILE = path.join(__dirname, "performance_test.log");
 
@@ -20,29 +21,11 @@ describe("Mongo instance creation", () => {
     let mongoServer;
 
     beforeEach(async () => {
-        mongoServer = await MongoMemoryServer.create();
-        const uri = mongoServer.getUri();
-        await mongoose.connect(uri, {
-            useNewUrlParser: true,
-            useUnifiedTopology: true,
-        });
-
-        const collections = await mongoose.connection.db.listCollections().toArray();
-        const dropPromises = collections.map((collection) =>
-            mongoose.connection.db.dropCollection(collection.name)
-        );
-        await Promise.all(dropPromises);
-
-        for (let model in mongoose.models) {
-            delete mongoose.models[model];
-        }
-
-        mongoD = new InitMongoModels();
+        [mongoD, mongoServer] = await cleanDb(mongoServer, mongoD);
     }, 0);
 
     afterEach(async () => {
-        await mongoose.disconnect();
-        if (mongoServer) await mongoServer.stop();
+        await disconnectDb(mongoServer, vi);
     });
 
     it("test 10k", async () => {

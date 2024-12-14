@@ -1,45 +1,18 @@
 import { describe, it, beforeEach, expect } from "vitest";
 import mongoose from "mongoose";
 import { _FKS_MODEL_, _FKS_ } from "../models.js";
-import { InitMongoModels } from "../mongoClass.js";
 import { deleteFromMongoose } from "../utils.js";
-import { MongoMemoryServer } from 'mongodb-memory-server';
+import { disconnectDb } from "./utils.js";
 
-
-const connectMongoDb = async function connect(url) {
-    const mongoOptions = {
-        serverSelectionTimeoutMS: 5000,
-    };
-
-    return await mongoose.connect(url, mongoOptions);
-};
 
 describe("Mongo model creation", () => {
     let testSchema = undefined;
-
     let relatedSchema = undefined;
-
     let mongoD = undefined;
+    let mongoServer;
 
     beforeEach(async () => {
-        mongoServer = await MongoMemoryServer.create();
-        const uri = mongoServer.getUri();
-        await mongoose.connect(uri, {
-            useNewUrlParser: true,
-            useUnifiedTopology: true,
-        });
-
-        const collections = await mongoose.connection.db.listCollections().toArray();
-        const dropPromises = collections.map((collection) =>
-            mongoose.connection.db.dropCollection(collection.name)
-        );
-        await Promise.all(dropPromises);
-
-        for (let model in mongoose.models) {
-            delete mongoose.models[model];
-        }
-
-        mongoD = new InitMongoModels();
+        [mongoD, mongoServer] = await cleanDb(mongoServer, mongoD);
 
         relatedSchema = mongoD.NewSchema({
             title: { type: String, required: true },
@@ -55,9 +28,7 @@ describe("Mongo model creation", () => {
     });
 
     afterEach(async () => {
-        vi.restoreAllMocks();
-        await mongoose.disconnect();
-        if (mongoServer) await mongoServer.stop();
+        await disconnectDb(mongoServer, vi);
     });
 
     it("should create a model and process foreign keys", async () => {
