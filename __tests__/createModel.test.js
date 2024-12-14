@@ -377,6 +377,7 @@ describe("Mongo model creation", () => {
         expect(AnotherTestModel).toHaveProperty("_FKS");
 
         await RelatedModel.dropCollection();
+        console.log(mongoD.models);
 
         expect(Object.entries(mongoD.models)).toHaveLength(2);
         expect(TestModel).not.toHaveProperty("_FKS");

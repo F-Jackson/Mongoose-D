@@ -91,8 +91,9 @@ export class InitMongoModels {
             mongoModel.dropCollection = async () => {
                 await mongoModel.collection.drop();
                 await deleteFromMongoose(name);
+                delete this.models[name];
             };
-            
+
             await changeCreation(mongoModel, oldFuncs, this);
             //await changeDeletion(mongoModel, oldFuncs);
         
