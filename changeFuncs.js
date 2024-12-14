@@ -18,6 +18,36 @@ export const getFuncs = async(mongoModel) => {
         findByIdAndUpdate: mongoModel.findByIdAndUpdate,
     };
 };
+/**
+export const changeDrop = async(mongoD, mongoModel, oldFuncs) => {
+    mongoModel.collection.drop = async function(options) {
+        const modelName = mongoModel.modelName;
+
+        const result = await oldFuncs.drop.call(this, options);
+
+        const relations = mongoD.relations[modelName];
+        if (relations) {
+            relations.forEach(relation => {
+                const relationModel = mongoD.models[relation];
+
+                if (!relationModel || !relationModel["_FKS"]) return;
+
+                delete relationModel._FKS[modelName];
+                
+                if (Object.entries(relationModel._FKS).length === 0) {
+                    delete relationModel["_FKS"];
+                }
+            });
+
+            delete mongoD.relations[modelName];
+        }
+
+        delete mongoD.models[modelName];
+        await deleteFromMongoose(modelName);
+
+        return result;
+    };
+};*/
 
 export const changeCreation = async(mongoModel, oldFuncs, mongoD) => {
     const createFunc = async(models) => {

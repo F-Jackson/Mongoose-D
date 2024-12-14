@@ -92,6 +92,22 @@ export class InitMongoModels {
                 await mongoModel.collection.drop();
                 await deleteFromMongoose(name);
                 delete this.models[name];
+
+                const relations = this.relations[name];
+
+                relations.forEach(relation => {
+                    const relationModel = this.models[relation];
+    
+                    if (!relationModel || !relationModel["_FKS"]) return;
+    
+                    delete relationModel._FKS[name];
+                    
+                    if (Object.entries(relationModel._FKS).length === 0) {
+                        delete relationModel["_FKS"];
+                    }
+                });
+
+                delete this.relations[name];
             };
 
             await changeCreation(mongoModel, oldFuncs, this);
