@@ -29,11 +29,21 @@ export class ForeignKeyCreator {
     /**
      * Processa as relações de um modelo específico
      */
-    async processModelRelations(model, fks) {
+    async processModelRelations(model, fks, findIds) {
         return Promise.all(
             fks.map(async (fk) => {
                 const value = await this.getNestedProperty(model, fk.path);
-                return { path: fk.path, value };
+                const returnValue = { path: fk.path };
+
+                if (value["_doc"]) {
+                    returnValue["object"] = value;
+                    returnValue["id"] = value._id;
+                } else {
+                    returnValue["id"] = value;
+                    findIds.add(value.toString());
+                }
+
+                return returnValue;
             })
         );
     }
@@ -44,14 +54,15 @@ export class ForeignKeyCreator {
     async initializeModelRelations(modelName, fks, models, mongoD) {
         const model = mongoD.models[modelName];
         const relations = {};
+        const findIds = new Set();
 
         await Promise.all(
             models.map(async (modelObj) => {
-                relations[modelObj._id] = await this.processModelRelations(modelObj, fks);
+                relations[modelObj._id] = await this.processModelRelations(modelObj, fks, findIds);
             })
         );
 
-        return { model: model, relations: relations };
+        return { model, relations, findIds};
     }
 
     /**
@@ -75,7 +86,7 @@ export class ForeignKeyCreator {
 
         const modelsRelations = await this.processAllRelations(fkEntries, models, this.mongoD);
 
-        console.log(JSON.stringify(modelsRelations));
+        console.log(modelsRelations);
         return;
 
         try {

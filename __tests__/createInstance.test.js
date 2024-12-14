@@ -1,6 +1,7 @@
 import { describe, it, beforeEach, expect } from "vitest";
 import { MongoModel } from "../mongoClass.js";
 import { cleanDb, disconnectDb } from "./utils.js";
+import mongoose from "mongoose";
 
 describe("Mongo instance creation", () => {
     let mongoD = undefined;
@@ -25,6 +26,13 @@ describe("Mongo instance creation", () => {
                 required: true,
                 unique: true,
                 immutable: true
+            },
+            related2: {
+                type: mongoD.Schema.Types.ObjectId,
+                ref: "RelatedModel",
+                required: true,
+                unique: true,
+                immutable: true
             }
         });
         relatedSchema = mongoD.NewSchema({
@@ -35,7 +43,11 @@ describe("Mongo instance creation", () => {
         const RelatedModel = await mongoD.MongoModel("RelatedModel", relatedSchema);
 
         const related = await RelatedModel.create({ title: "Related" });
-        const test = await TestModel.create({ title: "Test", related: related });
+        const test = await TestModel.create({ 
+            title: "Test", 
+            related: related,
+            related2: new mongoose.Types.ObjectId()
+        });
     });
 
     /*
