@@ -636,13 +636,15 @@ describe("Mongo model creation", () => {
 
         expect((await RelatedModel.find({}))).toHaveLength(1);
 
-        let collections = await client.listCollections().toArray();
+        let db = client.connection.db;
+        let collections = await db.listCollections().toArray();
         expect(collections.map(col => col.name)).toHaveLength(1);
         expect(collections.map(col => col.name)).toContain("relatedmodels");
 
         await RelatedModel.dropCollection();
-        db = mongoose.connection.db;
-        collections = await client.listCollections().toArray();
+
+        db = client.connection.db;
+        collections = await db.listCollections().toArray();
         expect(collections.map(col => col.name)).toHaveLength(0);
         expect(collections.map(col => col.name)).not.toContain("relatedmodels");
 
@@ -653,8 +655,9 @@ describe("Mongo model creation", () => {
             title: "test"
         });
         expect((await RelatedModel2.find({}))).toHaveLength(1);
-        db = mongoose.connection.db;
-        collections = await client.listCollections().toArray();
+        
+        db = client.connection.db;
+        collections = await db.listCollections().toArray();
         expect(collections.map(col => col.name)).toHaveLength(1);
         expect(collections.map(col => col.name)).toContain("relatedmodels");
     });
@@ -665,15 +668,17 @@ describe("Mongo model creation", () => {
             title: "test"
         });
         expect((await RelatedModel.find({}))).toHaveLength(1);
-        let collections = await client.listCollections().toArray();
+
+        let db = client.connection.db;
+        let collections = await db.listCollections().toArray();
         expect(collections.map(col => col.name)).toHaveLength(1);
         expect(collections.map(col => col.name)).toContain("relatedmodels");
 
         await deleteFromMongoose("RelatedModel");
         delete mongoD.models["RelatedModel"];
 
-        db = mongoose.connection.db;
-        collections = await client.listCollections().toArray();
+        db = client.connection.db;
+        collections = await db.listCollections().toArray();
         expect(collections.map(col => col.name)).toHaveLength(1);
         expect(collections.map(col => col.name)).toContain("relatedmodels");
 
@@ -689,8 +694,9 @@ describe("Mongo model creation", () => {
         const models = await RelatedModel2.find({});
 
         expect(models).toHaveLength(2);
-        db = mongoose.connection.db;
-        collections = await client.listCollections().toArray();
+        
+        db = client.connection.db;
+        collections = await db.listCollections().toArray();
         expect(collections.map(col => col.name)).toHaveLength(1);
         expect(collections.map(col => col.name)).toContain("relatedmodels");
         expect(models).toMatchObject([
