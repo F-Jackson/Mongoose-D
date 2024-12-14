@@ -19,37 +19,60 @@ export class ForeignKeyCreator {
         }
     }
 
-    async getNestedProperty(obj, keys) {
-        return keys.reduce((current, key) => (current && key in current ? current[key] : undefined), obj);
+    /**
+     * Função para buscar propriedades aninhadas (assíncrona)
+     */
+    async getNestedProperty(obj, path) {
+        return path.split('.').reduce((acc, key) => (acc && acc[key] !== undefined ? acc[key] : undefined), obj);
+    }
+
+    /**
+     * Processa as relações de um modelo específico
+     */
+    async processModelRelations(model, fks) {
+        return Promise.all(
+            fks.map(async (fk) => {
+                const value = await getNestedProperty(model, fk.path);
+                return { path: fk.path, value };
+            })
+        );
+    }
+
+    /**
+     * Inicializa as relações para um modelo específico
+     */
+    async initializeModelRelations(modelName, fks, models, mongoD) {
+        const model = mongoD.models[modelName];
+        const relations = {};
+
+        await Promise.all(
+            models.map(async (modelObj) => {
+                relations[modelObj._id] = await processModelRelations(modelObj, fks);
+            })
+        );
+
+        return { model, relations };
+    }
+
+    /**
+     * Processa todas as entradas (fkEntries) para gerar as relações
+     */
+    async processAllRelations(fkEntries, models, mongoD) {
+        const modelsRelations = {};
+
+        await Promise.all(
+            fkEntries.map(async ([modelName, fks]) => {
+                modelsRelations[modelName] = await initializeModelRelations(modelName, fks, models, mongoD);
+            })
+        );
+
+        return modelsRelations;
     }
 
     async create(models) {
         if (!Array.isArray(models)) models = [models];
-        const fkEntries = Object.entries(this.mongoModel._FKS);
-        const modelsRelations = {};
 
-        for (let i = 0; i < fkEntries.length; i++) {
-            const [modelName, fks] = fkEntries[i];
-            modelsRelations[modelName] = {
-                model: this.mongoD.models[modelName],
-                relations: {}
-            };
-
-            for (let o = 0; o < models.length; o++) {
-                const model = models[0];
-
-                modelsRelations[modelName][relations][model._id] = [];
-
-                for (let x = 0; x < fks.length; x++) {
-                    const fk = fks[x];
-                    const modelFk = await getNestedProperty(model, fk.path)
-                    modelsRelations[modelName][relations][model._id].push({
-                        path,
-                        value: modelFk
-                    })
-                }
-            }
-        }
+        const modelsRelations = await processAllRelations(fkEntries, models, mongoD);
 
         console.log(modelsRelations);
         return;
