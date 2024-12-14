@@ -88,6 +88,11 @@ export class InitMongoModels {
             await foreignKeyProcessor.processForeignKeys();
 
             const oldFuncs = await getFuncs(mongoModel);
+            mongoModel.dropCollection = async () => {
+                await mongoModel.collection.drop();
+                await deleteFromMongoose(name);
+            };
+            
             await changeCreation(mongoModel, oldFuncs, this);
             //await changeDeletion(mongoModel, oldFuncs);
         

@@ -134,7 +134,7 @@ describe("Mongo model creation", () => {
         expect(collections.map(col => col.name)).toHaveLength(1);
         expect(collections.map(col => col.name)).toContain("testmodels");
 
-        await TestModel.collection.drop();
+        await TestModel.dropCollection();
 
         expect(Object.entries(mongoD.models)).toHaveLength(0);
     });
@@ -376,7 +376,7 @@ describe("Mongo model creation", () => {
         expect(TestModel).toHaveProperty("_FKS");
         expect(AnotherTestModel).toHaveProperty("_FKS");
 
-        await RelatedModel.collection.drop();
+        await RelatedModel.dropCollection();
 
         expect(Object.entries(mongoD.models)).toHaveLength(2);
         expect(TestModel).not.toHaveProperty("_FKS");
@@ -535,7 +535,7 @@ describe("Mongo model creation", () => {
             label: { type: String, required: true },
         }));
         
-        await TestModel.collection.drop();
+        await TestModel.dropCollection();
 
         expect(Object.entries(mongoose.models)).toHaveLength(0);
         expect(Object.entries(mongoD.models)).toHaveLength(0);
@@ -639,7 +639,7 @@ describe("Mongo model creation", () => {
         expect(collections.map(col => col.name)).toHaveLength(1);
         expect(collections.map(col => col.name)).toContain("relatedmodels");
 
-        await RelatedModel.collection.drop();
+        await RelatedModel.dropCollection();
         db = mongoose.connection.db;
         collections = await db.listCollections().toArray();
         expect(collections.map(col => col.name)).toHaveLength(0);

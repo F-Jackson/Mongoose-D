@@ -1,6 +1,5 @@
 import { ForeignKeyCreator } from "./creation.js";
 import { ForeignKeyDeleter } from "./deletion.js";
-import { _FKS_MODEL_ } from "./models.js";
 
 
 export const getFuncs = async(mongoModel) => {
