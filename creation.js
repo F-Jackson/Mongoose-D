@@ -32,7 +32,7 @@ export class ForeignKeyCreator {
     async processModelRelations(model, fks) {
         return Promise.all(
             fks.map(async (fk) => {
-                const value = await getNestedProperty(model, fk.path);
+                const value = await this.getNestedProperty(model, fk.path);
                 return { path: fk.path, value };
             })
         );
@@ -47,7 +47,7 @@ export class ForeignKeyCreator {
 
         await Promise.all(
             models.map(async (modelObj) => {
-                relations[modelObj._id] = await processModelRelations(modelObj, fks);
+                relations[modelObj._id] = await this.processModelRelations(modelObj, fks);
             })
         );
 
@@ -62,7 +62,7 @@ export class ForeignKeyCreator {
 
         await Promise.all(
             fkEntries.map(async ([modelName, fks]) => {
-                modelsRelations[modelName] = await initializeModelRelations(modelName, fks, models, mongoD);
+                modelsRelations[modelName] = await this.initializeModelRelations(modelName, fks, models, mongoD);
             })
         );
 
@@ -72,7 +72,7 @@ export class ForeignKeyCreator {
     async create(models) {
         if (!Array.isArray(models)) models = [models];
 
-        const modelsRelations = await processAllRelations(fkEntries, models, mongoD);
+        const modelsRelations = await this.processAllRelations(fkEntries, models, mongoD);
 
         console.log(modelsRelations);
         return;
