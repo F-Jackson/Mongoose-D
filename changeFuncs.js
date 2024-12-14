@@ -53,20 +53,20 @@ export const changeDrop = async(mongoD, mongoModel, oldFuncs) => {
     };
 };
 
-export const changeCreation = async(mongoModel, oldFuncs) => {
-    const createFunc = async(models, doc) => {
-        if (!mongoModel.__FKS) return result;
+export const changeCreation = async(mongoModel, oldFuncs, mongoD) => {
+    const createFunc = async(models) => {
+        if (!mongoModel.__FKS) return models;
 
         const creator = new ForeignKeyCreator(
-            mongoModel
+            mongoModel, mongoD
         );
-        return await creator.create(models, doc);
+        return await creator.create(models, models);
     };
 
     mongoModel.create = async function(doc, callback) {
         const result = await oldFuncs.create.call(this, doc, callback);
 
-        await createFunc(result, doc);
+        await createFunc(result);
         return result;
     };
 

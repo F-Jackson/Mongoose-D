@@ -11,7 +11,7 @@ export const cleanDb = async () => {
     });
     const uri = mongoServer.getUri();
     await mongoose.connect(uri, {
-        useNewUrlParser: true,
+        //useNewUrlParser: true,
         useUnifiedTopology: true,
     });
 
