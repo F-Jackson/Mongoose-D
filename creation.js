@@ -23,7 +23,7 @@ export class ForeignKeyCreator {
      * Função para buscar propriedades aninhadas (assíncrona)
      */
     async getNestedProperty(obj, path) {
-        return path.split('.').reduce((acc, key) => (acc && acc[key] !== undefined ? acc[key] : undefined), obj);
+        return path.reduce((acc, key) => (acc && acc[key] !== undefined ? acc[key] : undefined), obj);
     }
 
     /**
@@ -71,10 +71,11 @@ export class ForeignKeyCreator {
 
     async create(models) {
         if (!Array.isArray(models)) models = [models];
+        const fkEntries = Object.entries(this.mongoModel._FKS);
 
-        const modelsRelations = await this.processAllRelations(fkEntries, models, mongoD);
+        const modelsRelations = await this.processAllRelations(fkEntries, models, this.mongoD);
 
-        console.log(modelsRelations);
+        console.log(JSON.stringify(modelsRelations));
         return;
 
         try {
