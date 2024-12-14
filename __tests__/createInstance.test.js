@@ -1,7 +1,6 @@
 import { describe, it, beforeEach, expect } from "vitest";
-import mongoose from "mongoose";
-import { _FKS_, _FKS_MODEL_ } from "../models.js";
 import { MongoModel } from "../mongoClass.js";
+import { cleanDb, disconnectDb } from "./utils.js";
 
 describe("Mongo instance creation", () => {
     let mongoD = undefined;
