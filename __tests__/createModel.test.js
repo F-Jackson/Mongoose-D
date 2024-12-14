@@ -11,7 +11,7 @@ describe("Mongo model creation", () => {
     let mongoServer;
 
     beforeEach(async () => {
-        [mongoD, mongoServer] = await cleanDb(mongoServer, mongoD);
+        [mongoD, mongoServer] = await cleanDb(vi);
 
         relatedSchema = mongoD.NewSchema({
             title: { type: String, required: true },
@@ -27,7 +27,7 @@ describe("Mongo model creation", () => {
     });
 
     afterEach(async () => {
-        await disconnectDb(mongoServer, vi);
+        await disconnectDb(mongoServer);
     });
 
     it("should create a model and process foreign keys", async () => {

@@ -3,7 +3,10 @@ import { InitMongoModels } from "../mongoClass.js";
 import { MongoMemoryServer } from 'mongodb-memory-server';
 
 
-export const cleanDb = async () => {
+export const cleanDb = async (vi) => {
+    vi.restoreAllMocks();
+    await mongoose.disconnect();
+
     const mongoServer = await MongoMemoryServer.create({
         binary: {
             version: '4.4.18',
@@ -28,8 +31,6 @@ export const cleanDb = async () => {
     return [new InitMongoModels(), mongoServer];
 };
 
-export const disconnectDb = async (mongoServer, vi) => {
-    vi.restoreAllMocks();
-    await mongoose.disconnect();
+export const disconnectDb = async (mongoServer) => {
     if (mongoServer) await mongoServer.stop();
 };
