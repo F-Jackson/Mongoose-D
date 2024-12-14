@@ -80,9 +80,6 @@ export class InitMongoModels {
         const mongoModel = await mongoose.model(name, schema, collection, options);
 
         try {
-            const oldFuncs = await getFuncs(mongoModel);
-            await changeDrop(this, mongoModel, oldFuncs);
-
             const foreignKeyProcessor = new ForeignKeyProcessor(
                 mongoModel,
                 this
@@ -90,6 +87,7 @@ export class InitMongoModels {
             await foreignKeyProcessor.__mocktest(__mocks);
             await foreignKeyProcessor.processForeignKeys();
 
+            const oldFuncs = await getFuncs(mongoModel);
             await changeCreation(mongoModel, oldFuncs, this);
             //await changeDeletion(mongoModel, oldFuncs);
         
