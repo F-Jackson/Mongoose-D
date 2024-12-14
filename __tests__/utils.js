@@ -4,7 +4,7 @@ import { MongoMemoryServer } from 'mongodb-memory-server';
 
 
 export const cleanDb = async () => {
-    mongoServer = await MongoMemoryServer.create({
+    const mongoServer = await MongoMemoryServer.create({
         binary: {
           version: '4.4.18', // Versão que não exige libcrypto.so.1.1
         },

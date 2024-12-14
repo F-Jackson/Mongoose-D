@@ -31,8 +31,8 @@ describe("Mongo instance creation", () => {
             title: { type: String, required: true },
         });
 
-        const TestModel = await MongoModel("TestModel", testSchema);
-        const RelatedModel = await MongoModel("RelatedModel", relatedSchema);
+        const TestModel = await mongoD.MongoModel("TestModel", testSchema);
+        const RelatedModel = await mongoD.MongoModel("RelatedModel", relatedSchema);
 
         const related = await RelatedModel.create({ title: "Related" });
         const test = await TestModel.create({ title: "Test", related: related });
