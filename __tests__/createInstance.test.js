@@ -1,20 +1,19 @@
 import { describe, it, beforeEach, expect } from "vitest";
-import { MongoModel } from "../mongoClass.js";
 import { cleanDb, disconnectDb } from "./utils.js";
 import mongoose from "mongoose";
 
 describe("Mongo instance creation", () => {
-    let mongoD = undefined;
+    let mongoD;
     let mongoServer;
     let testSchema;
     let relatedSchema;
 
     beforeEach(async () => {
-        [mongoD, mongoServer] = await cleanDb(mongoServer, mongoD);
+        [mongoD, mongoServer] = await cleanDb(vi);
     }, 0);
 
     afterEach(async () => {
-        await disconnectDb(mongoServer, vi);
+        await disconnectDb(mongoServer);
     });
 
     it("should create fk", async () => {
@@ -24,14 +23,12 @@ describe("Mongo instance creation", () => {
                 type: mongoD.Schema.Types.ObjectId,
                 ref: "RelatedModel",
                 required: true,
-                unique: true,
                 immutable: true
             },
             related2: {
                 type: mongoD.Schema.Types.ObjectId,
                 ref: "RelatedModel",
                 required: true,
-                unique: true,
                 immutable: true
             }
         });
@@ -43,11 +40,18 @@ describe("Mongo instance creation", () => {
         const RelatedModel = await mongoD.MongoModel("RelatedModel", relatedSchema);
 
         const related = await RelatedModel.create({ title: "Related" });
-        const test = await TestModel.create({ 
-            title: "Test", 
-            related: related,
-            related2: new mongoose.Types.ObjectId()
-        });
+        const test = await TestModel.create([
+            { 
+                title: "Test", 
+                related: related,
+                related2: new mongoose.Types.ObjectId()
+            },
+            { 
+                title: "Test2", 
+                related: related,
+                related2: new mongoose.Types.ObjectId()
+            }
+        ]);
     });
 
     /*

@@ -1,3 +1,5 @@
+import { RelationSchema } from "./models";
+
 export class ForeignKeyCreator {
     constructor(mongoModel, mongoD) {
         this.mongoModel = mongoModel;
@@ -29,18 +31,16 @@ export class ForeignKeyCreator {
     /**
      * Processa as relações de um modelo específico
      */
-    async processModelRelations(model, fks, findIds) {
+    async processModelRelations(model, fks) {
         return Promise.all(
             fks.map(async (fk) => {
                 const value = await this.getNestedProperty(model, fk.path);
-                const returnValue = { path: fk.path };
+                const returnValue = { path: fk.path};
 
                 if (value["_doc"]) {
-                    returnValue["object"] = value;
                     returnValue["id"] = value._id;
                 } else {
                     returnValue["id"] = value;
-                    findIds.add(value);
                 }
 
                 return returnValue;
@@ -54,15 +54,14 @@ export class ForeignKeyCreator {
     async initializeModelRelations(modelName, fks, models, mongoD) {
         const model = mongoD.models[modelName];
         const relations = {};
-        const findIds = new Set();
 
         await Promise.all(
             models.map(async (modelObj) => {
-                relations[modelObj._id] = await this.processModelRelations(modelObj, fks, findIds);
+                relations[modelObj._id] = await this.processModelRelations(modelObj, fks);
             })
         );
 
-        return { model, relations, findIds};
+        return { model, relations};
     }
 
     /**
