@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import { deleteFromMongoose } from "../utils.js";
 import { cleanDb, disconnectDb } from "./utils.js";
 
+/***************************DROP COLLECTION IS NOT WORKING**************************************/
 
 describe("Mongo model creation", () => {
     let testSchema;
@@ -129,7 +130,7 @@ describe("Mongo model creation", () => {
 
     it("should handle deletion of foreign key metadata when model is removed", async () => {
         const TestModel = await mongoD.MongoModel("TestModel", relatedSchema);
-        console.log(TestModel);
+        await TestModel.create({title: "test"});
         await TestModel.dropCollection();
 
         expect(Object.entries(mongoD.models)).toHaveLength(0);
