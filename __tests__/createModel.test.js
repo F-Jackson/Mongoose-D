@@ -1,8 +1,7 @@
 import { describe, it, beforeEach, expect } from "vitest";
 import mongoose from "mongoose";
-import { _FKS_MODEL_, _FKS_ } from "../models.js";
 import { deleteFromMongoose } from "../utils.js";
-import { disconnectDb } from "./utils.js";
+import { cleanDb, disconnectDb } from "./utils.js";
 
 
 describe("Mongo model creation", () => {
@@ -175,6 +174,7 @@ describe("Mongo model creation", () => {
                 "nestedField2.po2.subField",
                 "nestedField2.po2.arrayTest",
                 "lo",
+                "_FKS",
                 "_id",
                 "__v"
             ]
@@ -191,6 +191,7 @@ describe("Mongo model creation", () => {
                 "nestedField2.po2.subField",
                 "nestedField2.po2.arrayTest",
                 "lo",
+                "_FKS",
                 "_id",
                 "__v"
             ]
@@ -236,7 +237,7 @@ describe("Mongo model creation", () => {
 
         expect(nestedSchema).toHaveProperty("__properties");
         const propertiesKeys = Object.entries(nestedSchema.__properties).map(([key, _]) => key);
-        expect(propertiesKeys).toHaveLength(8);
+        expect(propertiesKeys).toHaveLength(9);
         expect(propertiesKeys).toMatchObject(
             [
                 "nestedField.subField",
@@ -246,16 +247,18 @@ describe("Mongo model creation", () => {
                 "nestedField2.po2.subField",
                 "nestedField2.po2.arrayTest",
                 "lo",
+                "_FKS",
                 "_id",
             ]
         );
 
         expect(nestedSchema2).toHaveProperty("__properties");
         const propertiesKeys2 = Object.entries(nestedSchema2.__properties).map(([key, _]) => key);
-        expect(propertiesKeys2).toHaveLength(2);
+        expect(propertiesKeys2).toHaveLength(3);
         expect(propertiesKeys2).toMatchObject(
             [
                 "isolated",
+                "_FKS",
                 "_id",
             ]
         );

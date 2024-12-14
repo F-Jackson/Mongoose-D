@@ -12,7 +12,7 @@ export const cleanDb = async () => {
     const uri = mongoServer.getUri();
     await mongoose.connect(uri, {
         //useNewUrlParser: true,
-        useUnifiedTopology: true,
+        //useUnifiedTopology: true,
     });
 
     const collections = await mongoose.connection.db.listCollections().toArray();

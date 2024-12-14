@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import { ForeignKeyProcessor } from "./generateModel.js";
-import { _FKS_, _FKS_MODEL_ } from "./models.js";
-import { getFuncs, changeCreation, changeDeletion, changeDrop } from "./changeFuncs.js";
+import { RelationSchema } from "./models.js";
+import { getFuncs, changeCreation, changeDrop } from "./changeFuncs.js";
 import { deleteFromMongoose } from "./utils.js";
 
 
@@ -44,6 +44,8 @@ export class InitMongoModels {
     }
 
     NewSchema(obj, options) {
+        obj["_FKS"] = RelationSchema;
+
         // Criar uma cópia simples do mongoose.Schema
         const mongoSchema = class extends mongoose.Schema {};
 
