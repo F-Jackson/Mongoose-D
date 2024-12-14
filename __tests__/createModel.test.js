@@ -5,13 +5,14 @@ import { cleanDb, disconnectDb } from "./utils.js";
 
 
 describe("Mongo model creation", () => {
-    let testSchema = undefined;
-    let relatedSchema = undefined;
-    let mongoD = undefined;
+    let testSchema;
+    let relatedSchema;
+    let mongoD;
     let mongoServer;
+    let client;
 
     beforeEach(async () => {
-        [mongoD, mongoServer] = await cleanDb(vi);
+        [mongoD, mongoServer, client] = await cleanDb(vi);
 
         relatedSchema = mongoD.NewSchema({
             title: { type: String, required: true },
@@ -129,8 +130,7 @@ describe("Mongo model creation", () => {
     it("should handle deletion of foreign key metadata when model is removed", async () => {
         const TestModel = await mongoD.MongoModel("TestModel", relatedSchema);
 
-        let db = mongoose.connection.db;
-        let collections = await db.listCollections().toArray();
+        let collections = await client.listCollections().toArray();
         expect(collections.map(col => col.name)).toHaveLength(1);
         expect(collections.map(col => col.name)).toContain("testmodels");
 
@@ -634,14 +634,14 @@ describe("Mongo model creation", () => {
         });
 
         expect((await RelatedModel.find({}))).toHaveLength(1);
-        let db = mongoose.connection.db;
-        let collections = await db.listCollections().toArray();
+
+        let collections = await client.listCollections().toArray();
         expect(collections.map(col => col.name)).toHaveLength(1);
         expect(collections.map(col => col.name)).toContain("relatedmodels");
 
         await RelatedModel.dropCollection();
         db = mongoose.connection.db;
-        collections = await db.listCollections().toArray();
+        collections = await client.listCollections().toArray();
         expect(collections.map(col => col.name)).toHaveLength(0);
         expect(collections.map(col => col.name)).not.toContain("relatedmodels");
 
@@ -653,7 +653,7 @@ describe("Mongo model creation", () => {
         });
         expect((await RelatedModel2.find({}))).toHaveLength(1);
         db = mongoose.connection.db;
-        collections = await db.listCollections().toArray();
+        collections = await client.listCollections().toArray();
         expect(collections.map(col => col.name)).toHaveLength(1);
         expect(collections.map(col => col.name)).toContain("relatedmodels");
     });
@@ -664,8 +664,7 @@ describe("Mongo model creation", () => {
             title: "test"
         });
         expect((await RelatedModel.find({}))).toHaveLength(1);
-        let db = mongoose.connection.db;
-        let collections = await db.listCollections().toArray();
+        let collections = await client.listCollections().toArray();
         expect(collections.map(col => col.name)).toHaveLength(1);
         expect(collections.map(col => col.name)).toContain("relatedmodels");
 
@@ -673,7 +672,7 @@ describe("Mongo model creation", () => {
         delete mongoD.models["RelatedModel"];
 
         db = mongoose.connection.db;
-        collections = await db.listCollections().toArray();
+        collections = await client.listCollections().toArray();
         expect(collections.map(col => col.name)).toHaveLength(1);
         expect(collections.map(col => col.name)).toContain("relatedmodels");
 
@@ -690,7 +689,7 @@ describe("Mongo model creation", () => {
 
         expect(models).toHaveLength(2);
         db = mongoose.connection.db;
-        collections = await db.listCollections().toArray();
+        collections = await client.listCollections().toArray();
         expect(collections.map(col => col.name)).toHaveLength(1);
         expect(collections.map(col => col.name)).toContain("relatedmodels");
         expect(models).toMatchObject([

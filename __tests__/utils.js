@@ -13,7 +13,7 @@ export const cleanDb = async (vi) => {
         },
     });
     const uri = mongoServer.getUri();
-    await mongoose.connect(uri, {
+    const client = await mongoose.connect(uri, {
         //useNewUrlParser: true,
         //useUnifiedTopology: true,
     });
@@ -29,7 +29,7 @@ export const cleanDb = async (vi) => {
         delete mongoose.models[model];
     }
 
-    return [new InitMongoModels(), mongoServer];
+    return [new InitMongoModels(), mongoServer, client];
 };
 
 export const disconnectDb = async (mongoServer) => {
