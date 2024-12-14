@@ -40,7 +40,7 @@ export class ForeignKeyCreator {
                     returnValue["id"] = value._id;
                 } else {
                     returnValue["id"] = value;
-                    findIds.add(value.toString());
+                    findIds.add(value);
                 }
 
                 return returnValue;
