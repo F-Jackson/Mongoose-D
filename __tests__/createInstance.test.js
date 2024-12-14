@@ -1,21 +1,13 @@
 import { describe, it, beforeEach, expect } from "vitest";
 import mongoose from "mongoose";
 import { _FKS_, _FKS_MODEL_ } from "../models.js";
-import { InitMongoModels, MongoModel } from "../mongoClass.js";
-import { ForeignKeyCreator } from "../creation.js";
-
-
-const connectMongoDb = async function connect(url) {
-    const mongoOptions = {
-        serverSelectionTimeoutMS: 5000,
-    };
-
-    return await mongoose.connect(url, mongoOptions);
-};
+import { MongoModel } from "../mongoClass.js";
 
 describe("Mongo instance creation", () => {
     let mongoD = undefined;
     let mongoServer;
+    let testSchema;
+    let relatedSchema;
 
     beforeEach(async () => {
         [mongoD, mongoServer] = await cleanDb(mongoServer, mongoD);
@@ -25,7 +17,21 @@ describe("Mongo instance creation", () => {
         await disconnectDb(mongoServer, vi);
     });
 
-    it("should create fk in database", async () => {
+    it("should create fk", async () => {
+        testSchema = mongoD.NewSchema({
+            title: { type: String, required: true },
+            related: {
+                type: mongoD.Schema.Types.ObjectId,
+                ref: "RelatedModel",
+                required: true,
+                unique: true,
+                immutable: true
+            }
+        });
+        relatedSchema = mongoD.NewSchema({
+            title: { type: String, required: true },
+        });
+
         const TestModel = await MongoModel("TestModel", testSchema);
         const RelatedModel = await MongoModel("RelatedModel", relatedSchema);
 
