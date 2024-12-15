@@ -79,42 +79,27 @@ export class ForeignKeyCreator {
         if (!Array.isArray(models)) models = [models];
         const fkEntries = Object.entries(this.mongoModel._FKS);
 
-        /*
-        await this.processAllRelations(fkEntries, models);
-        console.log(`||  TO  ||:  ${JSON.stringify(this.to)}`);
-        console.log(`||  FROM  ||:  ${JSON.stringify(this.from)}`);*/
-
         const e = {};
+        const p = {};
 
         await Promise.all(
             fkEntries.map(async ([modelName, fks]) => {
-                /*this.to[modelName] = {
-                    model: this.mongoD.models[modelName],
-                    //fks: fks,
-                    ids: {}
-                };
-
-                //this.from[this.modelName]["fks"] = fks;
-                
-                await this.initializeModelRelations(
-                    fks, 
-                    models
-                );*/
+                p[modelName] = {};
                 e[modelName] = await Promise.all(fks.map(async (fk) => {
                     return fk.path;
                 }));
             })
         );
 
-        console.log(e);
-
         await Promise.all(
             models.map(async (modelObj) => {
-                const fkValues = await this.processModelRelations(modelObj, fks);
-
-                this.from[this.modelName]["ids"][modelObj._id] = [ ...fkValues ];
+                Object.entries(e).map(async ([k, v]) => {
+                    p[k][modelObj._id] = {};
+                    v.forEach(async (o) => p[k][modelObj._id][o] = (await this.getNestedProperty(modelObj, o))._id);
+                });
             })
         );
+        console.log(e, p);
     }
 
     async _bulkInsertRelations(relations) {
