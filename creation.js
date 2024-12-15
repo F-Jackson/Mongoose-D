@@ -81,7 +81,9 @@ export class ForeignKeyCreator {
 
         const e = {};
         const p = {};
-        const l = {};
+        const l = {
+            [`${this.modelName}`]: {}
+        };
 
         await Promise.all(
             fkEntries.map(async ([modelName, fks]) => {
@@ -96,11 +98,11 @@ export class ForeignKeyCreator {
             models.map(async (modelObj) => {
                 Object.entries(e).map(async ([k, v]) => {
                     p[k][modelObj._id] = {};
-                    v.forEach(async (o) => p[k][modelObj._id][o] = (await this.getNestedProperty(modelObj, o))._id);
+                    v.forEach(async (o) => p[k][modelObj._id][o.join(".")] = (await this.getNestedProperty(modelObj, o))._id);
                 });
             })
         );
-        console.log(e, p);
+        console.log(p, l);
     }
 
     async _bulkInsertRelations(relations) {
