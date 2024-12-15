@@ -62,16 +62,16 @@ export class ForeignKeyCreator {
             fkEntries.map(async ([modelName, fks]) => {
                 this.to[modelName] = {
                     model: this.mongoD.models[modelName],
-                    fks: fks,
+                    //fks: fks,
                     ids: {}
                 };
 
-                this.from[this.modelName]["fks"] = fks;
-                /*
+                //this.from[this.modelName]["fks"] = fks;
+                
                 await this.initializeModelRelations(
                     fks, 
                     models
-                );*/
+                );
             })
         );
 
