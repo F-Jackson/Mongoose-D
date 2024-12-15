@@ -43,7 +43,6 @@ export class ForeignKeyCreator {
         await Promise.all(
             models.map(async (modelObj) => {
                 const fkValues = await this.processModelRelations(modelObj, fks);
-                console.log(fkValues, modelObj._id);
 
                 this.from[this.modelName]["ids"][modelObj._id] = [ ...fkValues ];
             })
@@ -60,7 +59,6 @@ export class ForeignKeyCreator {
 
         await Promise.all(
             fkEntries.map(async ([modelName, fks]) => {
-
                 this.to[modelName] = {
                     model: this.mongoD.models[modelName],
                     ids: {}
