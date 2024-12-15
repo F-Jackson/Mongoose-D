@@ -9,7 +9,8 @@ export class ForeignKeyCreator {
         this.to = {};
         this.from = {
             [`${this.modelName}`]: {
-
+                model: this.mongoD.models[this.modelName],
+                ids: {}
             }
         };
     }
@@ -67,7 +68,7 @@ export class ForeignKeyCreator {
             })
         );
 
-        return { model, relations};
+        //return { model, relations};
     }
 
     /**
