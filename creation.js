@@ -81,6 +81,7 @@ export class ForeignKeyCreator {
 
         const e = {};
         const p = {};
+        const l = {};
 
         await Promise.all(
             fkEntries.map(async ([modelName, fks]) => {
