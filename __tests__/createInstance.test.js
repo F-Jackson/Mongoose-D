@@ -25,9 +25,9 @@ describe("Mongo instance creation", () => {
                 required: true,
                 immutable: true
             },
-            related2: {
+            po2: {
                 type: mongoD.Schema.Types.ObjectId,
-                ref: "RelatedModel",
+                ref: "POModel",
                 required: true,
                 immutable: true
             }
@@ -44,12 +44,12 @@ describe("Mongo instance creation", () => {
             { 
                 title: "Test", 
                 related: related,
-                related2: new mongoose.Types.ObjectId()
+                po2: new mongoose.Types.ObjectId()
             },
             { 
                 title: "Test2", 
                 related: related,
-                related2: new mongoose.Types.ObjectId()
+                po2: new mongoose.Types.ObjectId()
             }
         ]);
     });

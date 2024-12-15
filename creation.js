@@ -5,6 +5,13 @@ export class ForeignKeyCreator {
         this.mongoModel = mongoModel;
         this.modelName = mongoModel.modelName;
         this.mongoD = mongoD;
+
+        this.to = {};
+        this.from = {
+            [`${this.modelName}`]: {
+
+            }
+        };
     }
 
     async _creationFks(instance) {
@@ -51,8 +58,7 @@ export class ForeignKeyCreator {
     /**
      * Inicializa as relações para um modelo específico
      */
-    async initializeModelRelations(modelName, fks, models, mongoD) {
-        const model = mongoD.models[modelName];
+    async initializeModelRelations(fks, models) {
         const relations = {};
 
         await Promise.all(
@@ -67,12 +73,21 @@ export class ForeignKeyCreator {
     /**
      * Processa todas as entradas (fkEntries) para gerar as relações
      */
-    async processAllRelations(fkEntries, models, mongoD) {
+    async processAllRelations(fkEntries, models) {
         const modelsRelations = {};
 
         await Promise.all(
             fkEntries.map(async ([modelName, fks]) => {
-                modelsRelations[modelName] = await this.initializeModelRelations(modelName, fks, models, mongoD);
+
+                this.to[modelName] = {
+                    model: this.mongoD.models[modelName],
+                    ids: {}
+                };
+
+                await this.initializeModelRelations(
+                    fks, 
+                    models
+                );
             })
         );
 
@@ -83,9 +98,20 @@ export class ForeignKeyCreator {
         if (!Array.isArray(models)) models = [models];
         const fkEntries = Object.entries(this.mongoModel._FKS);
 
-        const modelsRelations = await this.processAllRelations(fkEntries, models, this.mongoD);
+        await this.processAllRelations(fkEntries, models);
+        console.log(`||  TO  ||:  ${this.to}`);
+        console.log(`||  FROM  ||:  ${this.from}`);
 
-        console.log(modelsRelations);
+        /*
+        Object.entries(modelsRelations).forEach(async ([key, value]) => {
+            Object.entries(value.relations).map(async ([key2, value2]) => {
+                value.model.BulkInsert({
+                    id: key2,
+                    _Fks += value2
+                });
+            })
+        });
+        */
         return;
 
         try {

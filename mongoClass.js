@@ -44,7 +44,7 @@ export class InitMongoModels {
     }
 
     NewSchema(obj, options) {
-        obj["_FKS"] = RelationSchema;
+        obj["_FKS"] = [];
 
         // Criar uma cópia simples do mongoose.Schema
         const mongoSchema = class extends mongoose.Schema {};
