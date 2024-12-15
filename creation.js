@@ -100,8 +100,8 @@ export class ForeignKeyCreator {
         const fkEntries = Object.entries(this.mongoModel._FKS);
 
         await this.processAllRelations(fkEntries, models);
-        console.log(`||  TO  ||:  ${this.to}`);
-        console.log(`||  FROM  ||:  ${this.from}`);
+        console.log(`||  TO  ||:  ${JSON.stringify(this.to)}`);
+        console.log(`||  FROM  ||:  ${JSON.stringify(this.from)}`);
 
         /*
         Object.entries(modelsRelations).forEach(async ([key, value]) => {
